@@ -1,4 +1,4 @@
-package org.scoula.ssubom;
+package swyp_11.ssubom;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

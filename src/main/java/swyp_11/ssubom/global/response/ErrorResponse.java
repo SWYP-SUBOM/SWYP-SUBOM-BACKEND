@@ -1,7 +1,7 @@
-package org.scoula.ssubom.global.response;
+package swyp_11.ssubom.global.response;
 
 import lombok.Getter;
-import org.scoula.ssubom.global.error.ErrorCode;
+import swyp_11.ssubom.global.error.ErrorCode;
 
 @Getter
 public class ErrorResponse {

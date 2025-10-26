@@ -1,8 +1,8 @@
-package org.scoula.ssubom.testExceptionHandling;
+package swyp_11.ssubom.testExceptionHandling;
 
-import org.scoula.ssubom.global.error.BusinessException;
-import org.scoula.ssubom.global.error.ErrorCode;
-import org.scoula.ssubom.global.response.ApiResponse;
+import swyp_11.ssubom.global.error.BusinessException;
+import swyp_11.ssubom.global.error.ErrorCode;
+import swyp_11.ssubom.global.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 

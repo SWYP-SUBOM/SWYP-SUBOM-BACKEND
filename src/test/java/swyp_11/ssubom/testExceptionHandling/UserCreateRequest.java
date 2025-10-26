@@ -1,4 +1,4 @@
-package org.scoula.ssubom.testExceptionHandling;
+package swyp_11.ssubom.testExceptionHandling;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

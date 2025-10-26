@@ -1,4 +1,4 @@
-package org.scoula.ssubom.global.swagger;
+package swyp_11.ssubom.global.swagger;
 
 
 import io.swagger.v3.oas.models.OpenAPI;

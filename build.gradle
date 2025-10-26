@@ -4,7 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'org.scoula'
+group = 'swyp_11'
 version = '0.0.1-SNAPSHOT'
 description = 'ssubom'
 
@@ -36,15 +36,13 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // --- main runtime ---
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
 
-    // --- testing ---
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+
+
+
+
 
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'

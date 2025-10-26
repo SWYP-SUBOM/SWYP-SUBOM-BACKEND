@@ -1,11 +1,13 @@
-package org.scoula.ssubom.global.error;
+package swyp_11.ssubom.global.error;
 
-import org.scoula.ssubom.global.response.*;
+import swyp_11.ssubom.global.response.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import swyp_11.ssubom.global.response.ApiResponse;
+import swyp_11.ssubom.global.response.ErrorResponse;
 
 // 모든 controller들을 위한 global handler
 @Slf4j

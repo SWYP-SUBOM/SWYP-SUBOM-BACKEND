@@ -1,4 +1,4 @@
-package org.scoula.ssubom.domain.test.controller;
+package swyp_11.ssubom.domain.test.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

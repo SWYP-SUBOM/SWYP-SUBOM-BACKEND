@@ -1,6 +1,5 @@
-package org.scoula.ssubom.global.response;
+package swyp_11.ssubom.global.response;
 
-import org.scoula.ssubom.global.response.ErrorResponse;
 import lombok.Getter;
 
 @Getter

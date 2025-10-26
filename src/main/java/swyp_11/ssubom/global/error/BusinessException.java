@@ -1,4 +1,4 @@
-package org.scoula.ssubom.global.error;
+package swyp_11.ssubom.global.error;
 import lombok.Getter;
 
 @Getter

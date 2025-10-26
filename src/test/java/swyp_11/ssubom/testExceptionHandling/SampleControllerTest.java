@@ -1,17 +1,15 @@
-package org.scoula.ssubom.testExceptionHandling;// src/test/java/org/scoula/ssubom/sample/SampleControllerTest.java
+package swyp_11.ssubom.testExceptionHandling;// src/test/java/org/scoula/ssubom/sample/SampleControllerTest.java
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.scoula.ssubom.global.error.GlobalExceptionHandler;
+import swyp_11.ssubom.global.error.GlobalExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import org.scoula.ssubom.testExceptionHandling.SampleController;
-import org.scoula.ssubom.testExceptionHandling.UserCreateRequest;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import org.springframework.security.test.context.support.WithMockUser;
 

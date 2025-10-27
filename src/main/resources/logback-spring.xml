@@ -1,0 +1,51 @@
+<configuration>
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <springProfile name="dev">
+        <logger name="swyp_11.ssubom" level="debug" additivity="false">
+            <appender-ref ref="STDOUT"/>
+        </logger>
+
+        <logger name="org.springframework" level="info"/>
+        <logger name="org.springframework.boot" level="info"/>
+        <logger name="org.springframework.web" level="info"/>
+        <logger name="org.springframework.security" level="warn"/>
+        <logger name="org.hibernate" level="warn"/>
+        <logger name="org.hibernate.validator" level="warn"/>
+        <logger name="org.apache.tomcat" level="warn"/>
+        <logger name="org.apache.catalina" level="warn"/>
+        <logger name="org.apache.coyote" level="warn"/>
+        <logger name="org.jboss" level="warn"/>
+        <logger name="sun.rmi" level="warn"/>
+        <logger name="io.micrometer" level="warn"/>
+        <logger name="org.springdoc" level="warn"/>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/${appName:-ssubom}.json</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/archived/${appName:-ssubom}-%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        </appender>
+        <logger name="org.hibernate" level="warn" />
+        <root>
+            <appender-ref ref="JSON_FILE" />
+        </root>
+    </springProfile>
+
+</configuration>

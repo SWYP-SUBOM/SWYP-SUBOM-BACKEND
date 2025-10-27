@@ -31,6 +31,7 @@ gradle-app.setting
 !gradle-wrapper.jar
 
 # 환경 설정 파일 (민감한 정보 포함)
+application.properties
 application-local.yml
 application-local.properties
 application-secret.yml

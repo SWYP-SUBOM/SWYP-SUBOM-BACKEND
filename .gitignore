@@ -50,3 +50,6 @@ application-secret.properties
 !/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+# Temporary added
+src/main/java/swyp_11/ssubom/writing

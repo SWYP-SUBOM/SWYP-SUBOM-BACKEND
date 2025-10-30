@@ -29,7 +29,7 @@ Thumbs.db
 .gradle/
 gradle-app.setting
 !gradle-wrapper.jar
-
+build/resources/main/application.properties
 # 환경 설정 파일 (민감한 정보 포함)
 src/main/resources/application.properties
 application-local.yml
@@ -47,9 +47,13 @@ application-secret.properties
 *.jar
 *.war
 *.ear
+*.zip
+*.tar.gz
+*.rar
 !/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+
 
 # Temporary added
 src/main/java/swyp_11/ssubom/writing

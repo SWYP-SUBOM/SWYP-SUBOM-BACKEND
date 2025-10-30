@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -12,7 +11,7 @@ import swyp_11.ssubom.global.security.dto.CustomOAuth2User;
 import swyp_11.ssubom.global.security.dto.KaKaoResponse;
 import swyp_11.ssubom.global.security.dto.OAuth2Response;
 import swyp_11.ssubom.global.security.dto.userDTO;
-import swyp_11.ssubom.global.security.entity.UserEntity;
+import swyp_11.ssubom.global.security.entity.User;
 import swyp_11.ssubom.global.security.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -40,11 +39,11 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         System.out.println(oAuth2Response);
 
-        UserEntity existData = userRepository.findByKakaoId(oAuth2Response.getProviderId());
+        User existData = userRepository.findByKakaoId(oAuth2Response.getProviderId());
 
         //새로 생성
         if (existData == null) {
-            UserEntity user = new UserEntity();
+            User user = new User();
             user.setKakaoId(oAuth2Response.getProviderId());
             user.setEmail(oAuth2Response.getEmail());
             user.setUserName(oAuth2Response.getName());

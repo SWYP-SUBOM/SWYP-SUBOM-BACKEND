@@ -1,6 +1,5 @@
 package swyp_11.ssubom.global.security.handler;
 
-import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,9 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import swyp_11.ssubom.global.security.dto.CustomOAuth2User;
-import swyp_11.ssubom.global.security.entity.UserEntity;
+import swyp_11.ssubom.global.security.entity.User;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
-import swyp_11.ssubom.global.security.repository.RefreshRepository;
 import swyp_11.ssubom.global.security.repository.UserRepository;
 import swyp_11.ssubom.global.security.service.RefreshTokenService;
 import swyp_11.ssubom.global.security.util.CookieUtil;
@@ -38,7 +36,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String role = authentication.getAuthorities().iterator().next().getAuthority();
         String username ; //실제 이름
 
-        UserEntity userEntity = userRepository.findByKakaoId(kakaoId);
+        User userEntity = userRepository.findByKakaoId(kakaoId);
 
 
         if(!userEntity.getUserName().equals("no")) {

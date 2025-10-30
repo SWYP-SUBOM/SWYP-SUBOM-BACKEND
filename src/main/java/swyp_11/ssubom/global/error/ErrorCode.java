@@ -32,7 +32,7 @@ public enum ErrorCode {
 
     // Topic errors
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "카테고리를 찾을 수 없습니다."),
-    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "T002", "질문을 찾을 수 없습니다."),
+    TOPIC_NOT_FOUND(HttpStatus.NOT_FOUND, "T002", "질문을 찾을 수 없습니다."),
 
 
     // Writing errors (API 명세 기반)

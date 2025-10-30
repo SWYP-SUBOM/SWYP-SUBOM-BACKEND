@@ -96,7 +96,7 @@ public class GlobalExceptionHandler {
     // 7. 그 외 모든 예외 처리 (최후의 보루)
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ApiResponse<?>> handleException(Exception e) {
-        // 중요: 예측하지 못한 예외는 Error 레벨로 로그를 남깁니다.
+        // 중요: 예측하지 못한 예외는 Error 레벨로 로그.
         log.error("UnhandledException: {}", e.getMessage(), e);
         ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
 

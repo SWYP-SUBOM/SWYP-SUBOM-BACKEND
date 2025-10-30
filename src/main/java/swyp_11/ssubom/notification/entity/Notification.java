@@ -25,7 +25,6 @@ public class Notification {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    // 스키마가 문자열을 요구
     @Column(name = "reaction_type", length = 10)
     private String reactionType;
 

@@ -1,5 +1,6 @@
 package swyp_11.ssubom.global.security.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import swyp_11.ssubom.global.response.ApiResponse;
 import swyp_11.ssubom.global.security.service.NameService;
 
+
+@Tag(name = "UserName", description = "사용자이름 관련 API")
 @RequiredArgsConstructor
 @RestController
 public class NamingController {

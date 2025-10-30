@@ -78,10 +78,14 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth->auth
                         .requestMatchers("/assets/**", "/favicon.ico", "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**",
-                                "/webjars/**", "/swagger", "/index.html","/api-docs/**","/images/logo.png").permitAll()
+                                "/webjars/**", "/swagger/**","/api-docs/**","/images/logo.png","/v3/api-docs/**").permitAll()
+                        .requestMatchers("/auth","/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue","api/categories","api/home").permitAll()
+                        .requestMatchers("/api/my").hasRole("USER")
+                        .requestMatchers("/api/writings/**").hasRole("USER")
+                        .requestMatchers("/api/feeds/**").hasRole("USER")
+                        .requestMatchers("/api/notifications").hasRole("USER")
+                        .requestMatchers("/api/categories").hasRole("USER")
 
-                        .requestMatchers("/auth","/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue").permitAll()
-                        .requestMatchers("/api/naming").hasRole("USER")
                         .anyRequest().authenticated());
 
         return http.build();

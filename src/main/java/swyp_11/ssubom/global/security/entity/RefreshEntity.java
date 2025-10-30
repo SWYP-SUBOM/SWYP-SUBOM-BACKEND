@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -17,10 +19,10 @@ public class RefreshEntity {
     private Long refreshId;
     private String kakaoId;
     private String refreshValue;
-    private String expiration;
+    private LocalDateTime expiration;
 
     @Builder
-    public RefreshEntity(String kakaoId, String refresh, String expiration) {
+    public RefreshEntity(String kakaoId, String refresh, LocalDateTime expiration ) {
         this.kakaoId = kakaoId;
         this.refreshValue = refresh;
         this.expiration = expiration;

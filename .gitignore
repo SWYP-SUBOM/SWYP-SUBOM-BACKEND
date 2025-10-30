@@ -1,25 +1,62 @@
-# Compiled class file
+HELP.md
+
+# 컴파일된 클래스 파일
 *.class
+target/
+out/
+build/
 
-# Log file
+# 로그 파일
 *.log
+logs/
 
-# BlueJ files
-*.ctxt
+# IDE 설정 파일
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# OS 생성 파일
+.DS_Store
+Thumbs.db
 
-# Package Files #
+# 빌드 도구
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# 환경 설정 파일 (민감한 정보 포함)
+src/main/resources/application.properties
+application-local.yml
+application-local.properties
+application-secret.yml
+application-secret.properties
+
+# 임시 파일
+*.tmp
+*.bak
+*.swp
+*~
+
+# 패키지 파일
 *.jar
 *.war
-*.nar
 *.ear
+<<<<<<< HEAD
 *.zip
 *.tar.gz
 *.rar
 src/main/resources/application.properties
+=======
+!/.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+>>>>>>> c0b054a86dc1513894aa73e7e440408e6641bece
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Temporary added
+src/main/java/swyp_11/ssubom/writing

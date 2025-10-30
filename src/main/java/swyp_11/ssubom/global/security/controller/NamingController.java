@@ -18,14 +18,14 @@ public class NamingController {
 
    private final NameService nameService;
 
-    @PostMapping("/naming")
+    @PostMapping("/api/naming")
     public ApiResponse<Void> naming(@RequestParam String name , @AuthenticationPrincipal OAuth2User user ) {
         String kakaoId = user.getAttribute("kakaoId");
          nameService.saveName(kakaoId,name);
         return ApiResponse.success(null);
     }
 
-    @GetMapping("/naming")
+    @GetMapping("/api/naming")
     public ApiResponse<String> naming(@AuthenticationPrincipal OAuth2User user) {
         String kakaoId = user.getAttribute("kakaoId");
         return ApiResponse.success(nameService.getName(kakaoId));

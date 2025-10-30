@@ -16,7 +16,7 @@ import swyp_11.ssubom.global.security.service.reissueService;
 public class ReissueController {
     private final reissueService reissueService;
 
-    @PostMapping("/reissue")
+    @PostMapping("/api/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         return reissueService.reissue(request, response);
     }

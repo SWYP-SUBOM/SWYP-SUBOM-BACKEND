@@ -52,7 +52,8 @@ public class reissueService {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
-        String newAccess = jwtUtil.createJWT("access", kakaoId, role, 60 * 10 * 1000L);
+        //todo 엑세스시간 refresh 시간 변경
+        String newAccess = jwtUtil.createJWT("access", kakaoId, role, 60 * 60 * 1000L);
         Integer expiredS = 60 * 60 * 24;
         String newRefresh = jwtUtil.createJWT("refresh", kakaoId, role, expiredS * 1000L);
 

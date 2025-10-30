@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.global.security.entity.RefreshEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -16,4 +17,6 @@ public interface RefreshRepository extends JpaRepository<RefreshEntity,Long> {
 
     @Transactional
     void deleteByRefreshValue(String refreshValue);
+
+    long deleteByExpirationBefore(LocalDateTime now);
 }

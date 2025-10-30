@@ -36,20 +36,18 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-
-    //jwt
+    // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
-
-
+    // valid
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-
-
+    // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
-
+    // log
     implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
+    // operation
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {

@@ -43,11 +43,11 @@ public class SecurityConfig {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
                 configuration.setAllowedMethods(Collections.singletonList("*"));
-                configuration.setAllowCredentials(true); // 쿠키 포함 허용
-                configuration.setAllowedHeaders(Collections.singletonList("*")); // 모든 헤더 허용
-                configuration.setExposedHeaders(List.of("access", "Authorization", "set-Cookie")); // 응답에서 노출할 헤더
+                configuration.setAllowCredentials(true);
+                configuration.setAllowedHeaders(Collections.singletonList("*"));
+                configuration.setExposedHeaders(Collections.singletonList("access"));
                 configuration.setMaxAge(3600L);
                 return configuration;
             }
@@ -62,9 +62,11 @@ public class SecurityConfig {
 
         http.httpBasic(auth->auth.disable());
 
-        http.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
+        http.
+                addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
 
-        http.addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository), LogoutFilter.class);
+        http.
+                addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository), LogoutFilter.class);
 
         http.
                 oauth2Login((oauth2)->oauth2
@@ -78,6 +80,7 @@ public class SecurityConfig {
                         .requestMatchers("/assets/**", "/favicon.ico", "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**",
                                 "/webjars/**", "/swagger", "/index.html","/api-docs/**","/images/logo.png").permitAll()
                         .requestMatchers("/auth","/","/login","/join","/logout","/oauth2-jwt-header","/reissue").permitAll()
+                        .requestMatchers("/naming").hasRole("USER")
                         .anyRequest().authenticated());
 
         return http.build();

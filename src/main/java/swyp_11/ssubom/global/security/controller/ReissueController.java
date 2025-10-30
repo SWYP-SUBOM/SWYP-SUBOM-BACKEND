@@ -7,9 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import swyp_11.ssubom.global.security.service.reissueService;
 
-@Controller
+@RestController
 @ResponseBody
 @RequiredArgsConstructor
 public class ReissueController {

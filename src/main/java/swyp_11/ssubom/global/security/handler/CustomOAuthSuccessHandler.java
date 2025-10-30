@@ -34,14 +34,12 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
         String kakaoId = customOAuth2User.getKakaoId();
-        System.out.println("🙊 kakao ID :"+kakaoId);
+
         String role = authentication.getAuthorities().iterator().next().getAuthority();
         String username ; //실제 이름
 
-
         UserEntity userEntity = userRepository.findByKakaoId(kakaoId);
 
-        System.out.println("⭐username in db = " + userEntity.getUserName());
 
         if(!userEntity.getUserName().equals("no")) {
             username = userEntity.getUserName();
@@ -56,7 +54,6 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String refresh =jwtUtil.createJWT("refresh",kakaoId,role,expireS * 1000L);
 
         refreshTokenService.saveRefresh(kakaoId,refresh,expireS);
-
         response.addCookie(CookieUtil.createCookie("access",access,60*10));
         response.addCookie(CookieUtil.createCookie("refresh", refresh, expireS));
 

@@ -32,8 +32,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response = null;
 
-        System.out.println(oAuth2User);
-        System.out.println("AccessToken = " + userRequest.getAccessToken().getTokenValue());
+//        System.out.println("❇️ AccessToken = " + userRequest.getAccessToken().getTokenValue());
 
         if (registrationId.equals("kakao")) {
             oAuth2Response = new KaKaoResponse(oAuth2User.getAttributes());
@@ -62,12 +61,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         }
         else {
             existData.setEmail(oAuth2Response.getEmail());
-            existData.setUserName(oAuth2Response.getName());
+            existData.setUserName(existData.getUserName());
 
             userRepository.save(existData);
 
             userDTO userDTO = new userDTO();
-            userDTO.setUserName(oAuth2Response.getName());
+            userDTO.setUserName(existData.getUserName());
             userDTO.setRole(existData.getRole());
             userDTO.setKakaoId(existData.getKakaoId());
 

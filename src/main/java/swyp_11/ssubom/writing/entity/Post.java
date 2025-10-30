@@ -1,9 +1,13 @@
-package swyp_11.ssubom.writing.domain;
+package swyp_11.ssubom.writing.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,18 +31,29 @@ public class Post {
     @Column(name = "content")
     private String content;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private String status; //DRAFT, PUBLISHED
 
     @Column(name = "is_revised")
     private boolean isRevised;
 
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "nickname", length = 100)
+    private String nickname;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reaction> reactions = new ArrayList<>();
+
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private AIFeedback aiFeedback;
 
     @Builder
     public Post(User user, Topic topic, String content, String status, boolean isRevised) {

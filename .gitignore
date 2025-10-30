@@ -47,16 +47,14 @@ application-secret.properties
 *.jar
 *.war
 *.ear
-<<<<<<< HEAD
 *.zip
 *.tar.gz
 *.rar
 src/main/resources/application.properties
-=======
 !/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
->>>>>>> c0b054a86dc1513894aa73e7e440408e6641bece
+
 
 # Temporary added
 src/main/java/swyp_11/ssubom/writing

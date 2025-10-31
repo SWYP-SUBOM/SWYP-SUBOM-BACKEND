@@ -10,6 +10,8 @@ import swyp_11.ssubom.global.error.ErrorCode;
 import swyp_11.ssubom.global.security.repository.UserRepository;
 import swyp_11.ssubom.topic.entity.Topic;
 import swyp_11.ssubom.user.entity.User;
+import swyp_11.ssubom.writing.dto.WritingUpdateRequest;
+import swyp_11.ssubom.writing.dto.WritingUpdateResponse;
 import swyp_11.ssubom.writing.entity.Post;
 import swyp_11.ssubom.writing.dto.WritingCreateRequest;
 import swyp_11.ssubom.writing.dto.WritingCreateResponse;
@@ -36,10 +38,9 @@ public class WritingServiceImpl implements WritingService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         Topic topic = topicRepository.findById(request.getTopicId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
-        AIFeedback feedBack = null;
-
+        AIFeedback aiFeedBack = null;
         if (request.getAiFeedbackId() != null) {
-            feedBack = aiFeedbackRepository.findById(request.getAiFeedbackId())
+            aiFeedBack = aiFeedbackRepository.findById(request.getAiFeedbackId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
         }
 
@@ -62,5 +63,28 @@ public class WritingServiceImpl implements WritingService {
         }
 
         throw new BusinessException(ErrorCode.NICKNAME_GENERATION_FAILED);
+    }
+
+    @Override
+    public WritingUpdateResponse updateWriting(Long userId, Long postId, WritingUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        AIFeedback aiFeedback = null;
+        if (request.getAiFeedbackId() == null) {
+            return WritingUpdateResponse
+        }
+        aiFeedback = aiFeedbackRepository.findById(request.getAiFeedbackId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
+
+        // 1st. ai feedback 받았는지 여부 체크
+        //     -> ㅇㅇ: 3rd
+        //     -> ㄴㄴ: (받기 클릭시) draft 수정
+        // 2. 바로 작성 완료: published
+        // 3. 보완하기 클릭: published상태에서 보완여부 체크
+        // 4. 보완하기 후 작성완료: published 상태에서 수정
+
+        if ()
     }
 }

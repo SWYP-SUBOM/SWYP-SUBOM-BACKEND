@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import swyp_11.ssubom.global.response.ApiResponse;
 import swyp_11.ssubom.writing.dto.WritingCreateRequest;
 import swyp_11.ssubom.writing.dto.WritingCreateResponse;
+import swyp_11.ssubom.writing.dto.WritingUpdateResponse;
 import swyp_11.ssubom.writing.service.WritingService;
 
 @Slf4j
@@ -41,5 +42,12 @@ public class WritingController {
                 "글 임시저장에 성공했습니다"
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+    }
+
+    @PutMapping("/api/writings/{postId}")
+    public ResponseEntity<ApiResponse<WritingUpdateResponse>> updateWriting(
+
+    ) {
+
     }
 }

@@ -6,4 +6,5 @@ import swyp_11.ssubom.writing.entity.Post;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
+    boolean existsByNickname(String nickname);
 }

@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import swyp_11.ssubom.topic.entity.Topic;
+import swyp_11.ssubom.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "Post")
@@ -33,7 +36,7 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
-    private String status; //DRAFT, PUBLISHED
+    private PostStatus status; //DRAFT, PUBLISHED
 
     @Column(name = "is_revised")
     private boolean isRevised;
@@ -46,7 +49,7 @@ public class Post {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "nickname", length = 100)
+    @Column(name = "nickname", length = 100, unique = true)
     private String nickname;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -56,12 +59,13 @@ public class Post {
     private AIFeedback aiFeedback;
 
     @Builder
-    public Post(User user, Topic topic, String content, String status, boolean isRevised) {
+    public Post(User user, Topic topic, String content, String status, boolean isRevised, String nickname) {
         this.user = user;
         this.topic = topic;
         this.content = content;
-        this.status = status.toUpperCase(); // Ensure status is consistent
+        this.status = PostStatus.valueOf(status); // Ensure status is consistent
         this.isRevised = isRevised;
+        this.nickname = nickname;
         // Timestamps are handled by @PrePersist
     }
 

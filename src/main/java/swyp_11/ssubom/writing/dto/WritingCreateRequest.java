@@ -17,8 +17,8 @@ public class WritingCreateRequest {
     private String content;
 
     @NotBlank
-    private String status; // "DRAFT" or "PUBLISHED"
+    private String status; // "DRAFT" is only possible.
 
-    private Long feedbackId;
+    private Long aiFeedbackId;
 
 }

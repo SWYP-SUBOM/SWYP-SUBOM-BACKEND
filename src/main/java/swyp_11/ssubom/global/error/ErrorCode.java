@@ -39,9 +39,8 @@ public enum ErrorCode {
     WRITING_NOT_FOUND(HttpStatus.NOT_FOUND, "W001", "글을 찾을 수 없습니다."),
     INVALID_STATUS_TRANSITION(HttpStatus.BAD_REQUEST, "W002", "유효하지 않은 글 상태 변경입니다."),
     FORBIDDEN_WRITING_MODIFICATION(HttpStatus.FORBIDDEN, "W003", "이 글을 수정/삭제할 권한이 없습니다."),
-    FEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "W004", "피드백을 찾을 수 없습니다."),
-    CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "W005", "내용이 너무 깁니다."),
-
+    CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "W004", "내용이 너무 깁니다."),
+    NICKNAME_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "W005", "닉네임 생성에 실패했습니다. 잠시 후 다시 시도해주세요."),
 
     // Feed errors
     FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "F001", "피드를 찾을 수 없습니다."),
@@ -54,6 +53,8 @@ public enum ErrorCode {
 
     // Notification errors
 
+    // AI errors
+    AIFEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "AI001", "AIfeedback을 찾을 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;

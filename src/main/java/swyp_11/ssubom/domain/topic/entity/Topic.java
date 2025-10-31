@@ -1,7 +1,13 @@
 package swyp_11.ssubom.domain.topic.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.Date;
+
+@Data
 @Entity
 @Table(name = "Topic")
 public class Topic {
@@ -18,10 +24,9 @@ public class Topic {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    // getters/setters
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Category getCategory() { return category; }
-    public void setCategory(Category category) { this.category = category; }
+   @Column(name ="is_used" , nullable = false)
+    private boolean used=false;
+
+   @Column(name = "used_at")
+    private LocalDate usedAt;
 }

@@ -7,6 +7,7 @@ import swyp_11.ssubom.domain.topic.entity.Category;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface TopicRepository extends JpaRepository<Topic, Long> {
@@ -18,10 +19,13 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
         select * from topic
         where category_id = :categoryId
         and is_used = false 
-          ORDER BY topic_id ASC
+          ORDER BY random()
          FOR UPDATE SKIP LOCKED
         LIMIT 1
   """, nativeQuery = true)
     Topic lockOneUnused(@Param("categoryId") Long categoryId);
+
+    List<Topic> findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtDesc(Long categoryId);
+    List<Topic> findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtAsc(Long categoryId);
 
 }

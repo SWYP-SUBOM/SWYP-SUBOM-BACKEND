@@ -5,12 +5,16 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.topic.dto.TodayTopicResponseDto;
+import swyp_11.ssubom.domain.topic.dto.TopicCollectionResponse;
+import swyp_11.ssubom.domain.topic.dto.TopicListResponse;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.topic.repository.TopicRepository;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TopicService {
@@ -44,6 +48,22 @@ public class TopicService {
                         t.getName()
                 )
         );
-
     }
+
+    public TopicListResponse getAll(Long categoryId, String sort) {
+        List<Topic> topics;
+        if(sort.equals("latest")){
+             topics = topicRepository.findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtDesc(categoryId);
+        }
+        else{
+             topics = topicRepository.findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtAsc(categoryId);
+        }
+         List<TopicCollectionResponse> t = topics.stream()
+                .map(TopicCollectionResponse::from)
+                .collect(Collectors.toList());
+
+        String categoryName = topics.get(0).getCategory().getName();
+        return new TopicListResponse(categoryName,t);
+    }
+
 }

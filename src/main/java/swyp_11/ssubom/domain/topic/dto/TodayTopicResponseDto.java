@@ -6,7 +6,6 @@ import swyp_11.ssubom.domain.topic.entity.Topic;
 
 @Data
 @Builder
-
 public class TodayTopicResponseDto {
     String categoryName;
     String topicName;

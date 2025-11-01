@@ -41,6 +41,7 @@ public enum ErrorCode {
     FORBIDDEN_WRITING_MODIFICATION(HttpStatus.FORBIDDEN, "P003", "이 글을 수정/삭제할 권한이 없습니다."),
     CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "P004", "내용이 너무 깁니다."),
     NICKNAME_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P005", "닉네임 생성에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    CANNOT_DELETE_PUBLISHED_POST(HttpStatus.BAD_REQUEST, "P006", "게시된 글은 삭제할 수 없습니다."),
 
     // Feed errors
     FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "F001", "피드를 찾을 수 없습니다."),

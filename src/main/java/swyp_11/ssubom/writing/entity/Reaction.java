@@ -1,6 +1,7 @@
 package swyp_11.ssubom.writing.entity;
 
 import jakarta.persistence.*;
+import swyp_11.ssubom.user.entity.User;
 
 @Entity
 @Table(
@@ -26,3 +27,4 @@ public class Reaction {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+}

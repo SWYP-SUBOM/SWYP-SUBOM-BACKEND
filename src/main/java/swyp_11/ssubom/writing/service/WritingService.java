@@ -14,4 +14,6 @@ public interface WritingService {
     WritingCreateResponse createWriting(Long userId, WritingCreateRequest request);
 
     WritingUpdateResponse updateWriting(Long userId, Long postId, WritingUpdateRequest request);
+
+    void deleteWriting(Long userId, Long postId);
 }

@@ -1,9 +1,11 @@
 package swyp_11.ssubom.user.entity;
 
+import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
 import java.time.Instant;
 
+@Getter
 @Entity
 @Table(name = "user") // 테이블명이 소문자 'user'
 public class User {

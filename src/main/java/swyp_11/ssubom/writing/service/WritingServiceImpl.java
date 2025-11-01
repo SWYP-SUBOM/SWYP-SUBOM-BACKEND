@@ -11,11 +11,8 @@ import swyp_11.ssubom.user.repository.UserRepository;
 import swyp_11.ssubom.topic.repository.TopicRepository;
 import swyp_11.ssubom.topic.entity.Topic;
 import swyp_11.ssubom.user.entity.User;
-import swyp_11.ssubom.writing.dto.WritingUpdateRequest;
-import swyp_11.ssubom.writing.dto.WritingUpdateResponse;
+import swyp_11.ssubom.writing.dto.*;
 import swyp_11.ssubom.writing.entity.Post;
-import swyp_11.ssubom.writing.dto.WritingCreateRequest;
-import swyp_11.ssubom.writing.dto.WritingCreateResponse;
 import swyp_11.ssubom.writing.entity.PostStatus;
 import swyp_11.ssubom.writing.repository.PostRepository;
 import swyp_11.ssubom.writing.service.nickname.NicknameGenerator;
@@ -83,5 +80,15 @@ public class WritingServiceImpl implements WritingService {
         }
 
         postRepository.delete(post);
+    }
+
+    @Override
+    public ReactionResponse upsertReaction(Long userId, Long postId) {
+        return null;
+    }
+
+    @Override
+    public ReactionResponse deleteReaction(Long userId, Long postId) {
+        return null;
     }
 }

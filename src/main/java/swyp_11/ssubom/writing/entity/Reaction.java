@@ -12,7 +12,7 @@ public class Reaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feed_reactions_id")
+    @Column(name = "feed_reaction_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -28,3 +28,4 @@ public class Reaction {
     private User user;
 
 }
+

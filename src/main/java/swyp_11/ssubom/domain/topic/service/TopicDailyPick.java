@@ -10,7 +10,7 @@ import swyp_11.ssubom.domain.topic.repository.TopicRepository;
 public class TopicDailyPick {
     private final TopicService topicService;
 
-    @Scheduled(cron = "0 44 0 * * *", zone="Asia/Seoul")
+    @Scheduled(cron = "0 0 0 * * *", zone="Asia/Seoul")
     public void dailyPick() {
         for(Long id=1L;id<=5;id++){
             topicService.ensureTodayPicked(id);

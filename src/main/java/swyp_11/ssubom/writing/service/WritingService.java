@@ -14,7 +14,4 @@ public interface WritingService {
 
     void deleteWriting(Long userId, Long postId);
 
-    ReactionResponse upsertReaction(Long userId, Long postId, ReactionUpsertRequest);
-
-    ReactionResponse deleteReaction(Long userId, Long postId);
 }

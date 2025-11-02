@@ -81,14 +81,4 @@ public class WritingServiceImpl implements WritingService {
 
         postRepository.delete(post);
     }
-
-    @Override
-    public ReactionResponse upsertReaction(Long userId, Long postId) {
-        return null;
-    }
-
-    @Override
-    public ReactionResponse deleteReaction(Long userId, Long postId) {
-        return null;
-    }
 }

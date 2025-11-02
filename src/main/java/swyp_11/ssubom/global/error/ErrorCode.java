@@ -48,9 +48,8 @@ public enum ErrorCode {
 
     // Reaction errors
     INVALID_REACTION_TYPE(HttpStatus.BAD_REQUEST, "R001", "유효하지 않은 반응 타입입니다."),
-    REACTION_ALREADY_EXISTS(HttpStatus.CONFLICT, "R002", "이미 반응을 남겼습니다."),
-    REACTION_NOT_FOUND(HttpStatus.NOT_FOUND, "R003", "취소할 반응을 찾을 수 없습니다."),
-    FORBIDDEN_REACTION_MODIFICATION(HttpStatus.FORBIDDEN, "R004", "이 반응을 수정/삭제할 권한이 없습니다."),
+    REACTION_NOT_FOUND(HttpStatus.NOT_FOUND, "R002", "취소할 반응을 찾을 수 없습니다."),
+    //FORBIDDEN_REACTION_MODIFICATION(HttpStatus.FORBIDDEN, "R003", "이 반응을 수정/삭제할 권한이 없습니다."),
 
     // Notification errors
 

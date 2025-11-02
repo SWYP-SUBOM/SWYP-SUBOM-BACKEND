@@ -134,4 +134,6 @@ public class Post {
         this.content = content;
         this.status = PostStatus.PUBLISHED;
     }
+
+
 }

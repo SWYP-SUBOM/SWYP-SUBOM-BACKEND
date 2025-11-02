@@ -1,13 +1,18 @@
 package swyp_11.ssubom.writing.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import swyp_11.ssubom.user.entity.User;
+import swyp_11.ssubom.writing.entity.ReactionType;
+
 
 @Entity
 @Table(
         name = "FeedReaction",
         uniqueConstraints = @UniqueConstraint(name = "uq_reaction_post_user", columnNames = {"post_id", "user_id"})
 )
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Reaction {
 
     @Id
@@ -26,6 +31,34 @@ public class Reaction {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    public Reaction(Post post, ReactionType type, User user) {
+        this.post = post;
+        this.type = type;
+        this.user = user;
+    }
+
+    public static Reaction create(User user, Post post, ReactionType type) {
+        if (user == null || post == null || type == null) {
+            throw new IllegalArgumentException("User,Post, ReactionType은 필수입니다.");
+        }
+        return Reaction.builder()
+                .user(user)
+                .post(post)
+                .type(type)
+                .build();
+    }
+
+    public void addType(ReactionType reactionType) {
+        if (reactionType == null) {
+            return;
+        }
+        if (reactionType.equals(this.type)) {
+            return;
+        }
+        this.type = reactionType;
+    }
 
 }
 

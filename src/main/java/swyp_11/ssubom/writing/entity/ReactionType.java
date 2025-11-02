@@ -1,8 +1,10 @@
 package swyp_11.ssubom.writing.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 @Table(name = "ReactionType")
 public class ReactionType {
     @Id

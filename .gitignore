@@ -25,10 +25,21 @@ logs/
 .DS_Store
 Thumbs.db
 
+# 패키지 파일
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+!/.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
 # 빌드 도구
 .gradle/
 gradle-app.setting
-!gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.jar
 build/resources/main/application.properties
 # 환경 설정 파일 (민감한 정보 포함)
 src/main/resources/application.properties
@@ -42,18 +53,6 @@ application-secret.properties
 *.bak
 *.swp
 *~
-
-# 패키지 파일
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
-!/.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
-
 
 # Temporary added
 src/main/java/swyp_11/ssubom/writing

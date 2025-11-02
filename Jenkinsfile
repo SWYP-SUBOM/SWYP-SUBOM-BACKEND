@@ -13,16 +13,21 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "Branch: ${BRANCH_NAME}"
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: "*/${BRANCH_NAME}"]],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git',
-                        credentialsId: 'github-cred'
-                    ]]
-                ])
+
+                dir("${WORKSPACE}") {   // 명시적으로 workspace 지정
+                    deleteDir()         // 이전 빌드 잔여 파일 제거
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "*/${BRANCH_NAME}"]],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git',
+                            credentialsId: 'github-cred'
+                        ]]
+                    ])
+                    sh 'ls -al' // clone 결과를 콘솔에 출력
+                }
             }
         }
 

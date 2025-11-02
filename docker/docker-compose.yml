@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  seobom-backend:
+    build: .
+    container_name: seobom-backend
+    ports:
+      - "8080:8080"
+    networks:
+      - deploy
+    restart: always
+networks:
+  deploy:
+    external: true

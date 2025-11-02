@@ -73,7 +73,7 @@ pipeline {
                     echo "Checking health of backend service..."
                     sh '''
                         for i in {1..20}; do
-                            if curl -s "http://localhost:8080/actuator/health" | grep -q "UP"; then
+                            if curl -s "http://seobom-backend:8080/actuator/health" | grep -q "UP"; then
                                 echo "Service is up!!"
                                 exit 0
                             fi

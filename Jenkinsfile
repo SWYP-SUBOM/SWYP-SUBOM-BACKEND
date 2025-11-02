@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     environment {
         PATH = "/usr/libexec/docker/cli-plugins:/usr/bin:/usr/local/bin:/bin"
         PROJECT_NAME = "seobom-backend"
@@ -13,13 +17,11 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "Branch: ${BRANCH_NAME}"
-
+                deleteDir()
                 dir("${WORKSPACE}") {   // 명시적으로 workspace 지정
                     checkout([
                         $class: 'GitSCM',
                         branches: [[name: "*/${BRANCH_NAME}"]],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [],
                         userRemoteConfigs: [[
                             url: 'https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git',
                             credentialsId: 'github-cred'
@@ -122,7 +124,6 @@ pipeline {
     post {
         success {
             echo "Deployment succeeded!"
-            archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
         }
         failure {
             echo "Deployment failed!"

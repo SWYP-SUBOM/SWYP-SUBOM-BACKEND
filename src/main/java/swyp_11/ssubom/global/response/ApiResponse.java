@@ -1,6 +1,7 @@
 package swyp_11.ssubom.global.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class ApiResponse<T> {
     private final String code;
     private final String message;
     private final T data; // 성공 시에만 포함됨
+    @Schema(hidden = true)
     private final List<FieldError> fieldErrors; // @Valid 유효성 검사 에러 시에만 포함됨
 
     // --- 성공 응답 ---

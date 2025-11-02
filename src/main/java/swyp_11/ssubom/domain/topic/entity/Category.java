@@ -1,7 +1,9 @@
 package swyp_11.ssubom.domain.topic.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
+@Data
 @Entity
 public class Category {
     @Id

@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
+        PATH = "/usr/libexec/docker/cli-plugins:/usr/bin:/usr/local/bin:/bin"
         PROJECT_NAME = "seobom-backend"
-        DOCKER_COMPOSE = "${WORKSPACE}/docker-compose.yml"
+        DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'release'}"
     }
 
@@ -11,50 +12,49 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "Branch: ${BRANCH_NAME}"
-				git branch: "${BRANCH_NAME}",
-					url: "https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git",
-					credentialsId: 'github-cred'
+                git branch: "${BRANCH_NAME}",
+                    url: "https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git",
+                    credentialsId: 'github-cred'
             }
         }
 
-		stage('Create application.properties') {
-			steps {
-				withCredentials([file(credentialsId: 'application-properties', variable: 'APP_PROPS')]) {
-					echo "Writing application.properties file"
+        stage('Create application.properties') {
+            steps {
+                withCredentials([file(credentialsId: 'application-properties', variable: 'APP_PROPS')]) {
+                    echo "Writing application.properties file"
                     sh '''
                         mkdir -p ./src/main/resources
-						cp "$APP_PROPS" ./src/main/resources/application.properties
+                        cp "$APP_PROPS" ./src/main/resources/application.properties
                     '''
-				}
-			}
-		}
+                }
+            }
+        }
 
         stage('Prepare Environment') {
             steps {
-                echo "Copy required files"
-                sh """
-                    cp docker/docker-compose.yml ${WORKSPACE}/
-                    cp docker/Dockerfile ${WORKSPACE}/
-                """
+                echo "Using docker-compose and Dockerfile in docker/ directory"
+                script {
+                    env.DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
+                }
             }
         }
 
         stage('Docker Down') {
             steps {
                 echo "Docker compose down"
-                sh "docker compose -f ${DOCKER_COMPOSE} down --rmi all || true"
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} down --rmi all || true"
             }
         }
 
         stage('Docker Build') {
             steps {
                 echo "Building Docker image..."
-                sh "docker compose -f ${DOCKER_COMPOSE} build --no-cache"
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} build --no-cache"
             }
             post {
                 failure {
                     echo "Docker build failed, cleaning up unused files..."
-                    sh "docker system prune -f"
+                    sh "docker system prune -f || true"
                     error 'Build aborted'
                 }
             }
@@ -63,7 +63,7 @@ pipeline {
         stage('Docker Up') {
             steps {
                 echo "Starting containers..."
-                sh "docker compose -f ${DOCKER_COMPOSE} up -d"
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} up -d"
             }
         }
 
@@ -74,20 +74,20 @@ pipeline {
                     sh '''
                         for i in {1..20}; do
                             if curl -s "http://localhost:8080/actuator/health" | grep -q "UP"; then
-                                echo "Service is up !!"
+                                echo "Service is up!!"
                                 exit 0
                             fi
                             echo "Waiting for service to be ready..."
                             sleep 5
                         done
-                        echo "Health check failed !!"
+                        echo "Health check failed!!"
                         exit 1
                     '''
                 }
             }
             post {
                 failure {
-                    sh "docker logs ${PROJECT_NAME} | tail -n 50"
+                    sh "docker logs ${PROJECT_NAME} | tail -n 50 || true"
                     error 'Pipeline aborted: Service not responding.'
                 }
             }
@@ -96,7 +96,7 @@ pipeline {
         stage('Docker Clear') {
             steps {
                 echo "Cleaning up..."
-                sh "docker system prune -f"
+                sh "docker system prune -f || true"
             }
         }
     }

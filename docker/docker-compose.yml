@@ -19,7 +19,7 @@ services:
       - "443:443"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro   # SSL 인증서 공유
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro    # 설정 파일 마운트
+      - ../nginx/conf.d:/etc/nginx/conf.d:ro    # 설정 파일 마운트
     depends_on:
       - seobom-backend
     networks:

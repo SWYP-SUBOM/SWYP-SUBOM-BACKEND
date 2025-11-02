@@ -3,10 +3,9 @@ pipeline {
 
     options {
         skipDefaultCheckout(true)
-            disableConcurrentBuilds()
-            durabilityHint('PERFORMANCE_OPTIMIZED')
-            preserveStashes(buildCount: 5)
-            keepBuildVariables(true)
+        disableConcurrentBuilds()
+        durabilityHint('PERFORMANCE_OPTIMIZED')
+        preserveStashes(buildCount: 5)
     }
 
     environment {

@@ -40,7 +40,10 @@ pipeline {
         stage('Docker Down') {
             steps {
                 echo "Docker compose down"
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} down --rmi all || true"
+                sh """
+                    docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} down --rmi all || true
+                    docker rm -f seobom-backend nginx 2>/dev/null || true
+                """
             }
         }
 
@@ -61,7 +64,7 @@ pipeline {
         stage('Docker Up') {
             steps {
                 echo "Starting containers..."
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} up -d"
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} up -d --remove-orphans"
             }
         }
 

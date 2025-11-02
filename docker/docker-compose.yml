@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  seobom-backend:
+    container_name: seobom-backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: seobom-backend:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - deploy
+    restart: always
+networks:
+  deploy:
+    external: true

@@ -4,6 +4,7 @@ pipeline {
     environment {
         PATH = "/usr/libexec/docker/cli-plugins:/usr/bin:/usr/local/bin:/bin"
         PROJECT_NAME = "seobom-backend"
+        WORKSPACE_DIR = "${WORKSPACE}"
         DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'release'}"
     }
@@ -33,9 +34,6 @@ pipeline {
         stage('Prepare Environment') {
             steps {
                 echo "Using docker-compose and Dockerfile in docker/ directory"
-                script {
-                    env.DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
-                }
             }
         }
 

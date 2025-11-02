@@ -15,7 +15,6 @@ pipeline {
                 echo "Branch: ${BRANCH_NAME}"
 
                 dir("${WORKSPACE}") {   // 명시적으로 workspace 지정
-                    deleteDir()         // 이전 빌드 잔여 파일 제거
                     checkout([
                         $class: 'GitSCM',
                         branches: [[name: "*/${BRANCH_NAME}"]],
@@ -123,6 +122,7 @@ pipeline {
     post {
         success {
             echo "Deployment succeeded!"
+            archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
         }
         failure {
             echo "Deployment failed!"

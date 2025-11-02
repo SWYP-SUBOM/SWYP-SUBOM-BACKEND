@@ -19,11 +19,11 @@ pipeline {
 
 		stage('Create application.properties') {
 			steps {
-				withCredentials([string(credentialsId: 'application-properties', variable: 'APP_PROPS')]) {
+				withCredentials([file(credentialsId: 'application-properties', variable: 'APP_PROPS')]) {
 					echo "Writing application.properties file"
                     sh '''
                         mkdir -p ./src/main/resources
-                        printf "%s" "$APP_PROPS" > ./src/main/resources/application.properties
+						cp "$APP_PROPS" ./src/main/resources/application.properties
                     '''
 				}
 			}
@@ -74,13 +74,13 @@ pipeline {
                     sh '''
                         for i in {1..20}; do
                             if curl -s "http://localhost:8080/actuator/health" | grep -q "UP"; then
-                                echo "Service is up!!"
+                                echo "Service is up !!"
                                 exit 0
                             fi
                             echo "Waiting for service to be ready..."
                             sleep 5
                         done
-                        echo "Health check failed!!"
+                        echo "Health check failed !!"
                         exit 1
                     '''
                 }

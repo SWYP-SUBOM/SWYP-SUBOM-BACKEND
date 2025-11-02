@@ -5,7 +5,7 @@ services:
     container_name: seobom-backend
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: Dockerfile
     image: seobom-backend:latest
     ports:
       - "8080:8080"

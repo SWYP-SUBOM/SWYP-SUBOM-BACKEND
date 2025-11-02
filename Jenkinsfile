@@ -3,6 +3,10 @@ pipeline {
 
     options {
         skipDefaultCheckout(true)
+            disableConcurrentBuilds()
+            durabilityHint('PERFORMANCE_OPTIMIZED')
+            preserveStashes(buildCount: 5)
+            keepBuildVariables(true)
     }
 
     environment {
@@ -17,7 +21,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "Branch: ${BRANCH_NAME}"
-                deleteDir()
+                // deleteDir()
                 dir("${WORKSPACE}") {   // 명시적으로 workspace 지정
                     checkout([
                         $class: 'GitSCM',
@@ -116,12 +120,16 @@ pipeline {
         stage('Docker Clear') {
             steps {
                 echo "Cleaning up..."
-                sh "docker system prune -f || true"
+                sh "docker system prune -f --filter 'label!=jenkins' --volumes=false || true"
             }
         }
     }
 
     post {
+        always {
+           echo "Preserving workspace..."
+           sh "ls -al ${WORKSPACE} || true"
+        }
         success {
             echo "Deployment succeeded!"
         }

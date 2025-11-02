@@ -31,6 +31,9 @@ public class WritingServiceImpl implements WritingService {
     @Override
     public WritingCreateResponse createWriting(Long userId, WritingCreateRequest request) {
         User user = userRepository.findById(userId)
+
+
+
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Topic topic = topicRepository.findById(request.getTopicId())

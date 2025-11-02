@@ -1,17 +1,9 @@
 pipeline {
     agent any
 
-    options {
-        skipDefaultCheckout(true)
-        disableConcurrentBuilds()
-        durabilityHint('PERFORMANCE_OPTIMIZED')
-        preserveStashes(buildCount: 5)
-    }
-
     environment {
         PATH = "/usr/libexec/docker/cli-plugins:/usr/bin:/usr/local/bin:/bin"
         PROJECT_NAME = "seobom-backend"
-        WORKSPACE_DIR = "${WORKSPACE}"
         DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'release'}"
     }
@@ -20,18 +12,9 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "Branch: ${BRANCH_NAME}"
-                // deleteDir()
-                dir("${WORKSPACE}") {   // 명시적으로 workspace 지정
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: "*/${BRANCH_NAME}"]],
-                        userRemoteConfigs: [[
-                            url: 'https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git',
-                            credentialsId: 'github-cred'
-                        ]]
-                    ])
-                    sh 'ls -al' // clone 결과를 콘솔에 출력
-                }
+                git branch: "${BRANCH_NAME}",
+                    url: "https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git",
+                    credentialsId: 'github-cred'
             }
         }
 
@@ -50,16 +33,16 @@ pipeline {
         stage('Prepare Environment') {
             steps {
                 echo "Using docker-compose and Dockerfile in docker/ directory"
+                script {
+                    env.DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
+                }
             }
         }
 
         stage('Docker Down') {
             steps {
                 echo "Docker compose down"
-                sh """
-                    docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} down --rmi all || true
-                    docker rm -f seobom-backend nginx 2>/dev/null || true
-                """
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} down --rmi all || true"
             }
         }
 
@@ -80,7 +63,7 @@ pipeline {
         stage('Docker Up') {
             steps {
                 echo "Starting containers..."
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} up -d --remove-orphans"
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} up -d"
             }
         }
 
@@ -119,16 +102,12 @@ pipeline {
         stage('Docker Clear') {
             steps {
                 echo "Cleaning up..."
-                sh "docker system prune -f --filter 'label!=jenkins' --volumes=false || true"
+                sh "docker image prune -f || true"
             }
         }
     }
 
     post {
-        always {
-           echo "Preserving workspace..."
-           sh "ls -al ${WORKSPACE} || true"
-        }
         success {
             echo "Deployment succeeded!"
         }

@@ -10,18 +10,20 @@ pipeline {
     }
 
     stages {
-        steps {
-            echo "Branch: ${BRANCH_NAME}"
-            checkout([
-                $class: 'GitSCM',
-                branches: [[name: "*/${BRANCH_NAME}"]],
-                doGenerateSubmoduleConfigurations: false,
-                extensions: [],
-                userRemoteConfigs: [[
-                    url: 'https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git',
-                    credentialsId: 'github-cred'
-                ]]
-            ])
+        stage('Clone Repository') {
+            steps {
+                echo "Branch: ${BRANCH_NAME}"
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${BRANCH_NAME}"]],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git',
+                        credentialsId: 'github-cred'
+                    ]]
+                ])
+            }
         }
 
         stage('Create application.properties') {

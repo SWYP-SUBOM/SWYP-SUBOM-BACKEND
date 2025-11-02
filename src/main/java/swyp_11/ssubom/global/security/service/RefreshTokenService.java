@@ -42,7 +42,7 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 0,8,17 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 2,10,19 * * *", zone = "Asia/Seoul")
     public void cleanExpiredTokens() {
         long deleted = refreshRepository.deleteByExpirationBefore(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
     }

@@ -1,6 +1,9 @@
 package swyp_11.ssubom.global.security.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +24,18 @@ public class OAuth2Controller {
     @PostMapping("/api/oauth2-jwt-header")
     @Operation(
             summary = "액세스 토큰 헤더 요청",
-            description = "액세스 토큰을 헤더로 이동시킵니다"
-                    + "쿠키를 전달합니다"
+            description = "액세스 토큰을 헤더로 이동"
+    )
+
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            headers = {
+                    @Header(
+                            name = "access",
+                            description = "쿠키에서 꺼낸 액세스 토큰(JWT)",
+                            schema = @Schema(type = "string"),
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    )
+            }
     )
     public ApiResponse<String> oauthJwtHeader(HttpServletRequest request, HttpServletResponse response) {
         return  ApiResponse.success(oAuth2JwtHeaderService.oauth2JwtHeaderSet(request, response));

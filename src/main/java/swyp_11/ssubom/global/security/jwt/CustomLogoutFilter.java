@@ -11,8 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.filter.GenericFilterBean;
-import org.springframework.web.filter.OncePerRequestFilter;
-import swyp_11.ssubom.global.security.repository.RefreshRepository;
+import swyp_11.ssubom.domain.user.repository.RefreshRepository;
 
 import java.io.IOException;
 

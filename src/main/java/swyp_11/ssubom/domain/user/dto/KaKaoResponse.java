@@ -1,4 +1,4 @@
-package swyp_11.ssubom.global.security.dto;
+package swyp_11.ssubom.domain.user.dto;
 
 import java.util.Map;
 

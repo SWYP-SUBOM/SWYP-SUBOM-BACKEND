@@ -1,19 +1,17 @@
-package swyp_11.ssubom.global.security.controller;
+package swyp_11.ssubom.domain.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import swyp_11.ssubom.global.response.ApiResponse;
-import swyp_11.ssubom.global.security.service.NameService;
+import swyp_11.ssubom.domain.user.service.NameService;
 
 
 @Tag(name = "UserName", description = "사용자이름 관련 API")

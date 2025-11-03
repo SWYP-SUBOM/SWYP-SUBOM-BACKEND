@@ -1,6 +1,5 @@
-package swyp_11.ssubom.global.security.repository;
+package swyp_11.ssubom.domain.user.repository;
 
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

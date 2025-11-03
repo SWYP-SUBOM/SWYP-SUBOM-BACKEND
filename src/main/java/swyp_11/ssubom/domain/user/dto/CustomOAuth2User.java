@@ -1,11 +1,10 @@
-package swyp_11.ssubom.global.security.dto;
+package swyp_11.ssubom.domain.user.dto;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public class CustomOAuth2User implements OAuth2User {

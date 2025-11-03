@@ -1,4 +1,4 @@
-package swyp_11.ssubom.global.security.service;
+package swyp_11.ssubom.domain.user.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
-import swyp_11.ssubom.global.security.repository.RefreshRepository;
+import swyp_11.ssubom.domain.user.repository.RefreshRepository;
 import swyp_11.ssubom.global.security.util.CookieUtil;
 
 import java.util.Arrays;

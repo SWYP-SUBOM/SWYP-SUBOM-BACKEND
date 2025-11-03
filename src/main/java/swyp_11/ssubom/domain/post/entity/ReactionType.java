@@ -1,9 +1,14 @@
-package swyp_11.ssubom.domain.writing.entity;
+package swyp_11.ssubom.domain.post.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
-@Table(name = "ReactionType")
+@Table(name = "reaction_type")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReactionType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -11,5 +16,4 @@ public class ReactionType {
 
     @Column(name = "reaction_name")
     private String name;
-
 }

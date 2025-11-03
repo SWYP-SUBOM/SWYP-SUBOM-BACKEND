@@ -1,12 +1,17 @@
-package swyp_11.ssubom.domain.viewing.entity;
+package swyp_11.ssubom.domain.post.entity;
 
 import jakarta.persistence.*;
-import swyp_11.ssubom.domain.writing.entity.Post;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import swyp_11.ssubom.domain.common.BaseTimeEntity;
 import swyp_11.ssubom.domain.user.entity.User;
 
+@Getter
 @Entity
-@Table(name = "PostView")
-public class PostView {
+@Table(name = "post_view")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PostView extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +25,4 @@ public class PostView {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
-
 }

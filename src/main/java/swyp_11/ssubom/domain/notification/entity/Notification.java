@@ -1,20 +1,21 @@
 package swyp_11.ssubom.domain.notification.entity;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import jakarta.persistence.*;
-import swyp_11.ssubom.domain.writing.entity.Post;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import swyp_11.ssubom.domain.common.BaseTimeEntity;
+import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.user.entity.User;
 
-import java.time.Instant;
-
+@Getter
 @Entity
-@Table(name = "Notification")
-public class Notification {
+@Table(name = "notification")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Notification extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notifications_id")
+    @Column(name = "notification_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -31,14 +32,6 @@ public class Notification {
     @Column(name = "actor_count")
     private Long actorCount;
 
-    @Column(name = "is_read")
-    private Boolean read;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private Instant updatedAt;
+    @Column(name = "is_read", nullable = false, columnDefinition = "boolean default false")
+    private boolean isRead;
 }

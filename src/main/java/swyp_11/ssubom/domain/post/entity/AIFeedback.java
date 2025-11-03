@@ -1,31 +1,29 @@
-package swyp_11.ssubom.domain.writing.entity;
+package swyp_11.ssubom.domain.post.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import swyp_11.ssubom.domain.common.BaseTimeEntity;
 
-@Entity
 @Getter
-@Setter
-@Table(name = "AIFeedback")
-public class AIFeedback {
+@Entity
+@Table(name = "ai_feedback")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class AIFeedback extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ai_feedback_id")
     private Long id;
 
-    @Lob
-    @Column(name = "summary")
+    @Column(columnDefinition = "TEXT")
     private String summary;
 
-    @Lob
-    @Column(name = "strength")
+    @Column(columnDefinition = "TEXT")
     private String strength;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
-
-
 }

@@ -1,4 +1,4 @@
-package swyp_11.ssubom.global.security.service;
+package swyp_11.ssubom.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,12 +7,12 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import swyp_11.ssubom.global.security.dto.CustomOAuth2User;
-import swyp_11.ssubom.global.security.dto.KaKaoResponse;
-import swyp_11.ssubom.global.security.dto.OAuth2Response;
-import swyp_11.ssubom.global.security.dto.userDTO;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.domain.user.dto.KaKaoResponse;
+import swyp_11.ssubom.domain.user.dto.OAuth2Response;
+import swyp_11.ssubom.domain.user.dto.userDTO;
 import swyp_11.ssubom.domain.user.entity.User;
-import swyp_11.ssubom.global.security.repository.UserRepository;
+import swyp_11.ssubom.domain.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 

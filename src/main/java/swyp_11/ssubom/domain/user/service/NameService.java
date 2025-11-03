@@ -1,9 +1,9 @@
-package swyp_11.ssubom.global.security.service;
+package swyp_11.ssubom.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import swyp_11.ssubom.domain.user.entity.User;
-import swyp_11.ssubom.global.security.repository.UserRepository;
+import swyp_11.ssubom.domain.user.repository.UserRepository;
 
 @RequiredArgsConstructor
 @Service

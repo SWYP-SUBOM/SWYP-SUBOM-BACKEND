@@ -2,14 +2,11 @@ package swyp_11.ssubom.global.security.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.cfg.Environment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -19,12 +16,11 @@ import swyp_11.ssubom.global.security.handler.CustomOAuthSuccessHandler;
 import swyp_11.ssubom.global.security.jwt.CustomLogoutFilter;
 import swyp_11.ssubom.global.security.jwt.JWTFilter;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
-import swyp_11.ssubom.global.security.repository.RefreshRepository;
-import swyp_11.ssubom.global.security.service.CustomOauth2UserService;
+import swyp_11.ssubom.domain.user.repository.RefreshRepository;
+import swyp_11.ssubom.domain.user.service.CustomOauth2UserService;
 
 
 import java.util.Collections;
-import java.util.List;
 
 @EnableWebSecurity
 @Configuration

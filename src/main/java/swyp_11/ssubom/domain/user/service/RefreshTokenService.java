@@ -1,4 +1,4 @@
-package swyp_11.ssubom.global.security.service;
+package swyp_11.ssubom.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -7,12 +7,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.global.security.entity.RefreshEntity;
-import swyp_11.ssubom.global.security.repository.RefreshRepository;
+import swyp_11.ssubom.domain.user.repository.RefreshRepository;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Date;
 
 

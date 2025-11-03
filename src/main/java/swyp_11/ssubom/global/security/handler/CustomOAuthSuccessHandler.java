@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import swyp_11.ssubom.global.security.dto.CustomOAuth2User;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
-import swyp_11.ssubom.global.security.repository.UserRepository;
-import swyp_11.ssubom.global.security.service.RefreshTokenService;
+import swyp_11.ssubom.domain.user.repository.UserRepository;
+import swyp_11.ssubom.domain.user.service.RefreshTokenService;
 import swyp_11.ssubom.global.security.util.CookieUtil;
 
 import java.io.IOException;

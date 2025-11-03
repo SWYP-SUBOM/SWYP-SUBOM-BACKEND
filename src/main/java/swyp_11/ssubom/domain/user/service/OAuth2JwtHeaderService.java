@@ -1,4 +1,4 @@
-package swyp_11.ssubom.global.security.service;
+package swyp_11.ssubom.domain.user.service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

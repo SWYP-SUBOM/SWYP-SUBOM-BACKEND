@@ -26,5 +26,4 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     List<Topic> findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtDesc(Long categoryId);
     List<Topic> findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtAsc(Long categoryId);
-
 }

@@ -7,5 +7,5 @@ public class userDTO {
     private String userName;
     private String role;
     private String kakaoId;
-
+    private Long userId;
 }

@@ -10,6 +10,22 @@ services:
     networks:
       - deploy
     restart: always
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro   # SSL 인증서 공유
+      - /jenkins/workspace/seobom-backend/nginx/conf.d:/etc/nginx/conf.d:ro   # 설정파일 마운트
+    depends_on:
+      - seobom-backend
+    networks:
+      - deploy
+    restart: always
+
 networks:
   deploy:
     external: true

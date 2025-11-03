@@ -72,15 +72,21 @@ pipeline {
                 script {
                     echo "Checking health of backend service..."
                     sh '''
-                        for i in {1..20}; do
-                            if curl -s "http://localhost:8080/actuator/health" | grep -q "UP"; then
-                                echo "Service is up!!"
+                        for i in $(seq 1 20); do
+                            echo "Checking service health... Attempt $i"
+                            result=$(curl -s -w "%{http_code}" -o /tmp/health.json http://seobom-backend:8080/actuator/health || true)
+                            cat /tmp/health.json || true
+
+                            if grep -q "UP" /tmp/health.json; then
+                                echo "Service is UP!"
                                 exit 0
                             fi
-                            echo "Waiting for service to be ready..."
+
+                            echo "Waiting for service to be ready... ($i/20)"
                             sleep 5
                         done
-                        echo "Health check failed!!"
+
+                        echo "Health check failed after 20 attempts!"
                         exit 1
                     '''
                 }
@@ -96,7 +102,7 @@ pipeline {
         stage('Docker Clear') {
             steps {
                 echo "Cleaning up..."
-                sh "docker system prune -f || true"
+                sh "docker image prune -f || true"
             }
         }
     }

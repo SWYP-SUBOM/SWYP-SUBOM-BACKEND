@@ -1,0 +1,102 @@
+package swyp_11.ssubom.feed.service;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import swyp_11.ssubom.global.error.BusinessException;
+import swyp_11.ssubom.global.error.ErrorCode;
+import swyp_11.ssubom.domain.entity.User;
+import swyp_11.ssubom.feed.dto.ReactionMetricsDto;
+import swyp_11.ssubom.domain.entity.Post;
+import swyp_11.ssubom.user.repository.UserRepository;
+import swyp_11.ssubom.feed.dto.ReactionResponse;
+import swyp_11.ssubom.feed.dto.ReactionUpsertRequest;
+import swyp_11.ssubom.domain.entity.Reaction;
+import swyp_11.ssubom.domain.entity.ReactionType;
+import swyp_11.ssubom.domain.repository.PostRepository;
+import swyp_11.ssubom.domain.repository.ReactionRepository;
+import swyp_11.ssubom.domain.repository.ReactionTypeRepository;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@Transactional
+@AllArgsConstructor
+public class ReactionServiceImpl implements ReactionService {
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final ReactionTypeRepository reactionTypeRepository;
+    private final ReactionRepository reactionRepository;
+
+    @Override
+    public ReactionResponse upsertReaction(Long userId, Long postId, ReactionUpsertRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        String reactionTypeName = request.getReactionTypeName();
+        ReactionType reactionType = reactionTypeRepository.findByName(reactionTypeName);
+        if (reactionType == null) {
+            throw new BusinessException(ErrorCode.INVALID_REACTION_TYPE); // 예시
+        }
+        Optional<Reaction> currentUserReaction = reactionRepository.findByPostAndUser(post, user);
+
+        Reaction reaction;
+        if (currentUserReaction.isPresent()) {
+            reaction = currentUserReaction.get();
+            reaction.addType(reactionType);
+        } else {
+            reaction = Reaction.create(user, post, reactionType);
+            reactionRepository.save(reaction);
+        }
+        //집계
+        ReactionMetricsDto metrics = calculateReactionMetrics(post);
+
+        return new ReactionResponse(
+                post.getPostId(),
+                metrics,
+                reaction.getType().getName()
+        );
+    }
+
+    @Override
+    public ReactionResponse deleteReaction(Long userId, Long postId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+
+        Reaction reaction = reactionRepository.findByPostAndUser(post, user)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REACTION_NOT_FOUND));
+
+        reactionRepository.delete(reaction);
+
+        ReactionMetricsDto metrics = calculateReactionMetrics(post);
+
+        return new ReactionResponse(
+                post.getPostId(),
+                metrics,
+                null
+        );
+    }
+
+    private ReactionMetricsDto calculateReactionMetrics(Post post) {
+        List<Object[]> countsByTypeRaw = reactionRepository.findReactionCountsByPost(post);
+        Map<String, Long> countsByType = countsByTypeRaw.stream()
+                .collect(Collectors.toMap(
+                        entry -> (String) entry[0], // ReactionType 이름
+                        entry -> (Long) entry[1]    // 개수
+                ));
+
+        Long totalReactionCounts = countsByType.values().stream()
+                .mapToLong(Long::longValue)
+                .sum();
+
+        return new ReactionMetricsDto(totalReactionCounts, countsByType);
+    }
+}

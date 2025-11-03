@@ -8,14 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 import swyp_11.ssubom.user.repository.UserRepository;
-import swyp_11.ssubom.topic.repository.TopicRepository;
-import swyp_11.ssubom.topic.entity.Topic;
-import swyp_11.ssubom.user.entity.User;
+import swyp_11.ssubom.domain.repository.TopicRepository;
+import swyp_11.ssubom.domain.entity.Topic;
+import swyp_11.ssubom.domain.entity.User;
 import swyp_11.ssubom.writing.dto.*;
-import swyp_11.ssubom.writing.entity.Post;
-import swyp_11.ssubom.writing.entity.PostStatus;
-import swyp_11.ssubom.writing.repository.PostRepository;
-import swyp_11.ssubom.writing.service.nickname.NicknameGenerator;
+import swyp_11.ssubom.domain.entity.Post;
+import swyp_11.ssubom.domain.entity.PostStatus;
+import swyp_11.ssubom.domain.repository.PostRepository;
+import swyp_11.ssubom.global.nickname.NicknameGenerator;
 
 @Slf4j
 @Service

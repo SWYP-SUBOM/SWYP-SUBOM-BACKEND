@@ -1,0 +1,87 @@
+.
+├── SsubomApplication.java
+├── domain
+│   ├── entity
+│   │   ├── AIFeedback.java
+│   │   ├── Category.java
+│   │   ├── ImprovementPoint.java
+│   │   ├── Notification.java
+│   │   ├── Post.java
+│   │   ├── PostStatus.java
+│   │   ├── PostView.java
+│   │   ├── Reaction.java
+│   │   ├── ReactionType.java
+│   │   ├── Streak.java
+│   │   ├── Topic.java
+│   │   └── User.java
+│   ├── repository
+│   │   ├── PostRepository.java
+│   │   ├── ReactionRepository.java
+│   │   ├── ReactionTypeRepository.java
+│   │   └── TopicRepository.java
+│   └── test
+│       ├── LogbackTester.java
+│       └── controller
+├── feed
+│   ├── controller
+│   │   └── FeedController.java
+│   ├── dto
+│   └── service
+│       ├── ReactionService.java
+│       └── ReactionServiceImpl.java
+├── file_structure.txt
+├── global
+│   ├── error
+│   │   ├── BusinessException.java
+│   │   ├── ErrorCode.java
+│   │   └── GlobalExceptionHandler.java
+│   ├── nickname
+│   │   ├── NicknameGenerator.java
+│   │   ├── NicknameMetrics.java
+│   │   ├── NicknamePersistenceHelper.java
+│   │   └── VocabularyPool.java
+│   ├── response
+│   │   └── ApiResponse.java
+│   ├── security
+│   │   ├── config
+│   │   ├── controller
+│   │   ├── dto
+│   │   ├── entity
+│   │   ├── handler
+│   │   ├── jwt
+│   │   ├── repository
+│   │   ├── service
+│   │   └── util
+│   └── swagger
+│       └── SwaggerConfig.java
+├── healthcheck
+│   ├── HealthCheck.java
+│   ├── HealthCheckController.java
+│   └── HealthCheckRepository.java
+├── notification
+│   ├── controller
+│   ├── dto
+│   └── service
+├── topic
+├── user
+│   ├── dto
+│   ├── repository
+│   │   └── UserRepository.java
+│   └── service
+├── viewing
+└── writing
+    ├── controller
+    │   └── WritingController.java
+    ├── dto
+    │   ├── ReactionMetricsDto.java
+    │   ├── ReactionResponse.java
+    │   ├── ReactionUpsertRequest.java
+    │   ├── WritingCreateRequest.java
+    │   ├── WritingCreateResponse.java
+    │   ├── WritingUpdateRequest.java
+    │   └── WritingUpdateResponse.java
+    └── service
+        ├── WritingService.java
+        └── WritingServiceImpl.java
+
+40 directories, 45 files

@@ -1,7 +1,7 @@
 package swyp_11.ssubom.writing.dto;
 
 import lombok.Getter;
-import swyp_11.ssubom.writing.entity.Post;
+import swyp_11.ssubom.domain.entity.Post;
 
 @Getter
 public class WritingCreateResponse {

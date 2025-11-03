@@ -1,4 +1,4 @@
-package swyp_11.ssubom.writing.entity;
+package swyp_11.ssubom.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -6,8 +6,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
-import swyp_11.ssubom.topic.entity.Topic;
-import swyp_11.ssubom.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,9 +1,7 @@
-package swyp_11.ssubom.writing.entity;
+package swyp_11.ssubom.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import swyp_11.ssubom.user.entity.User;
-import swyp_11.ssubom.writing.entity.ReactionType;
 
 
 @Entity

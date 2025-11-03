@@ -1,11 +1,9 @@
-package swyp_11.ssubom.notification.entity;
+package swyp_11.ssubom.domain.entity;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
-import swyp_11.ssubom.user.entity.User;
-import swyp_11.ssubom.writing.entity.Post;
 
 import java.time.Instant;
 

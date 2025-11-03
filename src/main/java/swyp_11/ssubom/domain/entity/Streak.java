@@ -1,4 +1,4 @@
-package swyp_11.ssubom.user.entity;
+package swyp_11.ssubom.domain.entity;
 
 import jakarta.persistence.*;
 

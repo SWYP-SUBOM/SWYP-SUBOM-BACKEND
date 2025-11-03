@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import swyp_11.ssubom.domain.topic.entity.Topic;
-import swyp_11.ssubom.global.security.entity.User;
+import swyp_11.ssubom.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

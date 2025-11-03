@@ -9,7 +9,7 @@
 //import swyp_11.ssubom.global.error.ErrorCode;
 //import swyp_11.ssubom.domain.writing.entity.Post;
 //import swyp_11.ssubom.domain.writing.dto.WritingCreateRequest;
-//import swyp_11.ssubom.global.security.entity.User;
+//import swyp_11.ssubom.domain.user.entity.User;
 //import swyp_11.ssubom.global.security.repository.UserRepository;
 //import swyp_11.ssubom.writing.dto.WritingCreateResponse;
 //import swyp_11.ssubom.domain.writing.repository.PostRepository;

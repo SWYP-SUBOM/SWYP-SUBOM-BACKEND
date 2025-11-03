@@ -1,9 +1,8 @@
-package swyp_11.ssubom.global.security.entity;
+package swyp_11.ssubom.domain.user.entity;
 
 
 import jakarta.persistence.*;
 import lombok.Data;
-import swyp_11.ssubom.domain.user.entity.Streak;
 
 import java.time.LocalDateTime;
 

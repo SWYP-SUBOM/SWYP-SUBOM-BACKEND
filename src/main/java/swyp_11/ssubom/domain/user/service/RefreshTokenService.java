@@ -29,7 +29,7 @@ public class RefreshTokenService {
         long expireAtMillis = System.currentTimeMillis() + expireS * 1000L;
         RefreshEntity refreshEntity = RefreshEntity.builder()
                 .kakaoId(kakaoId)
-                .refresh(refreshToken)
+                .refreshValue(refreshToken)
                 .expiration( LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(expireAtMillis),
                         ZoneId.of("Asia/Seoul")

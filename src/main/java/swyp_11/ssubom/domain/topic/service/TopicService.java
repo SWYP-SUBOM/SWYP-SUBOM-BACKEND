@@ -1,7 +1,5 @@
 package swyp_11.ssubom.domain.topic.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.topic.dto.CategorySummaryDto;
@@ -31,18 +29,17 @@ public class TopicService {
     @Transactional
     public Optional<Topic> ensureTodayPicked(Long categoryId) {
         LocalDate today = LocalDate.now(KST);
-        Optional<Topic> existing = topicRepository.findByCategory_IdAndUsedTrueAndUsedAt(categoryId, today);
+        Optional<Topic> existing = topicRepository.findByCategory_IdAndIsUsedTrueAndUsedAt(categoryId, today);
         if(existing.isPresent()) {
             return existing;
         }
-        Topic t =topicRepository.lockOneUnused(categoryId);
+        Topic topic =topicRepository.lockOneUnused(categoryId);
         //다 씀
-        if (t == null) {
+        if (topic == null) {
             throw new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC);
         }
-        t.setUsed(true);
-        t.setUsedAt(today);
-        return Optional.of(t);
+        topic.use(today);
+        return Optional.of(topic);
     }
 
     @Transactional

@@ -1,18 +1,24 @@
-package swyp_11.ssubom.domain.writing.entity;
+package swyp_11.ssubom.domain.post.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import swyp_11.ssubom.domain.common.BaseTimeEntity;
 import swyp_11.ssubom.domain.user.entity.User;
 
+@Getter
 @Entity
 @Table(
-        name = "FeedReaction",
+        name = "feed_reaction",
         uniqueConstraints = @UniqueConstraint(name = "uq_reaction_post_user", columnNames = {"post_id", "user_id"})
 )
-public class Reaction {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Reaction extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feed_reactions_id")
+    @Column(name = "feed_reaction_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

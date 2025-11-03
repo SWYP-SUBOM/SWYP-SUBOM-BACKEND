@@ -11,7 +11,7 @@ import swyp_11.ssubom.global.security.dto.CustomOAuth2User;
 import swyp_11.ssubom.global.security.dto.KaKaoResponse;
 import swyp_11.ssubom.global.security.dto.OAuth2Response;
 import swyp_11.ssubom.global.security.dto.userDTO;
-import swyp_11.ssubom.global.security.entity.User;
+import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.global.security.repository.UserRepository;
 
 import java.time.LocalDateTime;

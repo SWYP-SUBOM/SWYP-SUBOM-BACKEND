@@ -5,7 +5,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
 import swyp_11.ssubom.domain.writing.entity.Post;
-import swyp_11.ssubom.global.security.entity.User;
+import swyp_11.ssubom.domain.user.entity.User;
 
 import java.time.Instant;
 

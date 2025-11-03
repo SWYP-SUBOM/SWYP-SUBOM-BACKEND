@@ -33,7 +33,7 @@ public enum ErrorCode {
     // Topic errors
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "카테고리를 찾을 수 없습니다."),
     TOPIC_NOT_FOUND(HttpStatus.NOT_FOUND, "T002", "질문을 찾을 수 없습니다."),
-
+    NO_AVAILABLE_TOPIC(HttpStatus.NOT_FOUND, "T003", "사용 가능한 주제가 없습니다."),
 
     // Writing errors (API 명세 기반)
     WRITING_NOT_FOUND(HttpStatus.NOT_FOUND, "W001", "글을 찾을 수 없습니다."),

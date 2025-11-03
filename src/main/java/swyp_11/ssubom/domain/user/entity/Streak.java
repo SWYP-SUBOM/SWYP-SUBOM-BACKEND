@@ -1,7 +1,6 @@
 package swyp_11.ssubom.domain.user.entity;
 
 import jakarta.persistence.*;
-import swyp_11.ssubom.global.security.entity.User;
 
 @Entity
 public class Streak {

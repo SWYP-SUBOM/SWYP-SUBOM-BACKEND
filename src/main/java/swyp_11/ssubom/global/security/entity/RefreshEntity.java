@@ -16,9 +16,15 @@ import java.time.LocalDateTime;
 public class RefreshEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "refresh_id")
     private Long refreshId;
+
+    @Column(name = "kakao_id", length = 255)
     private String kakaoId;
+
+    @Column(name = "refresh_value", length = 255)
     private String refreshValue;
+
     private LocalDateTime expiration;
 
     @Builder

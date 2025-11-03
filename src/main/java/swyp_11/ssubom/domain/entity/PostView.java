@@ -1,6 +1,14 @@
+<<<<<<<< HEAD:src/main/java/swyp_11/ssubom/domain/entity/PostView.java
 package swyp_11.ssubom.domain.entity;
 
 import jakarta.persistence.*;
+========
+package swyp_11.ssubom.domain.viewing.entity;
+
+import jakarta.persistence.*;
+import swyp_11.ssubom.domain.writing.entity.Post;
+import swyp_11.ssubom.global.security.entity.User;
+>>>>>>>> develop:src/main/java/swyp_11/ssubom/domain/viewing/entity/PostView.java
 
 @Entity
 @Table(name = "PostView")

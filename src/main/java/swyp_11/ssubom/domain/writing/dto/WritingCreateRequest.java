@@ -1,4 +1,4 @@
-package swyp_11.ssubom.writing.dto;
+package swyp_11.ssubom.domain.writing.dto;
 
 
 import jakarta.validation.constraints.NotBlank;

@@ -1,7 +1,13 @@
+<<<<<<<< HEAD:src/main/java/swyp_11/ssubom/domain/entity/Streak.java
 package swyp_11.ssubom.domain.entity;
+========
+package swyp_11.ssubom.domain.user.entity;
+>>>>>>>> develop:src/main/java/swyp_11/ssubom/domain/user/entity/Streak.java
 
 import jakarta.persistence.*;
+import swyp_11.ssubom.global.security.entity.User;
 
+@Entity
 public class Streak {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

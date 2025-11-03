@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:src/main/java/swyp_11/ssubom/domain/entity/Topic.java
 package swyp_11.ssubom.domain.entity;
+========
+package swyp_11.ssubom.domain.topic.entity;
+>>>>>>>> develop:src/main/java/swyp_11/ssubom/domain/topic/entity/Topic.java
 
 import jakarta.persistence.*;
 

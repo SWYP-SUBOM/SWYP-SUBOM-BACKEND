@@ -1,9 +1,18 @@
+<<<<<<<< HEAD:src/main/java/swyp_11/ssubom/domain/entity/Notification.java
 package swyp_11.ssubom.domain.entity;
+========
+package swyp_11.ssubom.domain.notification.entity;
+>>>>>>>> develop:src/main/java/swyp_11/ssubom/domain/notification/entity/Notification.java
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
+<<<<<<<< HEAD:src/main/java/swyp_11/ssubom/domain/entity/Notification.java
+========
+import swyp_11.ssubom.domain.writing.entity.Post;
+import swyp_11.ssubom.global.security.entity.User;
+>>>>>>>> develop:src/main/java/swyp_11/ssubom/domain/notification/entity/Notification.java
 
 import java.time.Instant;
 

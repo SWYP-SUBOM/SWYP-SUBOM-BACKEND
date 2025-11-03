@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:src/main/java/swyp_11/ssubom/domain/entity/AIFeedback.java
 package swyp_11.ssubom.domain.entity;
+========
+package swyp_11.ssubom.domain.writing.entity;
+>>>>>>>> develop:src/main/java/swyp_11/ssubom/domain/writing/entity/AIFeedback.java
 
 import jakarta.persistence.*;
 import lombok.Getter;

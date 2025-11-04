@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import swyp_11.ssubom.domain.common.BaseTimeEntity;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.global.error.BusinessException;
@@ -18,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "Post")
-public class Post {
+public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
@@ -33,23 +34,15 @@ public class Post {
     private Topic topic;
 
     @Lob
-    @Column(name = "content")
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20, nullable = false)
+    @Column(name = "status", length = 20)
     private PostStatus status; //DRAFT, PUBLISHED
 
-    @Column(name = "is_revised")
+    @Column(name = "is_revised", nullable = false, columnDefinition = "boolean default false")
     private boolean isRevised;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @Column(name = "nickname", length = 100, unique = true)
     private String nickname;
@@ -83,18 +76,6 @@ public class Post {
                 .nickname(nickname)
                 .build();
     }
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
 
     public void update(PostStatus nextStatus, String content) {
         if (this.status == PostStatus.DRAFT) {

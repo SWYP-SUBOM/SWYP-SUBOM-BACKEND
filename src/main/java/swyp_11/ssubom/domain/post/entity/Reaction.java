@@ -2,17 +2,18 @@ package swyp_11.ssubom.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import swyp_11.ssubom.domain.common.BaseTimeEntity;
 import swyp_11.ssubom.domain.user.entity.User;
 
 
 @Entity
 @Table(
-        name = "FeedReaction",
+        name = "feed_reaction",
         uniqueConstraints = @UniqueConstraint(name = "uq_reaction_post_user", columnNames = {"post_id", "user_id"})
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Reaction {
+public class Reaction extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

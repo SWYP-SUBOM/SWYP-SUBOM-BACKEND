@@ -2,14 +2,16 @@ package swyp_11.ssubom.domain.user.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import swyp_11.ssubom.domain.common.BaseTimeEntity;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
 @Table(name = "users")
-public class User {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,11 +30,24 @@ public class User {
     @Column(name = "role", length = 255)
     public String role;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Streak streak;
+
+
+    public User( String kakaoId, String userName, String email, String role) {
+        this.kakaoId = kakaoId;
+        this.userName = userName;
+        this.email = email;
+        this.role = role;
+    }
+
+    public void updateUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
 }
 
 

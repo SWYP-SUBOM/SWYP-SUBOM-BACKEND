@@ -48,14 +48,17 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         //refresh
         Integer expireS = 24*60*60;
-        String access = jwtUtil.createJWT("access",kakaoId,role,60*10*1000L);
+
+        //todo
+        //테스트 환경 만료시간 길게  60*10*1000L
+        String access = jwtUtil.createJWT("access",kakaoId,role,2L * 24 * 60 * 60 * 1000);
         String refresh =jwtUtil.createJWT("refresh",kakaoId,role,expireS * 1000L);
 
         refreshTokenService.saveRefresh(kakaoId,refresh,expireS);
-        response.addCookie(CookieUtil.createCookie("access",access,60*10));
+        response.addCookie(CookieUtil.createCookie("access",access,2 * 24 * 60 * 60));
         response.addCookie(CookieUtil.createCookie("refresh", refresh, expireS));
 
         String encodedName = URLEncoder.encode(username, "UTF-8");
-        response.sendRedirect("http://localhost:3000/oauth2-jwt-header?name=" + encodedName);
+        response.sendRedirect("http://localhost:5174/oauth2-jwt-header?name=" + encodedName);
     }
 }

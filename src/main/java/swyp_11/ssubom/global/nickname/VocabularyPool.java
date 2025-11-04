@@ -14,10 +14,10 @@ import java.util.*;
 public class
 
 VocabularyPool {
-    private static final String MODIFIERS_PATH = "static/nickname_words/modifiers.txt";
-    private static final String NOUNS_PATH = "static/nickname_words/nouns.txt";
-    private static final String ACTIVITIES_PATH = "static/nickname_words/activities.txt";
-    private static final String QUALIFIERS_PATH = "static/nickname_words/qualifiers.txt";
+    private static final String MODIFIERS_PATH = "static/modifiers.txt";
+    private static final String NOUNS_PATH = "static/nouns.txt";
+    private static final String ACTIVITIES_PATH = "static/activities.txt";
+    private static final String QUALIFIERS_PATH = "static/qualifiers.txt";
 
     private List<String> modifiers;
     private List<String> nouns;

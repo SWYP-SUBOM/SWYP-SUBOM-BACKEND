@@ -12,9 +12,9 @@ public class NameService {
 
     public void saveName(String kakaId, String name) {
         User user = userRepository.findByKakaoId(kakaId);
-        if (user == null) throw new IllegalStateException("인증 필요");
+        if (user == null) throw new IllegalStateException("사용자의 인증정보 필요");
         if(user!=null) {
-            user.setUserName(name);
+            user.updateUserName(name);
             userRepository.save(user);
         }
     }

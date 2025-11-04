@@ -43,12 +43,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         //새로 생성
         if (existData == null) {
-            User user = new User();
-            user.setKakaoId(oAuth2Response.getProviderId());
-            user.setEmail(oAuth2Response.getEmail());
-            user.setUserName(oAuth2Response.getName());
-            user.setRole("ROLE_USER");
-            user.setCreatedAt(LocalDateTime.now());
+            User user = new User(
+                    oAuth2Response.getProviderId(),
+                    oAuth2Response.getName(),
+                    oAuth2Response.getEmail(),
+            "ROLE_USER");
+//            user.setCreatedAt(LocalDateTime.now());
             userRepository.save(user);
 
             userDTO userDTO = new userDTO();
@@ -59,8 +59,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             return new CustomOAuth2User(userDTO);
         }
         else {
-            existData.setEmail(oAuth2Response.getEmail());
-            existData.setUserName(existData.getUserName());
+            existData.updateEmail(oAuth2Response.getEmail());
+            existData.updateUserName(existData.getUserName());
 
             userRepository.save(existData);
 

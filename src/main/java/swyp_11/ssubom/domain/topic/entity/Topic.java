@@ -1,16 +1,18 @@
 package swyp_11.ssubom.domain.topic.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import swyp_11.ssubom.domain.common.BaseTimeEntity;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.Date;
 
-@Data
+@Getter
 @Entity
-@Table(name = "Topic")
-public class Topic {
+@Table(name = "topic")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Topic extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,9 +26,14 @@ public class Topic {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-   @Column(name ="is_used" , nullable = false)
-    private boolean used=false;
+    @Column(name = "is_used", nullable = false, columnDefinition = "boolean default false")
+    private boolean isUsed;
 
    @Column(name = "used_at")
     private LocalDate usedAt;
+
+    public void use(LocalDate today) {
+        this.isUsed = true;
+        this.usedAt = today;
+    }
 }

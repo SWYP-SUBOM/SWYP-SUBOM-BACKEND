@@ -9,8 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-import swyp_11.ssubom.global.security.dto.CustomOAuth2User;
-import swyp_11.ssubom.global.security.dto.userDTO;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.domain.user.dto.userDTO;
 
 import java.io.IOException;
 

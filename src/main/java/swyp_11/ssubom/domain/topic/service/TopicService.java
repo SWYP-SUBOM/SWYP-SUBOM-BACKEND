@@ -1,15 +1,17 @@
 package swyp_11.ssubom.domain.topic.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import swyp_11.ssubom.domain.topic.dto.CategorySummaryDto;
-import swyp_11.ssubom.domain.topic.dto.TodayTopicResponseDto;
-import swyp_11.ssubom.domain.topic.dto.TopicCollectionResponse;
-import swyp_11.ssubom.domain.topic.dto.TopicListResponse;
+import swyp_11.ssubom.domain.post.dto.TodayPostResponse;
+import swyp_11.ssubom.domain.post.service.PostService;
+import swyp_11.ssubom.domain.topic.dto.*;
 import swyp_11.ssubom.domain.topic.entity.Topic;
+import swyp_11.ssubom.domain.topic.repository.CategoryRepository;
 import swyp_11.ssubom.domain.topic.repository.TopicRepository;
+import swyp_11.ssubom.domain.user.dto.StreakResponse;
+import swyp_11.ssubom.domain.user.service.UserService;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 
@@ -19,30 +21,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class TopicService {
-    private final TopicRepository topicRepository;
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
-    public TopicService(TopicRepository topicRepository) {
-        this.topicRepository = topicRepository;
-    }
+    private final TopicRepository topicRepository;
+    private final CategoryRepository categoryRepository;
+    private final UserService userService;
+    private final PostService postService;
 
     @Transactional
     public Optional<Topic> ensureTodayPicked(Long categoryId) {
         LocalDate today = LocalDate.now(KST);
-        Optional<Topic> existing = topicRepository.findByCategory_IdAndUsedTrueAndUsedAt(categoryId, today);
+        Optional<Topic> existing = topicRepository.findByCategory_IdAndIsUsedTrueAndUsedAt(categoryId, today);
         if(existing.isPresent()) {
             return existing;
         }
-        Topic t =topicRepository.lockOneUnused(categoryId);
+        Topic topic =topicRepository.lockOneUnused(categoryId);
         //다 씀
-        if (t == null) {
+        if (topic == null) {
             throw new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC);
         }
-        t.setUsed(true);
-        t.setUsedAt(today);
-        return Optional.of(t);
+        topic.use(today);
+        return Optional.of(topic);
     }
 
     @Transactional
@@ -79,4 +83,19 @@ public class TopicService {
         return new TopicListResponse(categories,categoryName,t);
     }
 
+    public HomeResponse getHome(Long userId) {
+        StreakResponse streakCount = null;
+        TodayPostResponse todayPostResponse = null;
+
+        if (userId != null) {
+            streakCount = userService.getStreak(userId);
+            todayPostResponse = postService.findPostStatusByToday(userId);
+        }
+
+        List<CategoryResponse> categories = categoryRepository.findAll().stream()
+                .map(category -> CategoryResponse.toDto(category.getId(), category.getName()))
+                .toList();
+
+        return HomeResponse.toDto(streakCount, categories, todayPostResponse);
+    }
 }

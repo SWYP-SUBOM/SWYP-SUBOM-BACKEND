@@ -6,7 +6,7 @@ RUN chmod +x gradlew
 RUN ./gradlew clean build -x test
 
 # 2단계: 실행
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /apps
 COPY --from=build /apps/build/libs/*.jar app.jar
 EXPOSE 8080

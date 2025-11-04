@@ -1,20 +1,18 @@
 package swyp_11.ssubom.domain.post.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import swyp_11.ssubom.domain.common.BaseTimeEntity;
+import lombok.*;
 import swyp_11.ssubom.domain.user.entity.User;
 
-@Getter
+
 @Entity
 @Table(
-        name = "feed_reaction",
+        name = "FeedReaction",
         uniqueConstraints = @UniqueConstraint(name = "uq_reaction_post_user", columnNames = {"post_id", "user_id"})
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Reaction extends BaseTimeEntity {
+@Getter
+public class Reaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +30,34 @@ public class Reaction extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    public Reaction(Post post, ReactionType type, User user) {
+        this.post = post;
+        this.type = type;
+        this.user = user;
+    }
+
+    public static Reaction create(User user, Post post, ReactionType type) {
+        if (user == null || post == null || type == null) {
+            throw new IllegalArgumentException("User,Post, ReactionType은 필수입니다.");
+        }
+        return Reaction.builder()
+                .user(user)
+                .post(post)
+                .type(type)
+                .build();
+    }
+
+    public void addType(ReactionType reactionType) {
+        if (reactionType == null) {
+            return;
+        }
+        if (reactionType.equals(this.type)) {
+            return;
+        }
+        this.type = reactionType;
+    }
+
 }
+

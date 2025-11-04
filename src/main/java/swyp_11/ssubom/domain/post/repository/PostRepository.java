@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findFirstByUser_UserIdAndCreatedAtBetweenOrderByCreatedAtDesc(Long userId, LocalDateTime startOfDay, LocalDateTime endOfDay);
+    boolean existsByNickname(String nickname);
 }

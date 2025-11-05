@@ -21,6 +21,7 @@ import swyp_11.ssubom.domain.user.service.CustomOauth2UserService;
 
 
 import java.util.Collections;
+import java.util.List;
 
 @EnableWebSecurity
 @Configuration
@@ -39,10 +40,10 @@ public class SecurityConfig {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5174"));
-                configuration.setAllowedMethods(Collections.singletonList("*"));
+                configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+                configuration.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+                configuration.setAllowedHeaders(List.of("*"));
                 configuration.setAllowCredentials(true);
-                configuration.setAllowedHeaders(Collections.singletonList("*"));
                 configuration.setExposedHeaders(Collections.singletonList("access"));
                 configuration.setMaxAge(3600L);
                 return configuration;
@@ -76,9 +77,9 @@ public class SecurityConfig {
                         .requestMatchers("/assets/**", "/favicon.ico", "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**",
                                 "/webjars/**", "/swagger/**","/api-docs/**","/images/logo.png","/v3/api-docs/**", "/actuator/**").permitAll()
                         .requestMatchers("/auth","/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories","/api/home").permitAll()
+                        //.requestMatchers("/api/login/oauth2/code/kakao").permitAll()
                         .requestMatchers("/api/my").hasRole("USER")
-                        .requestMatchers("/api/writings/**").hasRole("USER")
-                        .requestMatchers("/api/feeds/**").hasRole("USER")
+                        .requestMatchers("/api/posts/**").hasRole("USER")
                         .requestMatchers("/api/notifications").hasRole("USER")
                         .requestMatchers("/api/categories").hasRole("USER")
 

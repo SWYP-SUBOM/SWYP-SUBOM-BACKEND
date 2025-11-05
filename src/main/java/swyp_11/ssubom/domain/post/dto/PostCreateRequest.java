@@ -5,9 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class PostCreateRequest {
     @NotNull
     private Long categoryId;
@@ -17,8 +19,5 @@ public class PostCreateRequest {
 
     @NotBlank
     private String content;
-
-    @NotBlank
-    private String status; // "DRAFT" is only possible.
 
 }

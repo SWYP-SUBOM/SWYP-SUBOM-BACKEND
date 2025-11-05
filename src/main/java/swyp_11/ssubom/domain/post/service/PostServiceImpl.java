@@ -36,9 +36,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostCreateResponse createWriting(Long userId, PostCreateRequest request) {
         User user = userRepository.findById(userId)
-
-
-
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Topic topic = topicRepository.findById(request.getTopicId())
@@ -77,9 +74,9 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
-//        if (!post.getUser().getId().equals(userId)) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_WRITING_MODIFICATION);
-//        }
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_WRITING_MODIFICATION);
+        }
 
         //PRD에 따르면 PUBLISHED deletion 불가
         if (post.getStatus() == PostStatus.PUBLISHED) {

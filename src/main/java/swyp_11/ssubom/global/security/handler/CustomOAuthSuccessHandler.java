@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import swyp_11.ssubom.global.security.dto.CustomOAuth2User;
-import swyp_11.ssubom.global.security.entity.User;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
-import swyp_11.ssubom.global.security.repository.UserRepository;
-import swyp_11.ssubom.global.security.service.RefreshTokenService;
+import swyp_11.ssubom.domain.user.repository.UserRepository;
+import swyp_11.ssubom.domain.user.service.RefreshTokenService;
 import swyp_11.ssubom.global.security.util.CookieUtil;
 
 import java.io.IOException;
@@ -48,14 +48,17 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         //refresh
         Integer expireS = 24*60*60;
-        String access = jwtUtil.createJWT("access",kakaoId,role,60*10*1000L);
+
+        //todo
+        //테스트 환경 만료시간 길게  60*10*1000L
+        String access = jwtUtil.createJWT("access",kakaoId,role,2L * 24 * 60 * 60 * 1000);
         String refresh =jwtUtil.createJWT("refresh",kakaoId,role,expireS * 1000L);
 
         refreshTokenService.saveRefresh(kakaoId,refresh,expireS);
-        response.addCookie(CookieUtil.createCookie("access",access,60*10));
+        response.addCookie(CookieUtil.createCookie("access",access,2 * 24 * 60 * 60));
         response.addCookie(CookieUtil.createCookie("refresh", refresh, expireS));
 
         String encodedName = URLEncoder.encode(username, "UTF-8");
-        response.sendRedirect("http://localhost:3000/oauth2-jwt-header?name=" + encodedName);
+        response.sendRedirect("http://localhost:5174/oauth2-jwt-header?name=" + encodedName);
     }
 }

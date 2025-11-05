@@ -2,14 +2,11 @@ package swyp_11.ssubom.global.security.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.cfg.Environment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -19,12 +16,11 @@ import swyp_11.ssubom.global.security.handler.CustomOAuthSuccessHandler;
 import swyp_11.ssubom.global.security.jwt.CustomLogoutFilter;
 import swyp_11.ssubom.global.security.jwt.JWTFilter;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
-import swyp_11.ssubom.global.security.repository.RefreshRepository;
-import swyp_11.ssubom.global.security.service.CustomOauth2UserService;
+import swyp_11.ssubom.domain.user.repository.RefreshRepository;
+import swyp_11.ssubom.domain.user.service.CustomOauth2UserService;
 
 
 import java.util.Collections;
-import java.util.List;
 
 @EnableWebSecurity
 @Configuration
@@ -43,7 +39,7 @@ public class SecurityConfig {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5174"));
                 configuration.setAllowedMethods(Collections.singletonList("*"));
                 configuration.setAllowCredentials(true);
                 configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -79,7 +75,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->auth
                         .requestMatchers("/assets/**", "/favicon.ico", "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**",
                                 "/webjars/**", "/swagger/**","/api-docs/**","/images/logo.png","/v3/api-docs/**", "/actuator/**").permitAll()
-                        .requestMatchers("/auth","/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue","api/categories","api/home").permitAll()
+                        .requestMatchers("/auth","/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories","/api/home").permitAll()
                         .requestMatchers("/api/my").hasRole("USER")
                         .requestMatchers("/api/writings/**").hasRole("USER")
                         .requestMatchers("/api/feeds/**").hasRole("USER")

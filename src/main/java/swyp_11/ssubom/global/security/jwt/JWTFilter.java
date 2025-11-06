@@ -12,6 +12,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 import swyp_11.ssubom.domain.user.dto.userDTO;
 
+import jakarta.servlet.http.Cookie;
+
+
 import java.io.IOException;
 
 public class JWTFilter extends OncePerRequestFilter {
@@ -24,9 +27,32 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String access = null;
-        access=request.getHeader("access");
+//        access=request.getHeader("access");
+//        if(access==null){
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
 
-        if(access==null){
+        // 1. (Swagger/API용) Authorization 헤더에서 Bearer 토큰 추출
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            access = authorizationHeader.substring(7); // "Bearer " 이후의 토큰 값
+        }
+        // 2. (웹 프론트엔드용) 헤더에 없으면 'access' 쿠키에서 토큰 추출
+        else {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("access")) {
+                        access = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 3. 토큰이 아예 없는 경우 (익명 사용자)
+        if (access == null) {
             filterChain.doFilter(request, response);
             return;
         }

@@ -12,6 +12,7 @@ import swyp_11.ssubom.domain.post.dto.*;
 import swyp_11.ssubom.domain.post.service.ReactionService;
 import swyp_11.ssubom.global.response.ApiResponse;
 import swyp_11.ssubom.domain.post.service.PostService;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 
 @Slf4j
 @RestController
@@ -23,15 +24,10 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<PostCreateResponse>> createWriting(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @Valid @RequestBody PostCreateRequest request
     ) {
-        if (userId == null) {
-            // 임시 예외 처리 또는 테스트용 ID 할당
-            log.warn("UserId is null, using test user ID 1L for development.");
-            userId = 1L;
-            // throw new BusinessException(ErrorCode.UNAUTHORIZED); // 실제 운영 시
-        }
+        Long userId = customOAuth2User.getUserId();
 
         PostCreateResponse postCreateResponse = postService.createWriting(userId, request);
         ApiResponse<PostCreateResponse> responseBody = ApiResponse.success(
@@ -44,16 +40,11 @@ public class PostController {
 
     @PutMapping("/{writingId}")
     public ResponseEntity<ApiResponse<PostUpdateResponse>> updateWriting(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateRequest request
     ) {
-        if (userId == null) {
-            // 임시 예외 처리 또는 테스트용 ID 할당
-            log.warn("UserId is null, using test user ID 1L for development.");
-            userId = 1L;
-            // throw new BusinessException(ErrorCode.UNAUTHORIZED); // 실제 운영 시
-        }
+        Long userId = customOAuth2User.getUserId();
 
         PostUpdateResponse postUpdateResponse = postService.updateWriting(
                 userId,
@@ -71,15 +62,10 @@ public class PostController {
 
     @DeleteMapping("/{writingId}")
     public ResponseEntity<ApiResponse<Void>> deleteWriting(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @PathVariable Long postId
     ) {
-        if (userId == null) {
-            // 임시 예외 처리 또는 테스트용 ID 할당
-            log.warn("UserId is null, using test user ID 1L for development.");
-            userId = 1L;
-            // throw new BusinessException(ErrorCode.UNAUTHORIZED); // 실제 운영 시
-        }
+        Long userId = customOAuth2User.getUserId();
         postService.deleteWriting(userId, postId);
 
         ApiResponse<Void> responseBody = ApiResponse.success(
@@ -94,16 +80,11 @@ public class PostController {
 
     @PutMapping("/{postId}/reaction")
     public ResponseEntity<ApiResponse<ReactionResponse>> upsertReaction(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @PathVariable Long postId,
             @Valid @RequestBody ReactionUpsertRequest request
     ) {
-        if (userId == null) {
-            // 임시 예외 처리 또는 테스트용 ID 할당
-            log.warn("UserId is null, using test user ID 1L for development.");
-            userId = 1L;
-            // throw new BusinessException(ErrorCode.UNAUTHORIZED); // 실제 운영 시
-        }
+        Long userId = customOAuth2User.getUserId();
 
         ReactionResponse reactionResponse = reactionService.upsertReaction(userId, postId, request);
 
@@ -117,15 +98,10 @@ public class PostController {
 
     @DeleteMapping("/{feedId}/reaction")
     public ResponseEntity<ApiResponse<ReactionResponse>> deleteReaction(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @PathVariable Long postId
     ) {
-        if (userId == null) {
-            // 임시 예외 처리 또는 테스트용 ID 할당
-            log.warn("UserId is null, using test user ID 1L for development.");
-            userId = 1L;
-            // throw new BusinessException(ErrorCode.UNAUTHORIZED); // 실제 운영 시
-        }
+        Long userId = customOAuth2User.getUserId();
         ReactionResponse reactionResponse = reactionService.deleteReaction(userId, postId);
 
         ApiResponse<ReactionResponse> responseBody = ApiResponse.success(
@@ -137,4 +113,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 
     }
+
+
 }

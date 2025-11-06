@@ -53,6 +53,3 @@ application-secret.properties
 *.bak
 *.swp
 *~
-
-# Temporary added
-src/main/java/swyp_11/ssubom/writing

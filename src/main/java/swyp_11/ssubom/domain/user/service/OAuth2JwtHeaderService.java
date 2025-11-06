@@ -31,7 +31,7 @@ public class OAuth2JwtHeaderService {
 
         response.addCookie(CookieUtil.createCookie("access",null,0));
 
-        response.addHeader("access",access);
+        response.addHeader("Authorization", "Bearer "+ access);
         response.setStatus(HttpServletResponse.SC_OK);
         return "success";
     }

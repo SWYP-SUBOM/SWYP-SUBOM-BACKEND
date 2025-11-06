@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.TodayPostResponse;
 import swyp_11.ssubom.domain.post.service.PostService;
 import swyp_11.ssubom.domain.topic.dto.*;
+import swyp_11.ssubom.domain.topic.entity.Category;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.topic.repository.CategoryRepository;
 import swyp_11.ssubom.domain.topic.repository.TopicRepository;
@@ -67,20 +68,24 @@ public class TopicService {
         else{
              topics = topicRepository.findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtAsc(categoryId);
         }
-        List<CategorySummaryDto> categories =List.of(
-                CategorySummaryDto.builder().categoryId(1L).categoryName("문화&트렌드").build(),
-                CategorySummaryDto.builder().categoryId(2L).categoryName("취미&취향").build(),
-                CategorySummaryDto.builder().categoryId(3L).categoryName("가치관").build(),
-                CategorySummaryDto.builder().categoryId(4L).categoryName("일상").build(),
-                CategorySummaryDto.builder().categoryId(5L).categoryName("인간관계").build()
-        );
+        List<CategorySummaryDto> categories =categoryRepository.findAll().stream()
+                .map(c->CategorySummaryDto.builder()
+                        .categoryId(c.getId())
+                .categoryName(c.getName())
+                        .build())
+                .toList();
 
-         List<TopicCollectionResponse> t = topics.stream()
+
+         List<TopicCollectionResponse> topicCollectionResponses = topics.stream()
                 .map(TopicCollectionResponse::from)
                 .collect(Collectors.toList());
 
-        String categoryName = topics.get(0).getCategory().getName();
-        return new TopicListResponse(categories,categoryName,t);
+        //  없으면 null
+        String categoryName = categoryRepository.findById(categoryId)
+                .map(Category::getName)
+                .orElse(null);
+
+        return new TopicListResponse(categories,categoryName,topicCollectionResponses);
     }
 
     public HomeResponse getHome(Long userId) {

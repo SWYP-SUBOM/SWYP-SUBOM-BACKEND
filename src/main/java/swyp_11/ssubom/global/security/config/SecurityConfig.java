@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.global.security.handler.CustomOAuthSuccessHandler;
 import swyp_11.ssubom.global.security.jwt.CustomLogoutFilter;
 import swyp_11.ssubom.global.security.jwt.JWTFilter;
@@ -35,7 +36,7 @@ public class SecurityConfig {
     private final CustomOauth2UserService customOauth2UserService;
     private final CustomOAuthSuccessHandler customOAuthSuccessHandler;
     private final RefreshRepository refreshRepository;
-
+    private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -63,7 +64,7 @@ public class SecurityConfig {
         http.httpBasic(auth->auth.disable());
 
         http.
-                addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
+                addFilterAfter(new JWTFilter(jwtUtil,userRepository), OAuth2LoginAuthenticationFilter.class);
 
         http.
                 addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository), LogoutFilter.class);

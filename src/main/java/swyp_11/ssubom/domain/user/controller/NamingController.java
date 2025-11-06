@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.global.error.BusinessException;
+import swyp_11.ssubom.global.error.ErrorCode;
 import swyp_11.ssubom.global.response.ApiResponse;
 import swyp_11.ssubom.domain.user.service.NameService;
 
@@ -21,15 +24,18 @@ public class NamingController {
 
    private final NameService nameService;
     @Operation(
-            summary = "이름 입력전달",
+            summary = "이름 입력",
             description = "저장 후 본문 없이 성공만 반환",
             security = { @SecurityRequirement(name = "bearerAuth") }
     )
 
     @PostMapping("/api/naming")
-    public ApiResponse<Void> naming(@RequestParam String name , @AuthenticationPrincipal OAuth2User user ) {
-        String kakaoId = user.getAttribute("kakaoId");
-         nameService.saveName(kakaoId,name);
+    public ApiResponse<Void> naming(@RequestParam(value = "name") String name , @AuthenticationPrincipal CustomOAuth2User user ) {
+        Long userId = user.getUserId();
+        if(userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+        nameService.saveName(userId,name);
         return ApiResponse.success(null);
     }
 
@@ -57,8 +63,11 @@ public class NamingController {
             )
     })
     @GetMapping("/api/naming")
-    public ApiResponse<String> naming(@AuthenticationPrincipal OAuth2User user) {
-        String kakaoId = user.getAttribute("kakaoId");
-        return ApiResponse.success(nameService.getName(kakaoId));
+    public ApiResponse<String> naming(@AuthenticationPrincipal CustomOAuth2User user) {
+        Long userId = user.getUserId();
+        if(userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+        return ApiResponse.success(nameService.getName(userId));
     }
 }

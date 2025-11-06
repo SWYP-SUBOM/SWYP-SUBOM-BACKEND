@@ -10,6 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 public class TopicListResponse {
     private List<CategorySummaryDto> categories;
-    private String selectedcategoryName;
+    private String selectedCategoryName;
     private List<TopicCollectionResponse> topics;
 }

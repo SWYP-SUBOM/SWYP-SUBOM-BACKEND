@@ -46,6 +46,7 @@ public class JWTFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             access = authorizationHeader.substring(7);
         }
+
         // 2. (웹 프론트엔드용) 헤더에 없으면 'access' 쿠키에서 토큰 추출
         else {
             Cookie[] cookies = request.getCookies();

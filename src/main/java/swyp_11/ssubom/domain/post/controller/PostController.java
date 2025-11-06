@@ -23,13 +23,13 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PostCreateResponse>> createWriting(
+    public ResponseEntity<ApiResponse<PostCreateResponse>> createPost(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @Valid @RequestBody PostCreateRequest request
     ) {
         Long userId = customOAuth2User.getUserId();
 
-        PostCreateResponse postCreateResponse = postService.createWriting(userId, request);
+        PostCreateResponse postCreateResponse = postService.createPost(userId, request);
         ApiResponse<PostCreateResponse> responseBody = ApiResponse.success(
                 postCreateResponse,
                 "W0001",
@@ -38,19 +38,20 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
-    @PutMapping("/{writingId}")
-    public ResponseEntity<ApiResponse<PostUpdateResponse>> updateWriting(
+    @PutMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostUpdateResponse>> updatePost(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateRequest request
     ) {
         Long userId = customOAuth2User.getUserId();
 
-        PostUpdateResponse postUpdateResponse = postService.updateWriting(
+        PostUpdateResponse postUpdateResponse = postService.updatePost(
                 userId,
                 postId,
                 request
         );
+
 
         ApiResponse<PostUpdateResponse> responseBody = ApiResponse.success(
                 postUpdateResponse,
@@ -60,13 +61,13 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
-    @DeleteMapping("/{writingId}")
-    public ResponseEntity<ApiResponse<Void>> deleteWriting(
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @PathVariable Long postId
     ) {
         Long userId = customOAuth2User.getUserId();
-        postService.deleteWriting(userId, postId);
+        postService.deletePost(userId, postId);
 
         ApiResponse<Void> responseBody = ApiResponse.success(
                 null,
@@ -96,7 +97,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
-    @DeleteMapping("/{feedId}/reaction")
+    @DeleteMapping("/{postId}/reaction")
     public ResponseEntity<ApiResponse<ReactionResponse>> deleteReaction(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
             @PathVariable Long postId

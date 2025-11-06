@@ -43,7 +43,7 @@ public class JWTFilter extends OncePerRequestFilter {
         // 1. (Swagger/API용) Authorization 헤더에서 Bearer 토큰 추출
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            access = authorizationHeader.substring(7); // "Bearer " 이후의 토큰 값
+            access = authorizationHeader.substring(7);
         }
         // 2. (웹 프론트엔드용) 헤더에 없으면 'access' 쿠키에서 토큰 추출
         else {

@@ -32,9 +32,10 @@ public class PostServiceImpl implements PostService {
     private final NicknameGenerator nicknameGenerator;
     private final TopicRepository topicRepository;
     private static final int SERVICE_LEVEL_MAX_TRIES = 5;
+    private jakarta.persistence.EntityManager entityManager;
 
     @Override
-    public PostCreateResponse createWriting(Long userId, PostCreateRequest request) {
+    public PostCreateResponse createPost(Long userId, PostCreateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
@@ -57,7 +58,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostUpdateResponse updateWriting(Long userId, Long postId, PostUpdateRequest request) {
+    public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest request) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
@@ -70,7 +71,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deleteWriting(Long userId, Long postId) {
+    public void deletePost(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 

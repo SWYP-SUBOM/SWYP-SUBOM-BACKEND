@@ -7,9 +7,6 @@ import swyp_11.ssubom.domain.post.entity.PostStatus;;
 @Getter
 public class PostUpdateRequest {
 
-    private Long topicId;
-
-    @Lob
     private String content;
 
     private PostStatus status;

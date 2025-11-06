@@ -39,16 +39,32 @@ VocabularyPool {
 
     private void validate() { // 중복 check
         Set<String> allWords = new HashSet<>();
-        allWords.addAll(modifiers);
-        allWords.addAll(nouns);
-        allWords.addAll(activities);
-        allWords.addAll(qualifiers);
+        for (String word : modifiers) {
+            if (!allWords.add(word)) { // Set에 추가 실패 시 (중복)
+                throw new IllegalStateException(
+                        "어휘 풀에 중복된 단어가 있습니다: '" + word + "' (modifiers.txt 또는 이전 파일에서 중복됨)");
+            }
+        }
 
-        int totalSize = modifiers.size() + nouns.size() +
-                activities.size() + qualifiers.size();
+        for (String word : nouns) {
+            if (!allWords.add(word)) {
+                throw new IllegalStateException(
+                        "어휘 풀에 중복된 단어가 있습니다: '" + word + "' (nouns.txt 또는 이전 파일에서 중복됨)");
+            }
+        }
 
-        if (allWords.size() != totalSize) {
-            throw new IllegalStateException("어휘 풀에 중복된 단어가 있습니다");
+        for (String word : activities) {
+            if (!allWords.add(word)) {
+                throw new IllegalStateException(
+                        "어휘 풀에 중복된 단어가 있습니다: '" + word + "' (activities.txt 또는 이전 파일에서 중복됨)");
+            }
+        }
+
+        for (String word : qualifiers) {
+            if (!allWords.add(word)) {
+                throw new IllegalStateException(
+                        "어휘 풀에 중복된 단어가 있습니다: '" + word + "' (qualifiers.txt 또는 이전 파일에서 중복됨)");
+            }
         }
     }
 
@@ -65,6 +81,8 @@ VocabularyPool {
                  BufferedReader reader = new BufferedReader(isr)) {
 
                 return reader.lines()
+                        .map(line -> line.split(","))
+                        .flatMap(Arrays::stream)
                         .map(String::trim)
                         .filter(line -> !line.isBlank())
                         .toList();

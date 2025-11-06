@@ -33,7 +33,6 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "topic_id", nullable = false)
     private Topic topic;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String content;
 

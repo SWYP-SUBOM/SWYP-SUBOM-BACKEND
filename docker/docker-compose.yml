@@ -5,8 +5,8 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     image: seobom-backend:latest
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080" # 내부망 통신만 허용
     networks:
       - deploy
     restart: always
@@ -19,6 +19,8 @@ services:
       - "443:443"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro   # SSL 인증서 공유
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /var/www/certbot:/var/www/certbot
       - /jenkins/workspace/seobom-backend/nginx/conf.d:/etc/nginx/conf.d:ro   # 설정파일 마운트
     depends_on:
       - seobom-backend

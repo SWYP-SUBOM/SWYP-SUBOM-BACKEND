@@ -5,20 +5,27 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 import swyp_11.ssubom.domain.user.dto.userDTO;
+import swyp_11.ssubom.domain.user.entity.User;
+import swyp_11.ssubom.domain.user.repository.UserRepository;
+import swyp_11.ssubom.global.error.BusinessException;
+import swyp_11.ssubom.global.error.ErrorCode;
 
 import java.io.IOException;
 
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    public JWTFilter(JWTUtil jwtUtil) {
+    public JWTFilter(JWTUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository=userRepository;
     }
 
     @Override
@@ -48,9 +55,18 @@ public class JWTFilter extends OncePerRequestFilter {
         String kakaoId = jwtUtil.getKakaoId(access);
         String role = jwtUtil.getRole(access);
 
+        User userEntity = userRepository.findByKakaoId(kakaoId);
+
         userDTO userDTO = new userDTO();
         userDTO.setKakaoId(kakaoId);
         userDTO.setRole(role);
+
+        if(userEntity!=null){
+            userDTO.setUserId(userEntity.getUserId());
+        }
+        else {
+                throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
 
         CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
         Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());

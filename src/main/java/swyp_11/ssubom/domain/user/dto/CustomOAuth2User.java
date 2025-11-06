@@ -18,7 +18,7 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public Map<String, Object> getAttributes() {
-        return Map.of("kakaoId", userDTO.getKakaoId());
+        return Map.of("kakaoId", userDTO.getKakaoId(),"userId", userDTO.getUserId());
     }
 
     @Override

@@ -4,6 +4,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -54,11 +56,30 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String access = jwtUtil.createJWT("access",kakaoId,role,2L * 24 * 60 * 60 * 1000);
         String refresh =jwtUtil.createJWT("refresh",kakaoId,role,expireS * 1000L);
 
+
         refreshTokenService.saveRefresh(kakaoId,refresh,expireS);
-        response.addCookie(CookieUtil.createCookie("access",access,2 * 24 * 60 * 60));
-        response.addCookie(CookieUtil.createCookie("refresh", refresh, expireS));
+//        response.addCookie(CookieUtil.createCookie("access",access,2 * 24 * 60 * 60));
+//        response.addCookie(CookieUtil.createCookie("refresh", refresh, expireS));
+        ResponseCookie accessCookie = ResponseCookie.from("access", access)
+                .path("/")
+                .sameSite("None")
+                .secure(true)
+                .httpOnly(true)
+                .maxAge(2*24*60)
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh", refresh)
+                .path("/")
+                .sameSite("None")
+                .secure(true)
+                .httpOnly(true)
+                .maxAge(expireS)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         String encodedName = URLEncoder.encode(username, "UTF-8");
-        response.sendRedirect("http://localhost:5174/oauth2-jwt-header?name=" + encodedName);
+        response.sendRedirect("https://seobom.site/oauth2-jwt-header?name=" + encodedName);
     }
 }

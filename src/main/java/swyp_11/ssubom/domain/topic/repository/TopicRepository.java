@@ -15,7 +15,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     //사용 안된 것 하나 선택하기
     @Query(value = """
-        select * from topic
+        select * from sseobom.topic
         where category_id = :categoryId
         and is_used = false 
           ORDER BY random()

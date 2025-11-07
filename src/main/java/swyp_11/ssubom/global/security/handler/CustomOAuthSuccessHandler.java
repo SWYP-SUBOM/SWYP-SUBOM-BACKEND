@@ -80,6 +80,6 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         String encodedName = URLEncoder.encode(username, "UTF-8");
-        response.sendRedirect("http://localhost:5173/oauth2-jwt-header?name=" + encodedName);
+        response.sendRedirect("http://localhost:5174/oauth2-jwt-header?name=" + encodedName);
     }
 }

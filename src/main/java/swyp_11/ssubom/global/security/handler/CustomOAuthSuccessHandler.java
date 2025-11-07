@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -64,7 +65,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .sameSite("None")
                 .secure(true)
                 .httpOnly(true)
-                .maxAge(2 * 24 * 60 * 60)
+                .maxAge(2*24*60)
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refresh", refresh)
@@ -74,6 +75,10 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .httpOnly(true)
                 .maxAge(expireS)
                 .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
         String encodedName = URLEncoder.encode(username, "UTF-8");
         response.sendRedirect("https://seobom.site/oauth2-jwt-header?name=" + encodedName);
     }

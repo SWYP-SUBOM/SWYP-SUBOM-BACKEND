@@ -5,7 +5,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
@@ -61,7 +63,17 @@ public class reissueService {
         refreshTokenService.saveRefresh(kakaoId,newRefresh,expiredS);
 
         response.setHeader("access", newAccess);
-        response.addCookie(CookieUtil.createCookie("refresh", newRefresh, expiredS));
+
+//        response.addCookie(CookieUtil.createCookie("refresh", newRefresh, expiredS));
+        ResponseCookie newRefreshCookie = ResponseCookie.from("refresh", newRefresh)
+                .path("/")
+                .sameSite("None")
+                .secure(true)
+                .httpOnly(true)
+                .maxAge(expiredS)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, newRefreshCookie.toString());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

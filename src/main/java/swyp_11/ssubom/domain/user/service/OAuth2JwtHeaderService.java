@@ -3,6 +3,8 @@ package swyp_11.ssubom.domain.user.service;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import swyp_11.ssubom.global.security.util.CookieUtil;
 
@@ -29,8 +31,16 @@ public class OAuth2JwtHeaderService {
             return "bad";
         }
 
-        response.addCookie(CookieUtil.createCookie("access",null,0));
+//        response.addCookie(CookieUtil.createCookie("access",null,0));
+        ResponseCookie deleteAccessCookie = ResponseCookie.from("access", null) // value는 null 또는 ""
+                .path("/")
+                .sameSite("None")
+                .secure(true)
+                .httpOnly(true)
+                .maxAge(0)            // 쿠키 삭제
+                .build();
 
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteAccessCookie.toString());
         response.addHeader("Authorization", "Bearer "+ access);
         response.setStatus(HttpServletResponse.SC_OK);
         return "success";

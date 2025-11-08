@@ -35,6 +35,7 @@ public class PostServiceImpl implements PostService {
     private jakarta.persistence.EntityManager entityManager;
 
     @Override
+    @Transactional
     public PostCreateResponse createPost(Long userId, PostCreateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -58,6 +59,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest request) {
 
         Post post = postRepository.findById(postId)
@@ -71,6 +73,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void deletePost(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
@@ -88,6 +91,7 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post);
     }
 
+    @Override
     public TodayPostResponse findPostStatusByToday(Long userId) {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
@@ -99,5 +103,15 @@ public class PostServiceImpl implements PostService {
                 .orElse(TodayPostResponse.toDto(null, PostStatus.NOT_STARTED));
     }
 
+    @Override
+    @Transactional
+    public PostDetailResponse getPostDetail(CustomOAuth2User user, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        boolean isMe = post.isWrittenBy(user.getUserId());
+
+        // TODO: 현재 한 유저가 여러번 글 조회 시 조회수 증가하는 로직, 이후 수정 필요
+        User loginUser = user.toEntity();
+        postViewRepository.save(PostView.create(loginUser, post));
 
 }

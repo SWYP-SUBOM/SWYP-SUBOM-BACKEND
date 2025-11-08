@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import swyp_11.ssubom.domain.post.dto.*;
+import swyp_11.ssubom.domain.post.service.PostReadServiceImpl;
 import swyp_11.ssubom.domain.post.service.ReactionService;
 import swyp_11.ssubom.global.response.ApiResponse;
 import swyp_11.ssubom.domain.post.service.PostService;
@@ -115,5 +116,14 @@ public class PostController {
 
     }
 
+    private final PostReadServiceImpl postReadService;
+    @GetMapping("/my-writings")
+    public ResponseEntity<ApiResponse<MyPostResponseDto>> getMyWritings(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+            @Valid @RequestBody MyPostRequestDto request
+    ) {
+        Long userId = customOAuth2User.getUserId();
+        MyPostResponseDto myPostResponseDto = postReadService.getMyPosts(userId, request);
 
+    }
 }

@@ -32,6 +32,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .selectFrom(post)
                 .join(post.topic, topic).fetchJoin()
                 .join(topic.category, category).fetchJoin()
+                .leftJoin(post.aiFeedback).fetchJoin()
                 .where(
                         post.user.userId.eq(userId),
                         post.status.eq(PostStatus.PUBLISHED),
@@ -61,12 +62,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         java.util.List<OrderSpecifier<?>> specs = new java.util.ArrayList<>();
         for (Sort.Order o : pageable.getSort()) {
             Order dir = o.isAscending() ? Order.ASC : Order.DESC;
-            switch (o.getProperty()) {
-                case "updatedAt" -> specs.add(new OrderSpecifier<>(dir, post.updatedAt));
-                case "createdAt" -> specs.add(new OrderSpecifier<>(dir, post.createdAt));
-                case "postId"    -> specs.add(new OrderSpecifier<>(dir, post.postId));
-                case "status"    -> specs.add(new OrderSpecifier<>(dir, post.status));
-                default -> { }
+            if ("updatedAt".equals(o.getProperty())) { // 'updatedAt'만 처리
+                specs.add(new OrderSpecifier<>(dir, post.updatedAt));
             }
         }
         return specs.toArray(new OrderSpecifier<?>[0]);

@@ -69,7 +69,7 @@ public class PostReadServiceImpl implements PostReadService {
         Category category = topic.getCategory();
         TopicInfo topicInfo = new TopicInfo(topic.getName(), category.getName());
         AIFeedback aiFeedback = post.getAiFeedback();
-        String summary = (aiFeedback != null) ? aiFeedback.getSummary() : "api/ai-feedback구현 안해서 아직 피드백 없음";
+        String summary = (aiFeedback != null) ? aiFeedback.getSummary() : "api/ai-feedback구현 안해서 아직 피드백 없음"; //TODO: ai-feedback 구현 후 다시 테스트 필요
 
         return new MyPostItem(
                 post.getPostId(),

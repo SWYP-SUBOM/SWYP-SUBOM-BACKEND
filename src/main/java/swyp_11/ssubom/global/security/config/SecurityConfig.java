@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -93,8 +94,9 @@ public class SecurityConfig {
                         .requestMatchers("/assets/**", "/favicon.ico", "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**",
                                 "/webjars/**", "/swagger/**","/api-docs/**","/images/logo.png","/v3/api-docs/**", "/actuator/**").permitAll()
                         .requestMatchers("/auth","/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories","/api/home").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/posts/**").permitAll()
                         .requestMatchers("/api/my").hasRole("USER")
-                        .requestMatchers("/api/posts/**").hasRole("USER")
+                        .requestMatchers("/api/posts").hasRole("USER")
                         .requestMatchers("/api/notifications").hasRole("USER")
                         .requestMatchers("/api/categories").hasRole("USER")
 

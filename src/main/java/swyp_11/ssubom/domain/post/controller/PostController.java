@@ -132,4 +132,15 @@ public class PostController {
         PostDetailResponse postDetailResponse = postService.getPostDetail(user, postId);
         return ResponseEntity.ok(ApiResponse.success(postDetailResponse, "F0001", "글 상세 조회에 성공했습니다."));
     }
+
+    @Operation(
+            summary = "피드 전체 조회 ",
+            description = "카테고리 별로 feed를 조회합니다."
+    )
+    @GetMapping
+    public ResponseEntity<ApiResponse<PostListResponseDto>> getPostListByCategoryId(
+            @RequestParam(name = "categoryId",defaultValue = "1") Long categoryId) {
+        PostListResponseDto responseDto = postService.getPostList(categoryId);
+        return ResponseEntity.ok(ApiResponse.success(responseDto,"F0002","글 리스트 조회에 성공했습니다."));
+    }
 }

@@ -31,4 +31,6 @@ public interface ReactionRepository extends JpaRepository<Reaction, Long> {
         GROUP BY r.type.id, r.type.name
     """)
     List<PostReactionInfo> countReactionsByPostId(@Param("postId") Long postId);
+
+    long countByPost(Post post);
 }

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
     Optional<Post> findFirstByUser_UserIdAndCreatedAtBetweenOrderByCreatedAtDesc(Long userId, LocalDateTime startOfDay, LocalDateTime endOfDay);
     boolean existsByNickname(String nickname);
     boolean existsByUser_UserIdAndStatusAndUpdatedAtBetween(Long userId, PostStatus postStatus, LocalDateTime startOfDay, LocalDateTime endOfDay);

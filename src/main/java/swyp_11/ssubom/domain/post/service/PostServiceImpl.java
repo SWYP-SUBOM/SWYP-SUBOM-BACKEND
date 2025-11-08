@@ -15,12 +15,15 @@ import swyp_11.ssubom.domain.post.repository.ReactionRepository;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.topic.repository.TopicRepository;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.domain.user.entity.Streak;
 import swyp_11.ssubom.domain.user.entity.User;
+import swyp_11.ssubom.domain.user.repository.StreakRepository;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 import swyp_11.ssubom.global.nickname.NicknameGenerator;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -39,6 +42,7 @@ public class PostServiceImpl implements PostService {
     private final TopicRepository topicRepository;
     private final ReactionRepository reactionRepository;
     private final PostViewRepository postViewRepository;
+    private final StreakRepository streakRepository;
 
     @Override
     @Transactional
@@ -71,11 +75,45 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
-        PostStatus nextStatus = request.getStatus();
+        if (!post.isWrittenBy(userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_WRITING_MODIFICATION);
+        }
 
+        PostStatus nextStatus = request.getStatus();
         post.update(nextStatus, request.getContent());
 
+        if (nextStatus == PostStatus.PUBLISHED) {
+            recordStreakProgress(post.getUser());
+        }
+
         return PostUpdateResponse.of(post);
+    }
+
+    /**
+     * 사용자가 글을 발행할 때 호출되어 스트릭(streak)과 챌린저(challenger) 정보를 갱신한다.
+     * - 처음 작성하는 경우 streak save
+     * - 하루 1회 이상 작성 시 streakCount 1 증가
+     * - 주간 5회 이상 작성 시 challengerCount 증가
+     */
+    private void recordStreakProgress(User user) {
+        LocalDate today = LocalDate.now();
+
+        Streak streak = streakRepository.findByUser(user)
+                .orElseGet(() -> streakRepository.save(Streak.create(user)));
+
+        boolean hasPostedToday = postRepository.existsByUser_UserIdAndStatusAndUpdatedAtBetween(
+                user.getUserId(), PostStatus.PUBLISHED,
+                today.atStartOfDay(), today.atTime(LocalTime.MAX)
+        );
+        streak.increaseDaily(hasPostedToday);
+
+        LocalDate startOfWeek = today.with(DayOfWeek.SUNDAY);
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        long weeklyPostCount = postRepository.countByUser_UserIdAndStatusAndUpdatedAtBetween(
+                user.getUserId(), PostStatus.PUBLISHED,
+                startOfWeek.atStartOfDay(), endOfWeek.atTime(LocalTime.MAX)
+        );
+        streak.updateWeeklyChallenge(weeklyPostCount);
     }
 
     @Override

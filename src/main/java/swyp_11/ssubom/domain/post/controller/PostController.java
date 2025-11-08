@@ -1,6 +1,8 @@
 package swyp_11.ssubom.domain.post.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -116,6 +118,21 @@ public class PostController {
 
     }
 
+    @Operation(
+        summary = "피드 상세 조회",
+        description = """
+            피드에서 글을 상세 조회합니다.
+            비로그인 사용자는 피드 상세 조회 불가.
+        """,
+        security = { @SecurityRequirement(name = "bearerAuth") }
+    )
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostDetailResponse>> getPostDetail(
+            @AuthenticationPrincipal CustomOAuth2User user,
+            @PathVariable Long postId) {
+        PostDetailResponse postDetailResponse = postService.getPostDetail(user, postId);
+        return ResponseEntity.ok(ApiResponse.success(postDetailResponse, "F0001", "글 상세 조회에 성공했습니다."));
+    }
     private final PostReadServiceImpl postReadService;
     @GetMapping("/my-writings")
     public ResponseEntity<ApiResponse<MyPostResponseDto>> getMyWritings(

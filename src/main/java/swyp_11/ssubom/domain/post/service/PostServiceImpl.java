@@ -1,38 +1,44 @@
 package swyp_11.ssubom.domain.post.service;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.*;
-import swyp_11.ssubom.global.error.BusinessException;
-import swyp_11.ssubom.global.error.ErrorCode;
-import swyp_11.ssubom.domain.user.repository.UserRepository;
-import swyp_11.ssubom.domain.topic.repository.TopicRepository;
-import swyp_11.ssubom.domain.topic.entity.Topic;
-import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.PostStatus;
+import swyp_11.ssubom.domain.post.entity.PostView;
 import swyp_11.ssubom.domain.post.repository.PostRepository;
+import swyp_11.ssubom.domain.post.repository.PostViewRepository;
+import swyp_11.ssubom.domain.post.repository.ReactionRepository;
+import swyp_11.ssubom.domain.topic.entity.Topic;
+import swyp_11.ssubom.domain.topic.repository.TopicRepository;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.domain.user.entity.User;
+import swyp_11.ssubom.domain.user.repository.UserRepository;
+import swyp_11.ssubom.global.error.BusinessException;
+import swyp_11.ssubom.global.error.ErrorCode;
 import swyp_11.ssubom.global.nickname.NicknameGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Slf4j
 @Service
-@Transactional
-@AllArgsConstructor
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
+    private static final int SERVICE_LEVEL_MAX_TRIES = 5;
+
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final NicknameGenerator nicknameGenerator;
     private final TopicRepository topicRepository;
-    private static final int SERVICE_LEVEL_MAX_TRIES = 5;
-    private jakarta.persistence.EntityManager entityManager;
+    private final ReactionRepository reactionRepository;
+    private final PostViewRepository postViewRepository;
 
     @Override
     @Transactional
@@ -114,4 +120,9 @@ public class PostServiceImpl implements PostService {
         User loginUser = user.toEntity();
         postViewRepository.save(PostView.create(loginUser, post));
 
+        List<PostReactionInfo> reactions = reactionRepository.countReactionsByPostId(postId);
+        Long viewCount = postViewRepository.countByPost(post);
+
+        return PostDetailResponse.of(post, isMe, reactions, viewCount);
+    }
 }

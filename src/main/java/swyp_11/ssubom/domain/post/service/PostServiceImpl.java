@@ -133,11 +133,11 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostListResponseDto getPostList(Long categoryId) {
-        //1. 카테고리에 해당하는 그 날 주제 가져오기
+
         LocalDate today = LocalDate.now();
         Topic topic = topicRepository.findByUsedAtAndCategory_Id(today,categoryId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
-        // 주제에 대한 그 날 글들 가져오기
+
         List<Post> posts = postRepository.findByTopicAndStatusOrderByUpdatedAtDesc(topic,PostStatus.PUBLISHED);
 
         List<PostSummaryDto> postSummaryDtos=posts.stream()
@@ -150,6 +150,7 @@ public class PostServiceImpl implements PostService {
                             return PostSummaryDto.of(post, aiFeedback, reactionCount, viewCount);
                         }
                        ).collect(Collectors.toList());
+
         return PostListResponseDto.from(topic,postSummaryDtos);
     }
 }

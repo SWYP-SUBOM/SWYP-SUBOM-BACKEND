@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.PostStatus;
 import swyp_11.ssubom.domain.topic.entity.Topic;
-import swyp_11.ssubom.domain.post.entity.PostStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,5 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     boolean existsByNickname(String nickname);
     boolean existsByUser_UserIdAndStatusAndUpdatedAtBetween(Long userId, PostStatus postStatus, LocalDateTime startOfDay, LocalDateTime endOfDay);
     long countByUser_UserIdAndStatusAndUpdatedAtBetween(Long userId, PostStatus postStatus, LocalDateTime localDateTime, LocalDateTime localDateTime1);
+    List<Post> findByUser_UserIdAndStatusAndCreatedAtBetween(Long userId, PostStatus postStatus, LocalDateTime localDateTime, LocalDateTime localDateTime1);
     List<Post> findByTopicAndStatusOrderByUpdatedAtDesc(Topic topic, PostStatus status);
+    long countByUser_UserIdAndStatusAndCreatedAtBetween(Long userId, PostStatus postStatus, LocalDateTime localDateTime, LocalDateTime localDateTime1);
 }

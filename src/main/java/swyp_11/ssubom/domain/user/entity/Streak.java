@@ -42,6 +42,14 @@ public class Streak extends BaseTimeEntity {
                 .build();
     }
 
+    public static Streak empty(User user) {
+        return Streak.builder()
+                .user(user)
+                .streakCount(0L)
+                .weeklyChallengeCount(0L)
+                .build();
+    }
+
     public void increaseDaily(boolean alreadyPostedToday) {
         if (!alreadyPostedToday) this.streakCount++;
     }

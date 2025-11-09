@@ -42,7 +42,7 @@ public class ReactionServiceImpl implements ReactionService {
         String reactionTypeName = request.getReactionTypeName();
         ReactionType reactionType = reactionTypeRepository.findByName(reactionTypeName);
         if (reactionType == null) {
-            throw new BusinessException(ErrorCode.INVALID_REACTION_TYPE); // 예시
+            throw new BusinessException(ErrorCode.INVALID_REACTION_TYPE);
         }
         Optional<Reaction> currentUserReaction = reactionRepository.findByPostAndUser(post, user);
 

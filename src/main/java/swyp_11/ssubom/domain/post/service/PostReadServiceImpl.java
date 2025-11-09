@@ -114,7 +114,8 @@ public class PostReadServiceImpl implements PostReadService {
         }
 
         return new MyPostDetailResponseDto(
-            post.getPostId(),
+                post.getPostId(),
+                topic.getId(),
                 post.getNickname(),
                 topicInfo,
                 post.getContent(),

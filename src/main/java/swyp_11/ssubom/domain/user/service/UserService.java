@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import swyp_11.ssubom.domain.user.dto.StreakResponse;
+import swyp_11.ssubom.domain.user.dto.UserProfileResponse;
 import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.domain.user.repository.RefreshRepository;
 import swyp_11.ssubom.domain.user.repository.StreakRepository;
@@ -23,11 +24,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
+
     private final StreakRepository streakRepository;
+    private final UserRepository userRepository;
+    private final RefreshRepository refreshRepository;
+
     @Qualifier("kakaoUnlinkWebClient")
     private final WebClient kakaoClient;
-    private final UserRepository userRepository;
-   private final RefreshRepository refreshRepository;
 
     public StreakResponse getStreak(Long userId) {
         return streakRepository.findByUser_UserId(userId)
@@ -52,8 +55,7 @@ public class UserService {
         }catch (BusinessException e){
             throw new BusinessException(ErrorCode.UNREGISTER_FAILED);
         }
-        }
-
+    }
 
     @Transactional
     public void userDelete(String targetId) {
@@ -67,5 +69,13 @@ public class UserService {
         if (user != null) {
             user.deleteUser(null,true);
         }
+    }
+
+    public UserProfileResponse getUserProfile(User user) {
+        User foundUser = userRepository.findById(user.getUserId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        StreakResponse streakResponse = getStreak(user.getUserId());
+
+        return UserProfileResponse.of(foundUser, streakResponse);
     }
 }

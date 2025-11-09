@@ -1,7 +1,13 @@
 package swyp_11.ssubom.domain.post.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
 
+@Getter
+@AllArgsConstructor
 public class MyPostDetailResponseDto {
     private Long postId;
     private String nickname;

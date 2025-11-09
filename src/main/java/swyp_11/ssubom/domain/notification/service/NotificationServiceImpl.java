@@ -81,24 +81,31 @@ public class NotificationServiceImpl implements NotificationService{
      * 새 알림 전송
      */
     @Transactional
-    public void sendNotification(Notification notification) {
+    private void sendNotification(Notification notification) {
         Long userId = notification.getReceiver().getUserId();
         SseEmitter emitter = emitters.get(userId);
         if (emitter != null) {
-            sendEvent(emitter, "newNotification", toDto(notification));
-            log.info("[알림 전송] → userId={}, postId={}, reactionType={}",
-                    userId, notification.getPost().getPostId(), notification.getReactionType());
+            long unreadCount = notificationRepository.countByReceiver_UserIdAndIsReadFalse(userId);
+
+            Map<String, Object> data = Map.of(
+                    "unreadCount", unreadCount,
+                    "notification", toDto(notification)
+            );
+
+            sendEvent(emitter, "newNotification", data);
+            log.info("[알림 전송] → userId={}, postId={}, unreadCount={}",
+                    userId, notification.getPost().getPostId(), unreadCount);
         }
     }
 
-    private Map<String, Object> toDto(Notification n) {
+    private Map<String, Object> toDto(Notification notification) {
         return Map.of(
-                "id", n.getId(),
-                "postId", n.getPost().getPostId(),
-                "reactionType", n.getReactionType(),
-                "actorCount", n.getActorCount(),
-                "isRead", n.isRead(),
-                "createdAt", n.getCreatedAt()
+                "id", notification.getId(),
+                "postId", notification.getPost().getPostId(),
+                "reactionType", notification.getReactionType(),
+                "actorCount", notification.getActorCount(),
+                "isRead", notification.isRead(),
+                "createdAt", notification.getCreatedAt()
         );
     }
 

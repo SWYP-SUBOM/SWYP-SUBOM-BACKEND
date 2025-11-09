@@ -2,10 +2,11 @@ package swyp_11.ssubom.domain.user.entity;
 
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import swyp_11.ssubom.domain.common.BaseTimeEntity;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -33,8 +34,17 @@ public class User extends BaseTimeEntity {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Streak streak;
 
+    @Builder
+    public User(Long userId, String kakaoId, String userName, String email, String role, Streak streak) {
+        this.userId = userId;
+        this.kakaoId = kakaoId;
+        this.userName = userName;
+        this.email = email;
+        this.role = role;
+        this.streak = streak;
+    }
 
-    public User( String kakaoId, String userName, String email, String role) {
+    public User(String kakaoId, String userName, String email, String role) {
         this.kakaoId = kakaoId;
         this.userName = userName;
         this.email = email;
@@ -48,8 +58,8 @@ public class User extends BaseTimeEntity {
     public void updateEmail(String email) {
         this.email = email;
     }
+
+    public boolean isSame(Long userId) {
+        return this.userId != null && this.userId.equals(userId);
+    }
 }
-
-
-
-

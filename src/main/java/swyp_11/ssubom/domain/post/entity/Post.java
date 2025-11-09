@@ -2,15 +2,12 @@ package swyp_11.ssubom.domain.post.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import swyp_11.ssubom.domain.common.BaseTimeEntity;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +15,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "Post")
+@Table(name = "post")
 public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -113,6 +110,10 @@ public class Post extends BaseTimeEntity {
     public void publish(String content) {
         this.content = content;
         this.status = PostStatus.PUBLISHED;
+    }
+
+    public boolean isWrittenBy(Long userId) {
+        return this.user != null && this.user.isSame(userId);
     }
 
 

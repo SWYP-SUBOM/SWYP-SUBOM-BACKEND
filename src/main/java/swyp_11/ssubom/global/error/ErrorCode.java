@@ -29,6 +29,7 @@ public enum ErrorCode {
     // == Domain-Specific Errors ==
     // User errors
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
+    USER_MISMATCH(HttpStatus.UNAUTHORIZED, "U002", "로그인 유저와 글 작성자가 다릅니다."),
 
     // Topic errors
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "카테고리를 찾을 수 없습니다."),
@@ -44,13 +45,10 @@ public enum ErrorCode {
     NICKNAME_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P005", "닉네임 생성에 실패했습니다. 잠시 후 다시 시도해주세요."),
     CANNOT_DELETE_PUBLISHED_POST(HttpStatus.BAD_REQUEST, "P006", "게시된 글은 삭제할 수 없습니다."),
 
-    // Feed errors
-    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "F001", "피드를 찾을 수 없습니다."),
-
     // Reaction errors
     INVALID_REACTION_TYPE(HttpStatus.BAD_REQUEST, "R001", "유효하지 않은 반응 타입입니다."),
     REACTION_NOT_FOUND(HttpStatus.NOT_FOUND, "R002", "취소할 반응을 찾을 수 없습니다."),
-    //FORBIDDEN_REACTION_MODIFICATION(HttpStatus.FORBIDDEN, "R003", "이 반응을 수정/삭제할 권한이 없습니다."),
+    MY_REACTION_NOT_FOUND(HttpStatus.NOT_FOUND, "R003", "내가 남긴 반응이 없습니다."),
 
     // Notification errors
 

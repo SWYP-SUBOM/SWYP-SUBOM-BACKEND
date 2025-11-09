@@ -25,4 +25,12 @@ public class PostView extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    public static PostView create(User loginUser, Post post) {
+        PostView postView = new PostView();
+        postView.viewer = loginUser;
+        postView.post = post;
+
+        return postView;
+    }
 }

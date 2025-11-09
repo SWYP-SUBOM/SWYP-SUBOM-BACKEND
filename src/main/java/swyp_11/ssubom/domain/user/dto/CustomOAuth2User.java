@@ -2,6 +2,7 @@ package swyp_11.ssubom.domain.user.dto;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import swyp_11.ssubom.domain.user.entity.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,5 +45,16 @@ public class CustomOAuth2User implements OAuth2User {
 
     public Long getUserId() {
         return userDTO.getUserId();
+    }
+
+    public User toEntity() {
+        return new User(
+                this.getUserId(),
+                this.getKakaoId(),
+                this.getName(),
+                null,
+                this.getAuthorities().iterator().next().getAuthority(),
+                null
+        );
     }
 }

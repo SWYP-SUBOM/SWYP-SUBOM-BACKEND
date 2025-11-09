@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import swyp_11.ssubom.domain.common.BaseTimeEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @Table(name = "ai_feedback")
@@ -26,4 +29,7 @@ public class AIFeedback extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
+
+    @OneToMany(mappedBy = "aiFeedback", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ImprovementPoint> improvementPoints = new ArrayList<>();
 }

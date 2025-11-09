@@ -29,6 +29,7 @@ public enum ErrorCode {
     // == Domain-Specific Errors ==
     // User errors
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
+    UNREGISTER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U002", "카카오 회원 탈퇴 처리 중 오류가 발생했습니다."),
 
     // Topic errors
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "카테고리를 찾을 수 없습니다."),

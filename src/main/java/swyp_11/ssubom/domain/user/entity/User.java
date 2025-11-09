@@ -31,6 +31,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "role", length = 255)
     public String role;
 
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Streak streak;
 
@@ -58,6 +61,13 @@ public class User extends BaseTimeEntity {
     public void updateEmail(String email) {
         this.email = email;
     }
+
+    public void deleteUser(String kakaoId,boolean isDeleted) {
+        this.kakaoId = kakaoId;
+        this.isDeleted = isDeleted;
+    }
+
+
 
     public boolean isSame(Long userId) {
         return this.userId != null && this.userId.equals(userId);

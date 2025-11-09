@@ -94,9 +94,9 @@ public class SecurityConfig {
                         .requestMatchers("/assets/**", "/favicon.ico", "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**",
                                 "/webjars/**", "/swagger/**","/api-docs/**","/images/logo.png","/v3/api-docs/**", "/actuator/**").permitAll()
                         .requestMatchers("/auth","/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories","/api/home").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/posts").permitAll()
                         .requestMatchers("/api/my").hasRole("USER")
-                        .requestMatchers("/api/posts").hasRole("USER")
+                        .requestMatchers("/api/posts/**").hasRole("USER")
                         .requestMatchers("/api/notifications").hasRole("USER")
                         .requestMatchers("/api/categories").hasRole("USER")
 

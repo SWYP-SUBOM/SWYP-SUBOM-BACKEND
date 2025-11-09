@@ -40,8 +40,8 @@ VALUES
     ('인생에서 가장 중요한 가치는 무엇인가요?', 4, false, NOW(), NOW()),
     ('당신의 신념은 어떤 상황에서도 흔들리지 않나요?', 4, false, NOW(), NOW());
 
--- Category 5 (진로·성장)
+-- Category 5 (취미, 취향)
 INSERT INTO sseobom.topic (topic_name, category_id, is_used, created_at, updated_at)
 VALUES
-    ('최근에 스스로 성장했다고 느낀 순간은?', 5, false, NOW(), NOW()),
-    ('지금의 목표를 향해 어떤 노력을 하고 있나요?', 5, false, NOW(), NOW());
+    ('당신이 가장 좋아하는 영화 장르와, 잘 맞지 않는 장르가 있다면 각각 무엇인가요? ', 5, false, NOW(), NOW()),
+    ('아날로그 방식의 기록 (손글씨, 다이어리 등)과 디지털 방식의 기록 중, 어떤 것이 당신의 기억력과 사고력에 더 도움을 준다고 생각하시나요?', 5, false, NOW(), NOW());

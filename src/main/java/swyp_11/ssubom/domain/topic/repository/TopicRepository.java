@@ -25,5 +25,9 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     Topic lockOneUnused(@Param("categoryId") Long categoryId);
 
     List<Topic> findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtDesc(Long categoryId);
+
     List<Topic> findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtAsc(Long categoryId);
+
+    Optional<Topic> findByUsedAtAndCategory_Id(LocalDate usedAt, Long categoryId);
+
 }

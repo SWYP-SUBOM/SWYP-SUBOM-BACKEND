@@ -6,9 +6,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.*;
+import swyp_11.ssubom.domain.post.entity.AIFeedback;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.PostStatus;
 import swyp_11.ssubom.domain.post.entity.PostView;
+import swyp_11.ssubom.domain.post.repository.AiFeedbackRepository;
 import swyp_11.ssubom.domain.post.repository.PostRepository;
 import swyp_11.ssubom.domain.post.repository.PostViewRepository;
 import swyp_11.ssubom.domain.post.repository.ReactionRepository;
@@ -28,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,6 +46,7 @@ public class PostServiceImpl implements PostService {
     private final ReactionRepository reactionRepository;
     private final PostViewRepository postViewRepository;
     private final StreakRepository streakRepository;
+    private final AiFeedbackRepository aiFeedbackRepository;
 
     @Override
     @Transactional
@@ -162,5 +166,29 @@ public class PostServiceImpl implements PostService {
         Long viewCount = postViewRepository.countByPost(post);
 
         return PostDetailResponse.of(post, isMe, reactions, viewCount);
+    }
+
+    @Override
+    @Transactional
+    public PostListResponseDto getPostList(Long categoryId) {
+
+        LocalDate today = LocalDate.now();
+        Topic topic = topicRepository.findByUsedAtAndCategory_Id(today,categoryId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
+
+        List<Post> posts = postRepository.findByTopicAndStatusOrderByUpdatedAtDesc(topic,PostStatus.PUBLISHED);
+
+        List<PostSummaryDto> postSummaryDtos=posts.stream()
+                .map(post ->{
+                            AIFeedback aiFeedback = aiFeedbackRepository.findByPost_PostId(post.getPostId()).orElseThrow(
+                                    ()-> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND)
+                            );
+                            Long reactionCount = reactionRepository.countByPost(post);
+                            Long viewCount = postViewRepository.countByPost(post);
+                            return PostSummaryDto.of(post, aiFeedback, reactionCount, viewCount);
+                        }
+                       ).collect(Collectors.toList());
+
+        return PostListResponseDto.from(topic,postSummaryDtos);
     }
 }

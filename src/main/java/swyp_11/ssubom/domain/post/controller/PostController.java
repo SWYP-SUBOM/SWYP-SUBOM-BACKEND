@@ -142,6 +142,16 @@ public class PostController {
     ) {
         Long userId = customOAuth2User.getUserId();
         MyPostResponseDto myPostResponse = postReadService.getMyPosts(userId, request);
-        return ResponseEntity.ok(ApiResponse.success(myPostResponse, "P0005", "글 상세 조회에 성공했습니다."));
+        return ResponseEntity.ok(ApiResponse.success(myPostResponse, "P0005", "내가 쓴 글 리스트 조회에 성공했습니다."));
+    }
+
+    @GetMapping("/my-reactions")
+    public ResponseEntity<ApiResponse<MyReactedPostResponseDto>> getMyReactedPosts(
+            @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+            MyReactedPostRequestDto request
+    ) {
+        Long userId = customOAuth2User.getUserId();
+        MyReactedPostResponseDto myReactedPostResponse = postReadService.getMyReactedPost(userId, request);
+        return ResponseEntity.ok(ApiResponse.success(myReactedPostResponse, "P0006", "내가 반응한 글 리스트 조회에 성공했습니다"));
     }
 }

@@ -7,12 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.StringUtils;
 import swyp_11.ssubom.domain.post.dto.MyPostRequestDto;
+import swyp_11.ssubom.domain.post.dto.MyReactedPostRequestDto;
 import swyp_11.ssubom.domain.post.entity.Post;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import swyp_11.ssubom.domain.post.entity.PostStatus;
+import swyp_11.ssubom.domain.post.entity.Reaction;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,6 +22,7 @@ import java.util.List;
 import static swyp_11.ssubom.domain.post.entity.QPost.post;
 import static swyp_11.ssubom.domain.topic.entity.QCategory.category;
 import static swyp_11.ssubom.domain.topic.entity.QTopic.topic;
+import static swyp_11.ssubom.domain.post.entity.QReaction.reaction;
 
 @RequiredArgsConstructor
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
@@ -50,6 +52,39 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .where(
                         post.user.userId.eq(userId),
                         post.status.eq(PostStatus.PUBLISHED),
+                        dateGoe(request.getStartDate()),
+                        dateLoe(request.getEndDate())
+                )
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0L);
+    }
+
+    @Override
+    public Page<Reaction> findMyReactedPosts(Long userId, MyReactedPostRequestDto request, Pageable pageable) {
+        List<Reaction> content = queryFactory
+                .selectFrom(reaction)
+                .join(reaction.post, post).fetchJoin()
+                .join(post.topic, topic).fetchJoin()
+                .join(topic.category, category).fetchJoin()
+                .leftJoin(post.aiFeedback).fetchJoin()
+                .where(
+                        reaction.user.userId.eq(userId),
+                        reaction.post.status.eq(PostStatus.PUBLISHED),
+                        dateGoe(request.getStartDate()),
+                        dateLoe(request.getEndDate())
+                )
+                .orderBy(orderSpecifiers(pageable))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = queryFactory
+                .select(reaction.count())
+                .from(reaction)
+                .where(
+                        reaction.user.userId.eq(userId),
+                        reaction.post.status.eq(PostStatus.PUBLISHED),
                         dateGoe(request.getStartDate()),
                         dateLoe(request.getEndDate())
                 )

@@ -115,4 +115,6 @@ public class Post extends BaseTimeEntity {
     public boolean isWrittenBy(Long userId) {
         return this.user != null && this.user.isSame(userId);
     }
+
+
 }

@@ -10,5 +10,7 @@ import java.time.LocalDate;
 public class MyReactedPostRequestDto {
     private Integer page = 1;
     private Integer size = 20;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String sort = "latest";
 }

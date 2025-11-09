@@ -67,8 +67,6 @@ public class User extends BaseTimeEntity {
         this.isDeleted = isDeleted;
     }
 
-
-
     public boolean isSame(Long userId) {
         return this.userId != null && this.userId.equals(userId);
     }

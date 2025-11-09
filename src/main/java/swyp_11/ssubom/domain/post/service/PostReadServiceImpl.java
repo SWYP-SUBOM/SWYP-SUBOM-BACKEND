@@ -13,7 +13,6 @@ import swyp_11.ssubom.domain.post.entity.AIFeedback;
 import swyp_11.ssubom.domain.post.entity.ImprovementPoint;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.Reaction;
-import swyp_11.ssubom.domain.post.repository.AIFeedbackRepository;
 import swyp_11.ssubom.domain.post.repository.PostRepository;
 import swyp_11.ssubom.domain.post.repository.ReactionRepository;
 import swyp_11.ssubom.domain.topic.entity.Category;

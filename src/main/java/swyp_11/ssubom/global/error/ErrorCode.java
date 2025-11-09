@@ -29,6 +29,7 @@ public enum ErrorCode {
     // == Domain-Specific Errors ==
     // User errors
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
+    USER_MISMATCH(HttpStatus.UNAUTHORIZED, "U002", "로그인 유저와 글 작성자가 다릅니다."),
 
     // Topic errors
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "카테고리를 찾을 수 없습니다."),

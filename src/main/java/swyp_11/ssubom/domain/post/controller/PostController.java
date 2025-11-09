@@ -126,11 +126,18 @@ public class PostController {
         security = { @SecurityRequirement(name = "bearerAuth") }
     )
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostDetailResponse>> getPostDetail(
+    public ResponseEntity<ApiResponse<?>> getPostDetail(
             @AuthenticationPrincipal CustomOAuth2User user,
-            @PathVariable Long postId) {
-        PostDetailResponse postDetailResponse = postService.getPostDetail(user, postId);
-        return ResponseEntity.ok(ApiResponse.success(postDetailResponse, "F0001", "글 상세 조회에 성공했습니다."));
+            @PathVariable Long postId,
+            @RequestParam(name="context", required=false) String context
+    ) {
+        if ("edit".equals(context)) {
+            MyPostDetailResponseDto myPostDetailResponse = postReadService.getMyPostDetail(user, postId);
+            return ResponseEntity.ok(ApiResponse.success(myPostDetailResponse, "P0007", "내가 쓴 글 상세 조회에 성공했습니다."));
+        } else {
+            PostDetailResponse postDetailResponse = postService.getPostDetail(user, postId);
+            return ResponseEntity.ok(ApiResponse.success(postDetailResponse, "F0001", "글 상세 조회에 성공했습니다."));
+        }
     }
 
     private final PostReadServiceImpl postReadService;

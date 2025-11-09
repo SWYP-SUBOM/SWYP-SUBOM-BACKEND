@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.*;
 import swyp_11.ssubom.domain.post.entity.AIFeedback;
+import swyp_11.ssubom.domain.post.entity.ImprovementPoint;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.Reaction;
 import swyp_11.ssubom.domain.post.repository.PostRepository;
 import swyp_11.ssubom.domain.post.repository.ReactionRepository;
 import swyp_11.ssubom.domain.topic.entity.Category;
 import swyp_11.ssubom.domain.topic.entity.Topic;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.global.error.BusinessException;
@@ -26,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +72,7 @@ public class PostReadServiceImpl implements PostReadService {
                         .collect(Collectors.groupingBy(
                                 PostReactionCountDto::getPostId,
                                 Collectors.collectingAndThen(
-                                        Collectors.toList(),
+                                        toList(),
                                         this::createMetricsDto
                                 )
                         ));
@@ -88,11 +92,39 @@ public class PostReadServiceImpl implements PostReadService {
     }
 
     @Override
-    public MyPostDetailResponseDto getMyPostDetail(Long postId) {
-        // TODO: 구현 필요
-        return null;
-    }
+    public MyPostDetailResponseDto getMyPostDetail(CustomOAuth2User user, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        if (!post.getUser().getUserId().equals(user.getUserId())) {
+            throw new BusinessException(ErrorCode.USER_MISMATCH);
+        }
+        Topic topic = post.getTopic();
+        Category category = topic.getCategory();
+        TopicInfo topicInfo = new TopicInfo(topic.getName(), category.getName());
 
+        AiFeedbackInfo aiFeedbackInfo = null;
+        AIFeedback aiFeedback = post.getAiFeedback(); // null가능
+        if (aiFeedback != null) {
+            List<ImprovementPoint> improvementPoints = aiFeedback.getImprovementPoints();
+            aiFeedbackInfo = new AiFeedbackInfo(
+                    aiFeedback.getId(),
+                    aiFeedback.getStrength(),
+                    improvementPoints.stream().map(ImprovementPoint::getContent).toList()
+            );
+        }
+
+        return new MyPostDetailResponseDto(
+            post.getPostId(),
+                post.getNickname(),
+                topicInfo,
+                post.getContent(),
+                post.getStatus().toString(),
+                post.getUpdatedAt(),
+                post.isRevised(),
+                aiFeedbackInfo
+        );
+    }
+    // ------- my-writings -------
     private Pageable createMyPostsPageable(MyPostRequestDto request) {
         int page = request.getPage() - 1;
         int size = request.getSize();

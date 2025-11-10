@@ -176,4 +176,19 @@ public class PostController {
         PostListResponseDto responseDto = postService.getPostList(categoryId,curUpdatedAt,curPostId);
         return ResponseEntity.ok(ApiResponse.success(responseDto,"F0002","글 리스트 조회에 성공했습니다."));
     }
+
+    @Operation(
+            summary = "AI 피드백 조회 ",
+            description = "ai 피드백 조회",
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
+    @GetMapping("/{postId}/ai-feedback/{aiFeedbackId}")
+    public ResponseEntity<ApiResponse<AiFeedbackResponse>> getAiFeedback(
+            @PathVariable Long postId,
+            @PathVariable Long aiFeedbackId ,
+            @AuthenticationPrincipal CustomOAuth2User user) {
+        Long userId = user.getUserId();
+            AiFeedbackResponse responseDto=postService.getAiFeedback(userId, postId, aiFeedbackId);
+            return ResponseEntity.ok(ApiResponse.success(responseDto,"A0001","AI 피드백 조회에 성공했씁니다"));
+    }
 }

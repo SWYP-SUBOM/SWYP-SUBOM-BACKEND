@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MyPostDetailResponseDto {
     private Long postId;
+    private Long topicId;
     private String nickname;
     private TopicInfo topicInfo;
     private String content;

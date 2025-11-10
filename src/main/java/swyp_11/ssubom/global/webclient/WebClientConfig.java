@@ -8,14 +8,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-
 public class WebClientConfig {
+
+    @Value("${naver.clova.api.url}")
+    private String clovaApiUrl;
+
+    @Value("${naver.clova.api.key}")
+    private String clovaApiKey;
 
     @Value("${registration.admin.key}")
     private String adminKey;
 
-    @Bean
-    @Qualifier("kakaoUnlinkWebClient")
+    @Bean("kakaoAuthWebClient")
     public WebClient kakaoAuthWebClient(){
         String authorization = "KakaoAK " + adminKey;
         return WebClient.builder()
@@ -24,4 +28,14 @@ public class WebClientConfig {
                 .defaultHeader("Authorization", authorization)
                 .build();
     }
+
+    @Bean("clovaWebClient")
+    public WebClient clovaWebClient(WebClient.Builder builder) {
+        return builder
+                .baseUrl(clovaApiUrl)
+                .defaultHeader("Authorization", "Bearer " + clovaApiKey)
+                .defaultHeader("Content-Type", "application/json")
+                .build();
+    }
+
 }

@@ -9,5 +9,5 @@ import java.util.List;
 @AllArgsConstructor
 public class MyReactedPostResponseDto {
     private List<MyReactedPostItem> items;
-    private PageInfoDto pageInfo;
+    private SliceInfoDto sliceInfo;
 }

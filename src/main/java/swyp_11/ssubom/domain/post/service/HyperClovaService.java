@@ -10,13 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import swyp_11.ssubom.domain.post.dto.ClovaApiRequestDto;
 import swyp_11.ssubom.domain.post.dto.ClovaApiResponseDto;
 import swyp_11.ssubom.domain.post.dto.HyperClovaResponseDto;
 import org.springframework.core.io.Resource;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
-
+import org.springframework.http.HttpStatus;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -79,6 +80,7 @@ public class HyperClovaService {
                         .type("json")
                         .schema(this.responseSchema) // (로드해둔 스키마 주입)
                         .build())
+                .thinking(ClovaApiRequestDto.Thinking.builder().effort("none").build())
                 .temperature(0.5) // todo: 조정!
                 .maxCompletionTokens(1024) // todo: 조정!
                 .topP(0.8) //todo: 조정!
@@ -93,6 +95,13 @@ public class HyperClovaService {
                 .uri("/v3/chat-completions/HCX-007")
                 .bodyValue(requestBodyJson)
                 .retrieve()
+                .onStatus(status -> status.isError(), res ->
+                        res.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                log.error("[Clova Error Response] Status: {}, Body: {}", res.statusCode().value(), errorBody);
+                                return Mono.error(new RuntimeException("Clova Request Failed: " + errorBody));
+                            })
+                )
                 .bodyToMono(String.class)
                 .block();
 

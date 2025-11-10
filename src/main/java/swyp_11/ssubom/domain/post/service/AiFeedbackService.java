@@ -70,10 +70,14 @@ public class AiFeedbackService {
     }
 
     @Transactional
-    public AiFeedbackResultResponseDto getAiFeedback(Long postId, Long AiFeedbackId) {
+    public AiFeedbackResultResponseDto getAiFeedback(Long userId,Long postId, Long AiFeedbackId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.POST_ACCESS_DENIED);
+        }
 
         AIFeedback aiFeedback = aiFeedbackRepository.findById(AiFeedbackId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));

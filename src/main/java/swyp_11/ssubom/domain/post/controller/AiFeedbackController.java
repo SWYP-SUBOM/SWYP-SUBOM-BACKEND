@@ -49,9 +49,10 @@ public class AiFeedbackController {
     @GetMapping("/{postId}/ai-feedback/{aiFeedbackId}")
     public ResponseEntity<ApiResponse<AiFeedbackResultResponseDto>> getAiFeedback(
             @PathVariable Long postId,
-            @PathVariable Long aiFeedbackId) {
+            @PathVariable Long aiFeedbackId,
+            @AuthenticationPrincipal CustomOAuth2User user) {
 
-        AiFeedbackResultResponseDto responseDto = aiFeedbackService.getAiFeedback(postId, aiFeedbackId);
+        AiFeedbackResultResponseDto responseDto = aiFeedbackService.getAiFeedback(user.getUserId(),postId, aiFeedbackId);
 
         switch (responseDto.getStatus()) {
             case PROCESSING:

@@ -13,6 +13,7 @@ import swyp_11.ssubom.domain.post.entity.PostStatus;
 import swyp_11.ssubom.domain.post.entity.Reaction;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -134,4 +135,28 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                     .or(post.updatedAt.eq(cursorUpdatedAt).and(post.postId.lt(cursorId)));
         }
     }
+
+    @Override
+    public List<Post> findPostsForInfiniteScroll(Long categoryId, LocalDateTime cursorUpdatedAt, Long cursorPostId, int limit) {
+        BooleanExpression cursorCondition = null;
+        if (cursorUpdatedAt != null && cursorPostId != null) {
+            cursorCondition = post.updatedAt.lt(cursorUpdatedAt)
+                    .or(post.updatedAt.eq(cursorUpdatedAt)
+                            .and(post.postId.lt(cursorPostId)));}
+        return queryFactory
+                .selectFrom(post)
+                .join(post.topic, topic).fetchJoin()
+                .join(topic.category, category)
+                .where(topic.category.id.eq(categoryId),
+                        post.status.eq(PostStatus.PUBLISHED),
+                        cursorCondition
+                )
+                .orderBy(post.updatedAt.desc(), post.postId.desc())
+                .limit(limit+1)
+                .fetch();
+    }
 }
+
+
+
+

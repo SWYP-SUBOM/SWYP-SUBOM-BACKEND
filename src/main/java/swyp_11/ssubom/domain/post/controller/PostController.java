@@ -17,6 +17,8 @@ import swyp_11.ssubom.global.response.ApiResponse;
 import swyp_11.ssubom.domain.post.service.PostService;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/posts")
@@ -169,8 +171,10 @@ public class PostController {
     )
     @GetMapping
     public ResponseEntity<ApiResponse<PostListResponseDto>> getPostListByCategoryId(
-            @RequestParam(name = "categoryId",defaultValue = "1") Long categoryId) {
-        PostListResponseDto responseDto = postService.getPostList(categoryId);
+            @RequestParam(name = "categoryId",defaultValue = "1") Long categoryId,
+            @RequestParam(required = false) LocalDateTime curUpdatedAt,
+            @RequestParam(required = false) Long curPostId) {
+        PostListResponseDto responseDto = postService.getPostList(categoryId,curUpdatedAt,curPostId);
         return ResponseEntity.ok(ApiResponse.success(responseDto,"F0002","글 리스트 조회에 성공했습니다."));
     }
 }

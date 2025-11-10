@@ -55,7 +55,9 @@ public class AiFeedbackController {
 
         switch (responseDto.getStatus()) {
             case PROCESSING:
-                return ResponseEntity.ok(ApiResponse.success(responseDto, "AI002", "AI 피드백이 아직 처리 중입니다."));
+                return ResponseEntity
+                        .status(HttpStatus.ACCEPTED)
+                        .body(ApiResponse.success(responseDto, "AI002", "AI 피드백이 아직 처리 중입니다."));
             case COMPLETED:
                 return ResponseEntity.ok(ApiResponse.success(responseDto, "AI001", "AI 피드백 조회에 성공했습니다"));
             default:

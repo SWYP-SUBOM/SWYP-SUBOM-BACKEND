@@ -21,7 +21,6 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
 
@@ -29,8 +28,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final RefreshRepository refreshRepository;
 
-    @Qualifier("kakaoUnlinkWebClient")
+    @Qualifier("kakaoAuthWebClient")
     private final WebClient kakaoClient;
+
+    public UserService(StreakRepository streakRepository,
+                       UserRepository userRepository,
+                       RefreshRepository refreshRepository,
+                       @Qualifier("kakaoAuthWebClient") WebClient kakaoClient) {
+        this.streakRepository = streakRepository;
+        this.userRepository = userRepository;
+        this.refreshRepository = refreshRepository;
+        this.kakaoClient = kakaoClient;
+    }
 
     public StreakResponse getStreak(Long userId) {
         return streakRepository.findByUser_UserId(userId)

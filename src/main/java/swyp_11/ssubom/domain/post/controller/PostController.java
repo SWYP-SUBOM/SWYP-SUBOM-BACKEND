@@ -118,9 +118,10 @@ public class PostController {
     }
 
     @Operation(
-        summary = "피드 상세 조회",
+        summary = "글 상세 조회: 1) 피드용 2) 이어쓰기/마이페이지 내 글 상세 보기용",
         description = """
-            피드에서 글을 상세 조회합니다.
+            1) 피드에서 글을 상세 조회합니다.
+            2) 
             비로그인 사용자는 피드 상세 조회 불가.
         """,
         security = { @SecurityRequirement(name = "bearerAuth") }

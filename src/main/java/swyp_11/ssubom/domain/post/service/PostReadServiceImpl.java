@@ -2,12 +2,10 @@ package swyp_11.ssubom.domain.post.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.*;
 import swyp_11.ssubom.domain.post.entity.AIFeedback;
-import swyp_11.ssubom.domain.post.entity.ImprovementPoint;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.Reaction;
 import swyp_11.ssubom.domain.post.repository.PostRepository;
@@ -15,15 +13,12 @@ import swyp_11.ssubom.domain.post.repository.ReactionRepository;
 import swyp_11.ssubom.domain.topic.entity.Category;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
-import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -106,11 +101,11 @@ public class PostReadServiceImpl implements PostReadService {
         AiFeedbackInfo aiFeedbackInfo = null;
         AIFeedback aiFeedback = post.getAiFeedback(); // null가능
         if (aiFeedback != null) {
-            List<ImprovementPoint> improvementPoints = aiFeedback.getImprovementPoints();
+            List<String> improvementPoints = aiFeedback.getImprovementPoints();
             aiFeedbackInfo = new AiFeedbackInfo(
                     aiFeedback.getId(),
                     aiFeedback.getStrength(),
-                    improvementPoints.stream().map(ImprovementPoint::getContent).toList()
+                    improvementPoints
             );
         }
 

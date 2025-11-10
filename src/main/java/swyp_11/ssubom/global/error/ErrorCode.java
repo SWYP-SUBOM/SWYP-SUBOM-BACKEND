@@ -54,7 +54,9 @@ public enum ErrorCode {
     // Notification errors
 
     // AI errors
-    AIFEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "AI001", "AIfeedback을 찾을 수 없습니다.")
+    AIFEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "AI001", "AIfeedback을 찾을 수 없습니다."),
+    AIFEEDBACK_API_FAILED(HttpStatus.BAD_GATEWAY , "AI002", "LLM API 호출 실패."),
+    AIFEEDBACK_PARSE_FAILED(HttpStatus.BAD_REQUEST, "AI003", "LLM 응답 내용이 비어있음.")
     ;
 
     private final HttpStatus httpStatus;

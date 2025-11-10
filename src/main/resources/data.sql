@@ -45,3 +45,5 @@ INSERT INTO sseobom.topic (topic_name, category_id, is_used, created_at, updated
 VALUES
     ('당신이 가장 좋아하는 영화 장르와, 잘 맞지 않는 장르가 있다면 각각 무엇인가요? ', 5, false, NOW(), NOW()),
     ('아날로그 방식의 기록 (손글씨, 다이어리 등)과 디지털 방식의 기록 중, 어떤 것이 당신의 기억력과 사고력에 더 도움을 준다고 생각하시나요?', 5, false, NOW(), NOW());
+
+-----------------------------

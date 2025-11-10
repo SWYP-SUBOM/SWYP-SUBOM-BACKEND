@@ -177,4 +177,6 @@ public class PostController {
         PostListResponseDto responseDto = postService.getPostList(categoryId,curUpdatedAt,curPostId);
         return ResponseEntity.ok(ApiResponse.success(responseDto,"F0002","글 리스트 조회에 성공했습니다."));
     }
+
+
 }

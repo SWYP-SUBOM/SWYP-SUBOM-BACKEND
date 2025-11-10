@@ -10,5 +10,4 @@ import java.util.Optional;
 @Repository
 public interface AiFeedbackRepository extends JpaRepository<AIFeedback, Long> {
     Optional<AIFeedback> findByPost_PostId(Long postId);
-    Optional<AIFeedback> findByPost(Post post);
 }

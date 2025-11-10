@@ -23,4 +23,6 @@ public interface PostService {
     PostListResponseDto getPostList(Long categoryId,LocalDateTime cursorUpdatedAt,Long cursorPostId);
 
 
+
+
 }

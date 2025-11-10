@@ -1,16 +1,18 @@
 package swyp_11.ssubom.domain.post.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import swyp_11.ssubom.domain.post.dto.AiFeedbackResultResponseDto;
 import swyp_11.ssubom.domain.post.dto.AiFeedbackStartResponseDto;
 import swyp_11.ssubom.domain.post.dto.PostUpdateResponse;
 import swyp_11.ssubom.domain.post.service.AiFeedbackService;
+import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 import swyp_11.ssubom.global.response.ApiResponse;
 
 @Slf4j
@@ -38,5 +40,30 @@ public class AiFeedbackController {
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body(responseBody);
+    }
+
+    @Operation(
+            summary = "AI 피드백 조회 ",
+            security = {@SecurityRequirement(name = "bearerAuth")}
+    )
+    @GetMapping("/{postId}/ai-feedback/{aiFeedbackId}")
+    public ResponseEntity<ApiResponse<AiFeedbackResultResponseDto>> getAiFeedback(
+            @PathVariable Long postId,
+            @PathVariable Long aiFeedbackId,
+            @AuthenticationPrincipal CustomOAuth2User user) {
+
+        AiFeedbackResultResponseDto responseDto = aiFeedbackService.getAiFeedback(user.getUserId(),postId, aiFeedbackId);
+
+        switch (responseDto.getStatus()) {
+            case PROCESSING:
+                return ResponseEntity
+                        .status(HttpStatus.ACCEPTED)
+                        .body(ApiResponse.success(responseDto, "AI002", "AI 피드백이 아직 처리 중입니다."));
+            case COMPLETED:
+                return ResponseEntity.ok(ApiResponse.success(responseDto, "AI001", "AI 피드백 조회에 성공했습니다"));
+            default:
+                throw new IllegalStateException("Unexpected status: " + responseDto.getStatus());
+
+        }
     }
 }

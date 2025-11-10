@@ -20,6 +20,13 @@ public class AIFeedback extends BaseTimeEntity {
     @Column(name = "ai_feedback_id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AIFeedbackStatus status;
+
+    @Column(columnDefinition = "TEXT")
+    private String errorMessage;
+
     @Column(columnDefinition = "TEXT")
     private String summary;
 
@@ -30,6 +37,34 @@ public class AIFeedback extends BaseTimeEntity {
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;
 
-    @OneToMany(mappedBy = "aiFeedback", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ImprovementPoint> improvementPoints = new ArrayList<>();
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "improvement_point",
+            joinColumns = @JoinColumn(name = "ai_feedback_id")
+    )
+    @Column(name = "improvement_points", columnDefinition = "TEXT")
+    private List<String> improvementPoints = new ArrayList<>();
+
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String content;
+
+    public static AIFeedback createProcessingFeedback(Post post, String content) {
+        AIFeedback feedback = new AIFeedback();
+        feedback.post = post;
+        feedback.content = content; // 원본 content 저장
+        feedback.status = AIFeedbackStatus.PROCESSING;
+        return feedback;
+    }
+
+    public void completeFeedback(String summary, String strength, List<String> points) {
+        this.summary = summary;
+        this.strength = strength;
+        this.improvementPoints = new ArrayList<>(points);
+        this.status = AIFeedbackStatus.COMPLETED;
+    }
+
+    public void failFeedback(String errorMessage) {
+        this.errorMessage = errorMessage;
+        this.status = AIFeedbackStatus.FAILED;
+    }
 }

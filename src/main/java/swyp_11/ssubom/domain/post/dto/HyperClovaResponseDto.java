@@ -7,10 +7,8 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class AiFeedbackInfo {
-    private Long aiFeedbackId;
-
-    private String strengthPoint;
-
+public class HyperClovaResponseDto {
+    private String summary;
+    private String strength;
     private List<String> improvementPoints;
 }

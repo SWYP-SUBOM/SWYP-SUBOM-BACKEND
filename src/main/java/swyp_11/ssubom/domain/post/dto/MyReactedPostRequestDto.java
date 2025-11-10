@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class MyReactedPostRequestDto {
-    private Integer page = 1;
+    private Long cursorId;
     private Integer size = 20;
     private LocalDate startDate;
     private LocalDate endDate;

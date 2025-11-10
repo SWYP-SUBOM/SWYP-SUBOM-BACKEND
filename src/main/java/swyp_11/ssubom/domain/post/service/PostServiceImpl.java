@@ -208,17 +208,6 @@ public class PostServiceImpl implements PostService {
         return PostListResponseDto.from(topic,postSummaryDtos,nextUpdatedAt, nextPostId, hasMore);
     }
 
-    @Override
-    @Transactional
-    public AiFeedbackResponse getAiFeedback(Long userId, Long postId, Long AiFeedbackId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
-        AIFeedback aiFeedback = aiFeedbackRepository.findById(AiFeedbackId)
-                .orElseThrow(()-> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
 
-        return AiFeedbackResponse.builder()
-                .post(post)
-                .aiFeedback(aiFeedback)
-                .build();
-    }
+
 }

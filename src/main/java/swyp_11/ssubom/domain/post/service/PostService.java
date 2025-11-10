@@ -22,7 +22,7 @@ public interface PostService {
 
     PostListResponseDto getPostList(Long categoryId,LocalDateTime cursorUpdatedAt,Long cursorPostId);
 
-   AiFeedbackResponse getAiFeedback(Long userId, Long postId , Long AiFeedbackId);
+
 
 
 }

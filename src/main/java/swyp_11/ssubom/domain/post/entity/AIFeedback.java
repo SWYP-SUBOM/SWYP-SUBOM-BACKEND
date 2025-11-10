@@ -33,10 +33,6 @@ public class AIFeedback extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String strength;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20)
-    private AiStatus status; //DRAFT, PUBLISHED
-
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false, unique = true)
     private Post post;

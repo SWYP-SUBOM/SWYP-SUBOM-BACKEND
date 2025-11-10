@@ -3,6 +3,7 @@ package swyp_11.ssubom.domain.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import swyp_11.ssubom.domain.post.dto.AiFeedbackResultResponseDto;
 import swyp_11.ssubom.domain.post.dto.AiFeedbackStartResponseDto;
 import swyp_11.ssubom.domain.post.entity.AIFeedback;
@@ -66,5 +67,34 @@ public class AiFeedbackService {
         }
         return dto;
 
+    }
+
+    @Transactional
+    public AiFeedbackResultResponseDto getAiFeedback(Long postId, Long AiFeedbackId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+
+        AIFeedback aiFeedback = aiFeedbackRepository.findById(AiFeedbackId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
+
+         if (aiFeedback.getStatus() == AIFeedbackStatus.COMPLETED) {
+            return  new AiFeedbackResultResponseDto(
+                    aiFeedback.getId(),
+                    aiFeedback.getStatus(),
+                    aiFeedback.getStrength(),
+                    aiFeedback.getSummary(),
+                    aiFeedback.getImprovementPoints()
+            );
+        }
+        else if (aiFeedback.getStatus() == AIFeedbackStatus.PROCESSING) {
+                return AiFeedbackResultResponseDto.builder()
+                        .aiFeedbackId(aiFeedback.getId())
+                        .status(AIFeedbackStatus.PROCESSING)
+                        .build();
+        }
+        else {
+                 throw new BusinessException(ErrorCode.AIFEEDBACK_API_FAILED);
+         }
     }
 }

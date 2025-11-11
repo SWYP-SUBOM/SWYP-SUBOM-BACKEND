@@ -15,7 +15,6 @@ import java.util.Optional;
 public interface ReactionRepository extends JpaRepository<Reaction, Long> {
     Optional<Reaction> findByPostAndUser(Post post, User user);
 
-
     @Query("SELECT r.type.name, COUNT(r) " +
             "FROM Reaction r " +
             "WHERE r.post = :post " +

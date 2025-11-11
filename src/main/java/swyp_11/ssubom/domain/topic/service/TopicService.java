@@ -55,7 +55,9 @@ public class TopicService {
         return ensureTodayPicked(categoryId).map(t ->
                 TodayTopicResponseDto.of(
                         t.getCategory().getName(),
-                        t.getName()
+                        t.getName(),
+                        t.getCategory().getId(),
+                        t.getId()
                 )
         );
     }

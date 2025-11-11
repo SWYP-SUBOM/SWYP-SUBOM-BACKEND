@@ -83,20 +83,17 @@ public class Post extends BaseTimeEntity {
 
     public void updateFromDraft(PostStatus nextStatus, String content) {
         if (nextStatus == PostStatus.DRAFT) {
-            // case C
             if (this.content != null && this.content.equals(content)) {
                 return;
             }
             this.content = content;
         } else if (nextStatus == PostStatus.PUBLISHED) {
-            // case A
             this.publish(content);
         }
     }
 
     public void updateFromPublished(PostStatus nextStatus, String content) {
         if (nextStatus == PostStatus.PUBLISHED) {
-            // case B
             if (this.content != null && this.content.equals(content)) {
                 return;
             }

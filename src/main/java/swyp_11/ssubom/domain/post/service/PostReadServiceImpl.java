@@ -1,16 +1,11 @@
 package swyp_11.ssubom.domain.post.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.*;
 import swyp_11.ssubom.domain.post.entity.AIFeedback;
-import swyp_11.ssubom.domain.post.entity.ImprovementPoint;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.Reaction;
 import swyp_11.ssubom.domain.post.repository.PostRepository;
@@ -18,15 +13,12 @@ import swyp_11.ssubom.domain.post.repository.ReactionRepository;
 import swyp_11.ssubom.domain.topic.entity.Category;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
-import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -42,27 +34,30 @@ public class PostReadServiceImpl implements PostReadService {
     @Override
     public MyPostResponseDto getMyPosts(Long userId, MyPostRequestDto request) {
         Pageable pageable = createMyPostsPageable(request);
-        Page<Post> postPage = postRepository.findMyPosts(userId, request, pageable);
-        List<MyPostItem> items = postPage.getContent().stream()
+        Slice<Post> postSlice = postRepository.findMyPosts(userId, request, pageable);
+        List<MyPostItem> items = postSlice.getContent().stream()
                 .map(this::convertPostToMyPostItem)
                 .toList();
 
-        PageInfoDto pageInfo = new PageInfoDto(
-                postPage.getNumber() + 1,
-                postPage.getSize(),
-                postPage.getTotalPages(),
-                postPage.getTotalElements(),
-                postPage.isLast()
+        // 다음 커서 ID 계산 (마지막 아이템의 ID)
+        Long nextCursorId = null;
+        if (postSlice.hasNext() && !items.isEmpty()) {
+            nextCursorId = items.get(items.size() - 1).getPostId();
+        }
+
+        SliceInfoDto sliceInfo = new SliceInfoDto(
+                postSlice.hasNext(),
+                nextCursorId
         );
-        return new MyPostResponseDto(items, pageInfo);
+        return new MyPostResponseDto(items, sliceInfo);
     }
 
     @Override
     public MyReactedPostResponseDto getMyReactedPost(Long userId, MyReactedPostRequestDto request) {
 
         Pageable pageable = createMyReactedPostsPageable(request);
-        Page<Reaction> reactionPage = postRepository.findMyReactedPosts(userId, request, pageable);
-        List<Post> posts = reactionPage.getContent().stream()
+        Slice<Reaction> reactionSlice = postRepository.findMyReactedPosts(userId, request, pageable);
+        List<Post> posts = reactionSlice.getContent().stream()
                 .map(Reaction::getPost)
                 .toList();
 
@@ -76,19 +71,20 @@ public class PostReadServiceImpl implements PostReadService {
                                         this::createMetricsDto
                                 )
                         ));
-        List<MyReactedPostItem> items = reactionPage.getContent().stream()
+        List<MyReactedPostItem> items = reactionSlice.getContent().stream()
                 .map(reaction -> convertReactionToMyReactedPostItem(reaction, metricsMap))
                 .toList();
 
-        PageInfoDto pageInfo = new PageInfoDto(
-                reactionPage.getNumber() + 1,
-                reactionPage.getSize(),
-                reactionPage.getTotalPages(),
-                reactionPage.getTotalElements(),
-                reactionPage.isLast()
-        );
+        Long nextCursorId = null;
+        if (reactionSlice.hasNext() && !items.isEmpty()) {
+            nextCursorId = items.get(items.size() - 1).getPostId();
+        }
 
-        return new MyReactedPostResponseDto(items, pageInfo);
+        SliceInfoDto sliceInfo = new SliceInfoDto(
+                reactionSlice.hasNext(),
+                nextCursorId
+        );
+        return new MyReactedPostResponseDto(items, sliceInfo);
     }
 
     @Override
@@ -105,16 +101,17 @@ public class PostReadServiceImpl implements PostReadService {
         AiFeedbackInfo aiFeedbackInfo = null;
         AIFeedback aiFeedback = post.getAiFeedback(); // null가능
         if (aiFeedback != null) {
-            List<ImprovementPoint> improvementPoints = aiFeedback.getImprovementPoints();
+            List<String> improvementPoints = aiFeedback.getImprovementPoints();
             aiFeedbackInfo = new AiFeedbackInfo(
                     aiFeedback.getId(),
                     aiFeedback.getStrength(),
-                    improvementPoints.stream().map(ImprovementPoint::getContent).toList()
+                    improvementPoints
             );
         }
 
         return new MyPostDetailResponseDto(
-            post.getPostId(),
+                post.getPostId(),
+                topic.getId(),
                 post.getNickname(),
                 topicInfo,
                 post.getContent(),
@@ -124,9 +121,10 @@ public class PostReadServiceImpl implements PostReadService {
                 aiFeedbackInfo
         );
     }
+
     // ------- my-writings -------
     private Pageable createMyPostsPageable(MyPostRequestDto request) {
-        int page = request.getPage() - 1;
+        int page = 0;
         int size = request.getSize();
         Sort sort;
         if (request.getSort().equals("oldest")) {
@@ -158,7 +156,7 @@ public class PostReadServiceImpl implements PostReadService {
     //------- my-reactions -------
 
     private Pageable createMyReactedPostsPageable(MyReactedPostRequestDto request) {
-        int page = request.getPage() - 1;
+        int page = 0;
         int size = request.getSize();
         Sort sort;
         if (request.getSort().equals("oldest")) {
@@ -173,7 +171,6 @@ public class PostReadServiceImpl implements PostReadService {
             Reaction reaction, Map<Long, ReactionMetricsDto> metricsMap
     ) {
         Post post = reaction.getPost();
-        Reaction currentUserReaction = reaction;
         Topic topic = post.getTopic();
         Category category = topic.getCategory();
         TopicInfo topicInfo = new TopicInfo(topic.getName(), category.getName());
@@ -185,7 +182,7 @@ public class PostReadServiceImpl implements PostReadService {
                 new ReactionMetricsDto(0L, Map.of())
         );
 
-        ReactionInfo reactionInfo = new ReactionInfo(currentUserReaction.getType().getName(), metrics);
+        ReactionInfo reactionInfo = new ReactionInfo(reaction.getType().getName(), metrics);
 
         return new MyReactedPostItem(
                 post.getPostId(),

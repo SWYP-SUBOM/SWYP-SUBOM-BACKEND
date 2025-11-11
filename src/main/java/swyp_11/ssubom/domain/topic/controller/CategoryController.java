@@ -49,7 +49,7 @@ public class CategoryController {
             security = { @SecurityRequirement(name = "bearerAuth") },
             parameters = {
                     @Parameter(name = "categoryId", in = ParameterIn.PATH, required = true, description = "카테고리 ID", example = "1"),
-                    @Parameter(name = "sort", in = ParameterIn.QUERY, required = false, description = "정렬 기준 (latest | popular)", example = "latest")
+                    @Parameter(name = "sort", in = ParameterIn.QUERY, required = false, description = "정렬 기준 (latest | oldest)", example = "latest")
             }
     )
     @GetMapping("/categories/{categoryId}/questions")

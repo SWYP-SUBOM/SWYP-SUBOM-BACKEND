@@ -11,9 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
-public class
-
-VocabularyPool {
+public class VocabularyPool {
     private static final String MODIFIERS_PATH = "static/modifiers.txt";
     private static final String NOUNS_PATH = "static/nouns.txt";
     private static final String ACTIVITIES_PATH = "static/activities.txt";

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import swyp_11.ssubom.domain.notification.service.NotificationService;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 import swyp_11.ssubom.domain.user.entity.User;
@@ -32,6 +33,7 @@ public class ReactionServiceImpl implements ReactionService {
     private final UserRepository userRepository;
     private final ReactionTypeRepository reactionTypeRepository;
     private final ReactionRepository reactionRepository;
+    private final NotificationService notificationService;
 
     @Override
     public ReactionResponse upsertReaction(Long userId, Long postId, ReactionUpsertRequest request) {
@@ -42,7 +44,7 @@ public class ReactionServiceImpl implements ReactionService {
         String reactionTypeName = request.getReactionTypeName();
         ReactionType reactionType = reactionTypeRepository.findByName(reactionTypeName);
         if (reactionType == null) {
-            throw new BusinessException(ErrorCode.INVALID_REACTION_TYPE); // 예시
+            throw new BusinessException(ErrorCode.INVALID_REACTION_TYPE);
         }
         Optional<Reaction> currentUserReaction = reactionRepository.findByPostAndUser(post, user);
 
@@ -56,6 +58,7 @@ public class ReactionServiceImpl implements ReactionService {
         }
         //집계
         ReactionMetricsDto metrics = calculateReactionMetrics(post);
+        notificationService.createReactionNotification(post, user, reactionType);
 
         return new ReactionResponse(
                 post.getPostId(),

@@ -10,11 +10,15 @@ import swyp_11.ssubom.domain.topic.entity.Topic;
 public class TodayTopicResponseDto {
     String categoryName;
     String topicName;
+    Long categoryId;
+    Long topicId;
 
-    public static TodayTopicResponseDto of(String categoryName, String topicName) {
+    public static TodayTopicResponseDto of(String categoryName, String topicName,Long categoryId, Long topicId) {
         return TodayTopicResponseDto.builder()
                 .categoryName(categoryName)
                 .topicName(topicName)
+                .categoryId(categoryId)
+                .topicId(topicId)
                 .build();
     }
 }

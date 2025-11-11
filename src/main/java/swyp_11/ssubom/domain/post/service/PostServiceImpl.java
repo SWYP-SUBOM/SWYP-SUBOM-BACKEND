@@ -1,5 +1,6 @@
 package swyp_11.ssubom.domain.post.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,10 +11,7 @@ import swyp_11.ssubom.domain.post.entity.AIFeedback;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.PostStatus;
 import swyp_11.ssubom.domain.post.entity.PostView;
-import swyp_11.ssubom.domain.post.repository.AiFeedbackRepository;
-import swyp_11.ssubom.domain.post.repository.PostRepository;
-import swyp_11.ssubom.domain.post.repository.PostViewRepository;
-import swyp_11.ssubom.domain.post.repository.ReactionRepository;
+import swyp_11.ssubom.domain.post.repository.*;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.topic.repository.TopicRepository;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
@@ -38,6 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
     private static final int SERVICE_LEVEL_MAX_TRIES = 5;
+    private static final int DEFAULT_PAGE_SIZE = 15;
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -170,15 +169,32 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostListResponseDto getPostList(Long categoryId) {
+    public PostListResponseDto getPostList(Long categoryId,LocalDateTime cursorUpdatedAt,Long cursorPostId) {
 
         LocalDate today = LocalDate.now();
         Topic topic = topicRepository.findByUsedAtAndCategory_Id(today,categoryId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
 
-        List<Post> posts = postRepository.findByTopicAndStatusOrderByUpdatedAtDesc(topic,PostStatus.PUBLISHED);
+        int limit = DEFAULT_PAGE_SIZE;
+        List<Post> posts = postRepository.findPostsForInfiniteScroll(
+                categoryId,
+                cursorUpdatedAt,
+                cursorPostId,
+                limit
+        );
 
-        List<PostSummaryDto> postSummaryDtos=posts.stream()
+        boolean hasMore = posts.size() > limit;
+        List<Post> actualPosts = hasMore ? posts.subList(0, limit) : posts;
+
+        LocalDateTime nextUpdatedAt = null;
+        Long nextPostId = null;
+
+        if (hasMore) {
+            Post cursorPost = posts.get(limit-1);
+            nextUpdatedAt = cursorPost.getUpdatedAt();
+            nextPostId = cursorPost.getPostId();
+        }
+        List<PostSummaryDto> postSummaryDtos=actualPosts.stream()
                 .map(post ->{
                             AIFeedback aiFeedback = aiFeedbackRepository.findByPost_PostId(post.getPostId()).orElseThrow(
                                     ()-> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND)
@@ -189,6 +205,9 @@ public class PostServiceImpl implements PostService {
                         }
                        ).collect(Collectors.toList());
 
-        return PostListResponseDto.from(topic,postSummaryDtos);
+        return PostListResponseDto.from(topic,postSummaryDtos,nextUpdatedAt, nextPostId, hasMore);
     }
+
+
+
 }

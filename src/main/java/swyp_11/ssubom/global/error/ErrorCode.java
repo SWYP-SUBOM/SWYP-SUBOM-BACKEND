@@ -30,6 +30,8 @@ public enum ErrorCode {
     // User errors
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
     USER_MISMATCH(HttpStatus.UNAUTHORIZED, "U002", "로그인 유저와 글 작성자가 다릅니다."),
+    UNREGISTER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U003", "카카오 회원 탈퇴 처리 중 오류가 발생했습니다."),
+    POST_ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "U004", "사용자가 작성한 글이 아닙니다"),
 
     // Topic errors
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "카테고리를 찾을 수 없습니다."),
@@ -53,7 +55,9 @@ public enum ErrorCode {
     // Notification errors
 
     // AI errors
-    AIFEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "AI001", "AIfeedback을 찾을 수 없습니다.")
+    AIFEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "AI001", "AIfeedback을 찾을 수 없습니다."),
+    AIFEEDBACK_API_FAILED(HttpStatus.BAD_GATEWAY , "AI002", "LLM API 호출 실패."),
+    AIFEEDBACK_PARSE_FAILED(HttpStatus.BAD_REQUEST, "AI003", "LLM 응답 내용이 비어있음.")
     ;
 
     private final HttpStatus httpStatus;

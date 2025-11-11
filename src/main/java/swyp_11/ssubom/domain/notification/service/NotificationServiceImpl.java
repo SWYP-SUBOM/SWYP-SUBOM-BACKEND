@@ -2,17 +2,25 @@ package swyp_11.ssubom.domain.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import swyp_11.ssubom.domain.calendar.dto.CategoryInfo;
+import swyp_11.ssubom.domain.notification.dto.NotificationItem;
+import swyp_11.ssubom.domain.notification.dto.NotificationListResponse;
 import swyp_11.ssubom.domain.notification.entity.Notification;
 import swyp_11.ssubom.domain.notification.repository.NotificationRepository;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.ReactionType;
+import swyp_11.ssubom.domain.post.repository.ReactionRepository;
 import swyp_11.ssubom.domain.user.entity.User;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,6 +32,7 @@ public class NotificationServiceImpl implements NotificationService{
     private static final long TIMEOUT = 1000L * 60 * 60; // 1시간 유지
 
     private final NotificationRepository notificationRepository;
+    private final ReactionRepository reactionRepository;
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     /**
@@ -51,22 +60,38 @@ public class NotificationServiceImpl implements NotificationService{
      */
     @Override
     @Transactional
-    public void createReactionNotification(Post post, User actor, ReactionType type) {
+    public void createReactionNotification(Post post, User actor, ReactionType oldType, ReactionType newType) {
         User receiver = post.getUser();
         if (receiver.getUserId().equals(actor.getUserId())) return;
 
-        Notification notification = notificationRepository
-                .findByReceiverAndPostAndReactionType(receiver, post, type)
-                .map(n -> {
-                    n.increaseActorCount();
-                    return n;
-                })
-                .orElseGet(() -> {
-                    Notification newOne = Notification.of(receiver, post, type, 1L);
-                    return notificationRepository.save(newOne);
-                });
+        // 1. 기존 반응(oldType) 알림 count 감소
+        if (oldType != null && !oldType.equals(newType)) {
+            notificationRepository.findByReceiverAndPostAndReactionType(receiver, post, oldType)
+                    .ifPresent(oldNoti -> {
+                        long oldCount = reactionRepository.countByPostAndType(post.getPostId(), oldType.getId());
+                        if (oldCount <= 0) {
+                            notificationRepository.delete(oldNoti);
+                            log.debug("[알림 삭제] postId={}, reactionType={}", post.getPostId(), oldType.getName());
+                        } else {
+                            oldNoti.setActorCount(oldCount);
+                            notificationRepository.save(oldNoti);
+                        }
+                    });
+        }
 
-        sendNotification(notification);
+        // 2. 새 반응(newType) 알림 count 증가
+        if (newType != null) {
+            Notification newNoti = notificationRepository
+                    .findByReceiverAndPostAndReactionType(receiver, post, newType)
+                    .orElseGet(() -> Notification.of(receiver, post, newType, 0L));
+
+            long newCount = reactionRepository.countByPostAndType(post.getPostId(), newType.getId());
+            newNoti.setActorCount(newCount);
+            newNoti.markAsUnread();
+            notificationRepository.save(newNoti);
+
+            sendNotification(newNoti);
+        }
     }
 
     /**
@@ -117,5 +142,35 @@ public class NotificationServiceImpl implements NotificationService{
         } catch (IOException e) {
             emitter.completeWithError(e);
         }
+    }
+
+    @Override
+    @Transactional
+    public NotificationListResponse getNotifications(Long userId, int limit, LocalDateTime beforeUpdatedAt) {
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Notification> notifications = notificationRepository.findRecentNotifications(userId, beforeUpdatedAt, pageable);
+
+        notifications.forEach(Notification::markAsRead);
+        notificationRepository.saveAll(notifications);
+
+        boolean hasMore = hasMoreNotifications(notifications, limit);
+        Long nextBeforeId = getNextBeforeId(notifications, hasMore);
+
+        List<NotificationItem> items = notifications.stream()
+                .map(n -> NotificationItem.of(
+                        n, CategoryInfo.of(n.getPost().getTopic().getCategory())
+                ))
+                .toList();
+
+        return new NotificationListResponse(items, nextBeforeId, hasMore);
+    }
+
+    private boolean hasMoreNotifications(List<Notification> notifications, int limit) {
+        return notifications.size() >= limit;
+    }
+
+    private Long getNextBeforeId(List<Notification> notifications, boolean hasMore) {
+        if (!hasMore || notifications.isEmpty()) return null;
+        return notifications.get(notifications.size() - 1).getId();
     }
 }

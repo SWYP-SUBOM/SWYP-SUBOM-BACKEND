@@ -5,9 +5,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import swyp_11.ssubom.domain.post.dto.PostReactionCountDto;
 import swyp_11.ssubom.domain.post.dto.PostReactionInfo;
-import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.Reaction;
+import swyp_11.ssubom.domain.user.entity.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,4 +42,11 @@ public interface ReactionRepository extends JpaRepository<Reaction, Long> {
     List<PostReactionInfo> countReactionsByPostId(@Param("postId") Long postId);
 
     long countByPost(Post post);
+
+    @Query(
+            value = "SELECT COUNT(*) FROM sseobom.feed_reaction WHERE post_id = :postId AND reaction_type_id = :reactionTypeId",
+            nativeQuery = true
+    )
+    long countByPostAndType(@Param("postId") Long postId, @Param("reactionTypeId") Long reactionTypeId);
+
 }

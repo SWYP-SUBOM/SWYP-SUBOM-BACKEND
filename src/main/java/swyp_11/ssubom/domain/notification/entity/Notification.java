@@ -55,8 +55,12 @@ public class Notification extends BaseTimeEntity {
                 .build();
     }
 
-    public void increaseActorCount() {
-        this.actorCount++;
+    public void markAsUnread() {
+        this.isRead = false;
+    }
+
+    public void setActorCount(long totalCount) {
+        this.actorCount = totalCount;
     }
 
     public void markAsRead() {

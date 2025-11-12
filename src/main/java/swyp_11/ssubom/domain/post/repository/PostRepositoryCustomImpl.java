@@ -137,7 +137,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Post> findPostsForInfiniteScroll(Long categoryId, LocalDateTime cursorUpdatedAt, Long cursorPostId, int limit) {
+    public List<Post> findPostsForInfiniteScroll(Long topicId, LocalDateTime cursorUpdatedAt, Long cursorPostId, int limit) {
         BooleanExpression cursorCondition = null;
         if (cursorUpdatedAt != null && cursorPostId != null) {
             cursorCondition = post.updatedAt.lt(cursorUpdatedAt)
@@ -147,7 +147,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .selectFrom(post)
                 .join(post.topic, topic).fetchJoin()
                 .join(topic.category, category)
-                .where(topic.category.id.eq(categoryId),
+                .where(post.topic.id.eq(topicId),
                         post.status.eq(PostStatus.PUBLISHED),
                         cursorCondition
                 )

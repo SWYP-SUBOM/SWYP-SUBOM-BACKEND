@@ -175,9 +175,11 @@ public class PostServiceImpl implements PostService {
         Topic topic = topicRepository.findByUsedAtAndCategory_Id(today,categoryId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
 
+        Long topicId = topic.getId();
+
         int limit = DEFAULT_PAGE_SIZE;
         List<Post> posts = postRepository.findPostsForInfiniteScroll(
-                categoryId,
+                topicId,
                 cursorUpdatedAt,
                 cursorPostId,
                 limit
@@ -207,7 +209,5 @@ public class PostServiceImpl implements PostService {
 
         return PostListResponseDto.from(topic,postSummaryDtos,nextUpdatedAt, nextPostId, hasMore);
     }
-
-
 
 }

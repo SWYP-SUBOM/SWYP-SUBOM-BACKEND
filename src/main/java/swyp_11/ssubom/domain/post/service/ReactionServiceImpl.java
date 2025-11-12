@@ -49,17 +49,20 @@ public class ReactionServiceImpl implements ReactionService {
         Optional<Reaction> currentUserReaction = reactionRepository.findByPostAndUser(post, user);
 
         Reaction reaction;
+        ReactionType oldType = null;
         if (currentUserReaction.isPresent()) {
             reaction = currentUserReaction.get();
+            oldType = reaction.getType();
             reaction.addType(reactionType);
         } else {
             reaction = Reaction.create(user, post, reactionType);
             reactionRepository.save(reaction);
         }
+
+        notificationService.createReactionNotification(post, user, oldType, reactionType);
+
         //집계
         ReactionMetricsDto metrics = calculateReactionMetrics(post);
-        notificationService.createReactionNotification(post, user, reactionType);
-
         return new ReactionResponse(
                 post.getPostId(),
                 metrics,
@@ -78,6 +81,9 @@ public class ReactionServiceImpl implements ReactionService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.REACTION_NOT_FOUND));
 
         reactionRepository.delete(reaction);
+
+        ReactionType deletedType = reaction.getType();
+        notificationService.createReactionNotification(post, user, deletedType, null);
 
         ReactionMetricsDto metrics = calculateReactionMetrics(post);
 

@@ -1,17 +1,16 @@
 package swyp_11.ssubom.domain.post.service;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.*;
-import swyp_11.ssubom.domain.post.entity.AIFeedback;
-import swyp_11.ssubom.domain.post.entity.Post;
-import swyp_11.ssubom.domain.post.entity.PostStatus;
-import swyp_11.ssubom.domain.post.entity.PostView;
-import swyp_11.ssubom.domain.post.repository.*;
+import swyp_11.ssubom.domain.post.entity.*;
+import swyp_11.ssubom.domain.post.repository.AiFeedbackRepository;
+import swyp_11.ssubom.domain.post.repository.PostRepository;
+import swyp_11.ssubom.domain.post.repository.PostViewRepository;
+import swyp_11.ssubom.domain.post.repository.ReactionRepository;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.topic.repository.TopicRepository;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
@@ -163,8 +162,14 @@ public class PostServiceImpl implements PostService {
 
         List<PostReactionInfo> reactions = reactionRepository.countReactionsByPostId(postId);
         Long viewCount = postViewRepository.countByPost(post);
+        ReactionType reactionType = reactionRepository
+                .findByPostAndUser(post, loginUser)
+                .map(Reaction::getType)
+                .orElse(null);
 
-        return PostDetailResponse.of(post, isMe, reactions, viewCount);
+        MyReactionInfo myReaction = MyReactionInfo.of(reactionType);
+
+        return PostDetailResponse.of(post, isMe, reactions, viewCount, myReaction);
     }
 
     @Override

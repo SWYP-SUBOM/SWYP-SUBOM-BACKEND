@@ -15,5 +15,5 @@ public interface PostRepositoryCustom {
     Slice<Post> findMyPosts(Long userId, MyPostRequestDto request, Pageable pageable);
 
     Slice<Reaction> findMyReactedPosts(Long userId, MyReactedPostRequestDto request, Pageable pageable);
-    List<Post> findPostsForInfiniteScroll(Long categoryId, LocalDateTime cursorUpdatedAt, Long cursorPostId, int limit);
+    List<Post> findPostsForInfiniteScroll(Long topicId, LocalDateTime cursorUpdatedAt, Long cursorPostId, int limit);
 }

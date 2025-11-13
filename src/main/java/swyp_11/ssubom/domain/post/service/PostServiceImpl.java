@@ -145,8 +145,8 @@ public class PostServiceImpl implements PostService {
 
         return postRepository
                 .findFirstByUser_UserIdAndCreatedAtBetweenOrderByCreatedAtDesc(userId, startOfDay, endOfDay)
-                .map(post -> TodayPostResponse.toDto(post.getPostId(), post.getStatus()))
-                .orElse(TodayPostResponse.toDto(null, PostStatus.NOT_STARTED));
+                .map(TodayPostResponse::toDto)
+                .orElse(TodayPostResponse.toDto(null));
     }
 
     @Override

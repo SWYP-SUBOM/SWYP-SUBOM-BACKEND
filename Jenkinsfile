@@ -24,7 +24,7 @@ pipeline {
                     echo "Writing application.properties file"
                     sh '''
                         mkdir -p ./src/main/resources
-                        cp "$APP_PROPS" ./src/main/resources/application.properties
+                        cp "$APP_PROPS" ./src/main/resources/application-prod.properties
                     '''
                 }
             }

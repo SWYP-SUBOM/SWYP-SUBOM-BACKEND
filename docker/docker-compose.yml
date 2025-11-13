@@ -7,6 +7,8 @@ services:
     image: seobom-backend:latest
     expose:
       - "8080" # 내부망 통신만 허용
+    volumes:
+      - /var/log/seobom:/apps/logs
     networks:
       - deploy
     restart: always

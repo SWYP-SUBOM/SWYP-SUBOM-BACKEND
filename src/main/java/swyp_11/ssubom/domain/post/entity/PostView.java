@@ -26,6 +26,11 @@ public class PostView extends BaseTimeEntity {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    public PostView(Post post, User viewer) {
+        this.post = post;
+        this.viewer = viewer;
+    }
+
     public static PostView create(User loginUser, Post post) {
         PostView postView = new PostView();
         postView.viewer = loginUser;

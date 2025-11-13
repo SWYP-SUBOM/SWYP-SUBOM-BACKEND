@@ -103,7 +103,7 @@ public class HyperClovaService {
                             })
                 )
                 .bodyToMono(String.class)
-                .block();
+                .block(); //todo: 동기 vs 비동기
 
         // 4. (로깅) API에서 받은 원본(Raw) 응답 기록 (디버깅 핵심)
         log.info("[Clova Response] Raw: {}", rawApiResponse);

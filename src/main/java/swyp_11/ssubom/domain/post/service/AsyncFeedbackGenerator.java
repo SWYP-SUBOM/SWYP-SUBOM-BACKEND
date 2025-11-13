@@ -22,9 +22,19 @@ public class AsyncFeedbackGenerator {
     @Transactional
     public void generateAndSaveFeedback(Long aiFeedbackId, String content) {
         log.info("[Async Start] AI 피드백 생성 시작 (ID: {})", aiFeedbackId);
+
+
+        if (content == null || content.trim().length() < 100) {
+            AIFeedback feedback = aiFeedbackRepository.findById(aiFeedbackId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
+
+            log.warn("[Async Fail] 내용이 너무 짧아 AI 피드백을 생성할 수 없습니다. (ID: {})", aiFeedbackId);
+            feedback.failFeedback("피드백을 생성하기에 글이 너무 짧습니다."); // '실패' 상태로 변경
+            return; // AI 호출하지 않고 종료
+        }
+
         AIFeedback feedback = aiFeedbackRepository.findById(aiFeedbackId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
-
         try {
             HyperClovaResponseDto responseDto = hyperClovaService.getFeedback(content);
 

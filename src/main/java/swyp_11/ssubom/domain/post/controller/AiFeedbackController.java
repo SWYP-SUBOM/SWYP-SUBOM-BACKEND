@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,8 +63,9 @@ public class AiFeedbackController {
             case COMPLETED:
                 return ResponseEntity.ok(ApiResponse.success(responseDto, "AI001", "AI 피드백 조회에 성공했습니다"));
             default:
-                throw new IllegalStateException("Unexpected status: " + responseDto.getStatus());
-
+                return ResponseEntity
+                        .status(HttpStatus.NOT_ACCEPTABLE)
+                        .body(ApiResponse.success(responseDto, "AI003", "AI 피드백을 제공하기엔, 제공된 컨텐츠 길이가 너무 짧습니다(_자)"));
         }
     }
 }

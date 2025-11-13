@@ -78,7 +78,7 @@ public class Post extends BaseTimeEntity {
 
     // 연관관계 편의 메서드
     public PostView addView(User viewer) {
-        PostView view = new PostView(this, viewer); // 생성자로 관계 완성
+        PostView view = new PostView(this, viewer);
         this.postViews.add(view);
         return view;
     }

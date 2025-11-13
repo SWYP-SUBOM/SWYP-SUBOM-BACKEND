@@ -49,6 +49,9 @@ public class Post extends BaseTimeEntity {
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private AIFeedback aiFeedback;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostView> postViews = new ArrayList<>();
+
     @Builder(access = AccessLevel.PRIVATE)
     public Post(User user, Topic topic, String content, PostStatus status, String nickname) {
         this.user = user;
@@ -71,6 +74,13 @@ public class Post extends BaseTimeEntity {
                 .status(status)
                 .nickname(nickname)
                 .build();
+    }
+
+    // 연관관계 편의 메서드
+    public PostView addView(User viewer) {
+        PostView view = new PostView(this, viewer);
+        this.postViews.add(view);
+        return view;
     }
 
     public void update(PostStatus nextStatus, String content) {

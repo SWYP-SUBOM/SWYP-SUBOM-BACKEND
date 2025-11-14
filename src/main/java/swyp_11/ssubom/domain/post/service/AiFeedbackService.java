@@ -24,6 +24,7 @@ public class AiFeedbackService {
     private final PostRepository postRepository;
     private final AiFeedbackRepository aiFeedbackRepository;
     private final AsyncFeedbackGenerator asyncGenerator;
+    private static final int MIN_CONTENT_LENGTH = 100; // 최소 글자 수 정의
 
     @Transactional
     public AiFeedbackStartResponseDto startFeedbackGeneration(Long postId) {
@@ -31,6 +32,13 @@ public class AiFeedbackService {
         // 1. Post 엔티티 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        String content = post.getContent(); // (post에서 content를 가져온다고 가정)
+
+        // 2. [ ✨ 핵심 ✨ ] 비동기 호출 전에 글자 수 검증
+        if (content == null || content.trim().length() < MIN_CONTENT_LENGTH) {
+            // 400 Bad Request 에러를 즉시 발생시킴
+            throw new BusinessException(ErrorCode.AIFEEDBACK_CONTENT_TOO_SHORT);
+        }
 
         // 2. 'PROCESSING' 상태의 AIFeedback 엔티티 생성 및 저장
         AIFeedback feedback = AIFeedback.createProcessingFeedback(post, post.getContent());

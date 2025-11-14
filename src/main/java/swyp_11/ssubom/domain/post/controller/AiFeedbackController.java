@@ -14,6 +14,7 @@ import swyp_11.ssubom.domain.post.dto.AiFeedbackStartResponseDto;
 import swyp_11.ssubom.domain.post.dto.PostUpdateResponse;
 import swyp_11.ssubom.domain.post.service.AiFeedbackService;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.global.error.ErrorCode;
 import swyp_11.ssubom.global.response.ApiResponse;
 
 @Slf4j
@@ -62,10 +63,21 @@ public class AiFeedbackController {
                         .body(ApiResponse.success(responseDto, "AI002", "AI 피드백이 아직 처리 중입니다."));
             case COMPLETED:
                 return ResponseEntity.ok(ApiResponse.success(responseDto, "AI001", "AI 피드백 조회에 성공했습니다"));
-            default:
+
+            case FAILED:
                 return ResponseEntity
-                        .status(HttpStatus.NOT_ACCEPTABLE)
-                        .body(ApiResponse.success(responseDto, "AI003", "AI 피드백을 제공하기엔, 제공된 컨텐츠 길이가 너무 짧습니다(_자)"));
+                        .status(HttpStatus.OK)
+                        .body(ApiResponse.success(
+                                responseDto,
+                                "AI003",
+                                responseDto.getErrorMessage()
+                        ));
+
+            default: // UNKNOWN 등 예외적인 상태
+                log.warn("알 수 없는 AI 피드백 상태입니다: {}", responseDto.getStatus());
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(ApiResponse.error(ErrorCode.AIFEEDBACK_UNKNOWN));
         }
     }
 }

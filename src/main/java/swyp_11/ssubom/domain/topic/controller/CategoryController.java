@@ -28,14 +28,14 @@ public class CategoryController {
     private final TopicService topicService;
 
     @Operation(
-            summary = "카테고리 오늘의 질문 조회",
-            description = "오늘의 질문을 반환한다.",
-            security = { @SecurityRequirement(name = "bearerAuth") },
+            summary = "카테고리 오늘의 질문 조회 API",
+            description = """
+                오늘의 질문을 반환한다.
+            """,
             parameters = {
                     @Parameter(name = "categoryId", in = ParameterIn.PATH, required = true, description = "카테고리 ID", example = "1")
             }
     )
-
     @GetMapping("/categories/{categoryId}/question")
     public ApiResponse<TodayTopicResponseDto> getCategoryQuestion(@PathVariable("categoryId") Long categoryId) {
         TodayTopicResponseDto dto =topicService.ensureTodayPickedDto(categoryId)
@@ -44,8 +44,10 @@ public class CategoryController {
     }
 
     @Operation(
-            summary = "주제 모아보기",
-            description = "해당 카테고리에 대한 최대 30개의 주제를 조회.",
+            summary = "주제 모아보기 API",
+            description = """
+                    해당 카테고리에 대한 최대 30개의 주제를 조회.
+            """,
             security = { @SecurityRequirement(name = "bearerAuth") },
             parameters = {
                     @Parameter(name = "categoryId", in = ParameterIn.PATH, required = true, description = "카테고리 ID", example = "1"),
@@ -59,13 +61,12 @@ public class CategoryController {
     }
 
     @Operation(
-            summary = "홈 화면 조회",
+            summary = "홈 화면 조회 API",
             description = """
                 로그인 여부에 따라 다른 정보를 제공합니다.
-                - **비회원**: 카테고리 목록만 조회
-                - **회원**: 카테고리 + 스트릭 + 오늘의 글 상태 포함
-            """,
-            security = { @SecurityRequirement(name = "bearerAuth") }
+                - 비회원: 카테고리 목록만 조회
+                - 회원: 카테고리 + 스트릭 + 오늘의 글 상태 포함
+            """
     )
     @GetMapping("/home")
     public ResponseEntity<ApiResponse<HomeResponse>> getHome(@AuthenticationPrincipal CustomOAuth2User principal) {

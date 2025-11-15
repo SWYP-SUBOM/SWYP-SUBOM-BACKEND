@@ -1,5 +1,6 @@
 package swyp_11.ssubom.domain.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +18,13 @@ import swyp_11.ssubom.domain.user.service.reissueService;
 @RequiredArgsConstructor
 public class ReissueController {
     private final reissueService reissueService;
+
+    @Operation(
+            summary = "토큰 재발급 API",
+            description = """
+                token 만료 시 재발급
+            """
+    )
     @PostMapping("/api/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         return reissueService.reissue(request, response);

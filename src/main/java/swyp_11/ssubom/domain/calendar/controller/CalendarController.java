@@ -24,9 +24,9 @@ public class CalendarController {
     private final CalendarService calendarService;
 
     @Operation(
-            summary = "캘린더 조회",
+            summary = "캘린더 조회 API",
             description = """
-                캘린더 상세 조회입니다.
+                캘린더 상세 조회.
                 비로그인 사용자는 캘린더 조회 불가.
             """,
             security = { @SecurityRequirement(name = "bearerAuth") }

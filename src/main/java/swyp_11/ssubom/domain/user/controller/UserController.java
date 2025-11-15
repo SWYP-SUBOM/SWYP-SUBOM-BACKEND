@@ -1,5 +1,7 @@
 package swyp_11.ssubom.domain.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,13 @@ import swyp_11.ssubom.global.response.ApiResponse;
 public class UserController {
     private final UserService userService;
 
+    @Operation(
+            summary = "마이페이지 API",
+            description = """
+                마이페이지 조회
+            """,
+            security = {@SecurityRequirement(name = "bearerAuth")}
+    )
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserProfileResponse>> getUserProfile(@AuthenticationPrincipal CustomOAuth2User user) {
         UserProfileResponse userProfileResponse = userService.getUserProfile(user.toEntity());

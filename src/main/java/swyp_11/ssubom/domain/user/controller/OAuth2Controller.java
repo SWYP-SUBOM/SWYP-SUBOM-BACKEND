@@ -3,21 +3,21 @@ package swyp_11.ssubom.domain.user.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.domain.user.service.OAuth2JwtHeaderService;
 import swyp_11.ssubom.domain.user.service.UserService;
 import swyp_11.ssubom.global.response.ApiResponse;
-import swyp_11.ssubom.domain.user.service.OAuth2JwtHeaderService;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,10 +29,11 @@ public class OAuth2Controller {
 
     @PostMapping("/api/oauth2-jwt-header")
     @Operation(
-            summary = "액세스 토큰 헤더 요청",
-            description = "액세스 토큰을 헤더로 이동"
+            summary = "액세스 토큰 헤더 요청 API",
+            description = """
+                액세스 토큰을 헤더로 이동
+            """
     )
-
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             headers = {
                     @Header(
@@ -49,10 +50,12 @@ public class OAuth2Controller {
 
     @PostMapping("/api/unregister")
     @Operation(
-            summary = "회원 탈퇴",
-            description = "users db is_deleted true 로 변경 및 kakaoId값 null로 변경"
+            summary = "회원 탈퇴 API",
+            description = """
+                users db is_deleted true 로 변경 및 kakaoId값 null로 변경
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
     )
-
     public ApiResponse<String> unregister(HttpServletRequest request,
                                           HttpServletResponse response,
                                           Authentication authentication,

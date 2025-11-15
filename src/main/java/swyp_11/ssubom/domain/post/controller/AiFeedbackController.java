@@ -4,14 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import swyp_11.ssubom.domain.post.dto.AiFeedbackResultResponseDto;
 import swyp_11.ssubom.domain.post.dto.AiFeedbackStartResponseDto;
-import swyp_11.ssubom.domain.post.dto.PostUpdateResponse;
 import swyp_11.ssubom.domain.post.service.AiFeedbackService;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 import swyp_11.ssubom.global.error.ErrorCode;
@@ -24,6 +22,14 @@ import swyp_11.ssubom.global.response.ApiResponse;
 public class AiFeedbackController {
     private final AiFeedbackService aiFeedbackService;
 
+    @Operation(
+            summary = "AI 피드백 생성 API",
+            description = """
+                CLOVA X에 글 피드백 생성 요청
+                SUCCESS 시 글 AI 피드백 조회 API 요청
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @PostMapping("/{postId}/ai-feedback")
     public ResponseEntity<ApiResponse<AiFeedbackStartResponseDto>> startAiFeedback(@PathVariable Long postId) {
 
@@ -45,7 +51,11 @@ public class AiFeedbackController {
     }
 
     @Operation(
-            summary = "AI 피드백 조회 ",
+            summary = "AI 피드백 조회 API",
+            description = """
+                1. 마이페이지 이전에 쓴 글 피드백 조회
+                2. AI 피드백 생성 SUCCESS 시 요청
+            """,
             security = {@SecurityRequirement(name = "bearerAuth")}
     )
     @GetMapping("/{postId}/ai-feedback/{aiFeedbackId}")

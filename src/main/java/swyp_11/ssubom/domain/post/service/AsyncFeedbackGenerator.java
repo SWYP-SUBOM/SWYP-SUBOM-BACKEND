@@ -17,14 +17,15 @@ import swyp_11.ssubom.global.error.ErrorCode;
 public class AsyncFeedbackGenerator {
     private final AiFeedbackRepository aiFeedbackRepository;
     private final HyperClovaService hyperClovaService;
+    private final AiFeedbackStatusService statusService;
 
     @Async
     @Transactional
     public void generateAndSaveFeedback(Long aiFeedbackId, String content) {
         log.info("[Async Start] AI 피드백 생성 시작 (ID: {})", aiFeedbackId);
+
         AIFeedback feedback = aiFeedbackRepository.findById(aiFeedbackId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
-
         try {
             HyperClovaResponseDto responseDto = hyperClovaService.getFeedback(content);
 
@@ -37,7 +38,7 @@ public class AsyncFeedbackGenerator {
 
         } catch (Exception e) {
             log.error("[Async Fail] AI 피드백 생성 중 오류 발생 (ID: {})", aiFeedbackId, e);
-            feedback.failFeedback(e.getMessage());
+            statusService.markAsFailed(aiFeedbackId, e.getMessage());
         }
     }
 }

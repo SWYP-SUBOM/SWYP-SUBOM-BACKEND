@@ -26,7 +26,16 @@ import java.time.LocalDateTime;
 public class PostController {
 
     private final PostService postService;
+    private final PostReadServiceImpl postReadService;
 
+    @Operation(
+            summary = "글 저장/글 임시 저장 API",
+            description = """
+                    1. 글 작성 중 임시 저장 : DRAFT
+                    2. 작성완료 : PUBLISHED
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @PostMapping
     public ResponseEntity<ApiResponse<PostCreateResponse>> createPost(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
@@ -43,6 +52,15 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
+    @Operation(
+            summary = "글 수정/ 임시저장한 글 수정 API",
+            description = """
+                    1. 임시저장한 글 수정 후 임시저장 : DRAFT
+                    2. 임시저장한 글 저장하기 : PUBLISHED
+                       - 보완 여부는 서버에서 판단
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @PutMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostUpdateResponse>> updatePost(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
@@ -65,6 +83,14 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
+    @Operation(
+            summary = "글 삭제 / 임시저장한 글 삭제 API",
+            description = """
+                    1. 임시저장한 글 삭제(새 글 작성)
+                    2. 이미 게시된 글은 삭제 불가
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
@@ -82,7 +108,15 @@ public class PostController {
     }
     private final ReactionService reactionService;
 
-
+    @Operation(
+            summary = "반응 생성/수정 API",
+            description = """
+                    1. reaction 생성
+                    2. reaction 수정
+                    사용자는 하나의 글에 하나의 반응만 남길 수 있다.
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @PutMapping("/{postId}/reaction")
     public ResponseEntity<ApiResponse<ReactionResponse>> upsertReaction(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
@@ -101,6 +135,13 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
+    @Operation(
+            summary = "반응 삭제 API",
+            description = """
+                    사용자가 글에 남긴 반응 삭제
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @DeleteMapping("/{postId}/reaction")
     public ResponseEntity<ApiResponse<ReactionResponse>> deleteReaction(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
@@ -120,11 +161,11 @@ public class PostController {
     }
 
     @Operation(
-        summary = "글 상세 조회: 1) 피드용 2) 이어쓰기/마이페이지 내 글 상세 보기용",
+        summary = "피드 상세 조회/내 글 상세 조회 API",
         description = """
-            1) 피드에서 글을 상세 조회합니다.
-            2) 
-            비로그인 사용자는 피드 상세 조회 불가.
+            1. 피드에서 글 상세 조회
+            2. 이어쓰기/마이페이지 내 글 상세 조회
+            비로그인 사용자는 글 상세 조회 불가.
         """,
         security = { @SecurityRequirement(name = "bearerAuth") }
     )
@@ -143,8 +184,13 @@ public class PostController {
         }
     }
 
-    private final PostReadServiceImpl postReadService;
-
+    @Operation(
+            summary = "내가 쓴 글 리스트 조회 API",
+            description = """
+                마이페이지에서 내가 쓴 글 목록을 조회
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @GetMapping("/my-writings")
     public ResponseEntity<ApiResponse<MyPostResponseDto>> getMyWritings(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
@@ -155,6 +201,13 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(myPostResponse, "P0005", "내가 쓴 글 리스트 조회에 성공했습니다."));
     }
 
+    @Operation(
+            summary = "내가 반응 남긴 글 리스트 조회 API",
+            description = """
+                마이페이지에서 내가 반응 남긴 글 리스트 조회
+            """,
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @GetMapping("/my-reactions")
     public ResponseEntity<ApiResponse<MyReactedPostResponseDto>> getMyReactedPosts(
             @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
@@ -166,8 +219,10 @@ public class PostController {
     }
 
     @Operation(
-            summary = "피드 전체 조회 ",
-            description = "카테고리 별로 feed를 조회합니다."
+            summary = "피드 전체 조회 API",
+            description = """
+                카테고리 별로 feed를 조회합니다.
+            """
     )
     @GetMapping
     public ResponseEntity<ApiResponse<PostListResponseDto>> getPostListByCategoryId(

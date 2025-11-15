@@ -23,7 +23,7 @@ public class SwaggerConfig {
                 )
                 .servers(List.of(
                         new Server()
-                                .url("https://seobom.site")
+                                .url("https://api.seobom.site")
                                 .description("배포 서버"),
                         new Server()
                                 .url("http://localhost:8080")

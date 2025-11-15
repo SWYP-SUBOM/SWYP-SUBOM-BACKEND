@@ -31,6 +31,7 @@ services:
     networks:
       - deploy
     restart: always
+
   certbot:
     image: certbot/certbot
     container_name: certbot
@@ -44,6 +45,17 @@ services:
                certbot renew --webroot -w /var/www/certbot;
                sleep 12h & wait $${!};
              done"
+    networks:
+      - deploy
+    restart: always
+  jenkins:
+    container_name: jenkins
+    image: jenkins/jenkins:lts
+    user: root
+    ports:
+      - "9090:8080"
+    volumes:
+      - /var/jenkins_home:/var/jenkins_home
     networks:
       - deploy
     restart: always

@@ -48,14 +48,14 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         //refresh
-        int expireS = 24 * 60 * 60;
+        Integer expireS = 24 * 60 * 60; // 24시간
 
-        String access = jwtUtil.createJWT("accessToken", kakaoId, role, 2 * 24 * 60 * 60);
-        String refresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expireS);
+        String access = jwtUtil.createJWT("accessToken", kakaoId, role,  60 * 60 *1000L);
+        String refresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expireS*1000L);
 
         refreshTokenService.saveRefresh(kakaoId,refresh,expireS);
 
-        ResponseCookie accessCookie = CookieUtil.createCookie("accessToken", access, 2 * 24 * 60 * 60);
+        ResponseCookie accessCookie = CookieUtil.createCookie("accessToken", access, 2 * 60 * 60);
         ResponseCookie refreshCookie = CookieUtil.createCookie("refreshToken", refresh, expireS);
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());

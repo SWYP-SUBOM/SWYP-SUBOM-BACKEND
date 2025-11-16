@@ -97,8 +97,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/my").hasRole("USER")
                         .requestMatchers("/api/posts/**").hasRole("USER")
                         .requestMatchers("/api/notifications").hasRole("USER")
-                        .requestMatchers("/api/categories").hasRole("USER")
-
                         .anyRequest().authenticated());
 
         return http.build();

@@ -18,7 +18,7 @@ public class JWTUtil {
         System.out.println("SecretKey initialized: " + secretKey);
     }
 
-    public String createJWT(String category , String kakaoId , String role , int expiredMs) {
+    public String createJWT(String category , String kakaoId , String role , Long expiredMs) {
         System.out.println("Creating JWT with category: " + category + ", kakaoId: " + kakaoId + ", role: " + role + ", expiredMs: " + expiredMs);
          String jwt = Jwts.builder()
                 .claim("category",category)

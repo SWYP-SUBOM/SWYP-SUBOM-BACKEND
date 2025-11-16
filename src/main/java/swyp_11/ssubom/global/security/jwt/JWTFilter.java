@@ -3,9 +3,9 @@ package swyp_11.ssubom.global.security.jwt;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,9 +17,6 @@ import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 
-import jakarta.servlet.http.Cookie;
-
-
 import java.io.IOException;
 
 public class JWTFilter extends OncePerRequestFilter {
@@ -29,6 +26,19 @@ public class JWTFilter extends OncePerRequestFilter {
     public JWTFilter(JWTUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
         this.userRepository=userRepository;
+    }
+
+    // Swagger 및 인증 불필요한 경로는 JWT 필터 건너뛰기
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-resources") ||
+                path.startsWith("/webjars") ||
+                path.startsWith("/api-docs") ||
+                path.startsWith("/actuator") ||
+                path.equals("/favicon.ico");
     }
 
     @Override

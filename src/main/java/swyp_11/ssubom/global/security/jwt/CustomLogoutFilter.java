@@ -35,6 +35,11 @@ public class CustomLogoutFilter extends GenericFilterBean {
         }
 
         String requestMethod = request.getMethod();
+
+        if(requestMethod.equals("OPTIONS")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         if(!requestMethod.equals("POST")) {
             filterChain.doFilter(request, response);
             return;

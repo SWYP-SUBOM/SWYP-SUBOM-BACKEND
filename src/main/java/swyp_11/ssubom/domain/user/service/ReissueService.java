@@ -20,6 +20,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class ReissueService {
     private final JWTUtil jwtUtil;
+    private final CookieUtil cookieUtil;
     private final RefreshRepository refreshRepository;
     private final RefreshTokenService refreshTokenService;
 
@@ -64,7 +65,7 @@ public class ReissueService {
         refreshTokenService.saveRefresh(kakaoId,newRefresh,expiredS);
 
         response.addHeader("Authorization", "Bearer " + newAccess);
-        ResponseCookie newRefreshCookie = CookieUtil.createCookie("refreshToken", newRefresh, expiredS);
+        ResponseCookie newRefreshCookie = cookieUtil.createCookie("refreshToken", newRefresh, expiredS);
 
         response.addHeader(HttpHeaders.SET_COOKIE, newRefreshCookie.toString());
         return new ResponseEntity<>(HttpStatus.OK);

@@ -110,7 +110,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
     //cursor기반 paging을 위한 WHERE condition 생성
     private BooleanExpression cursorCondition(Long cursorId, Sort sort) {
-        if (cursorId == null) {
+        if (cursorId == null || cursorId == 0L) {
             return null; // 첫 페이지 조회
         }
 

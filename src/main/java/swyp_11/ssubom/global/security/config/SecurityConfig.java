@@ -24,6 +24,7 @@ import swyp_11.ssubom.global.security.handler.CustomOAuthSuccessHandler;
 import swyp_11.ssubom.global.security.jwt.CustomLogoutFilter;
 import swyp_11.ssubom.global.security.jwt.JWTFilter;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
+import swyp_11.ssubom.global.security.util.CookieUtil;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class SecurityConfig {
     private final CustomOAuthSuccessHandler customOAuthSuccessHandler;
     private final RefreshRepository refreshRepository;
     private final UserRepository userRepository;
-
+    private final CookieUtil cookieUtil;
     @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
 
@@ -70,7 +71,7 @@ public class SecurityConfig {
                 addFilterAfter(new JWTFilter(jwtUtil,userRepository), OAuth2LoginAuthenticationFilter.class);
 
         http.
-                addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository), LogoutFilter.class);
+                addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository,cookieUtil), LogoutFilter.class);
 
         // 미인증 클라이언트(swagger 등)
         http

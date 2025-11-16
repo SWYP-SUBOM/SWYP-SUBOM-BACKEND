@@ -27,7 +27,7 @@ public class ReissueService {
 
         Cookie[] cookies = request.getCookies();
         String refresh = Arrays.stream(cookies)
-                .filter(c -> c.getName().equals("refresh"))
+                .filter(c -> c.getName().equals("refreshToken"))
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse(null);
@@ -42,7 +42,7 @@ public class ReissueService {
         }
 
         String category = jwtUtil.getCategory(refresh);
-        if(!category.equals("refresh")) {
+        if(!category.equals("refreshToken")) {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
@@ -56,15 +56,15 @@ public class ReissueService {
         }
 
         //todo 엑세스시간 refresh 시간 변경
-        String newAccess = jwtUtil.createJWT("access", kakaoId, role, 2 * 24 * 60 * 60);
+        String newAccess = jwtUtil.createJWT("accessToken", kakaoId, role, 2 * 24 * 60 * 60);
         int expiredS = 60 * 60 * 24;
-        String newRefresh = jwtUtil.createJWT("refresh", kakaoId, role, expiredS);
+        String newRefresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expiredS);
 
         refreshRepository.deleteByRefreshValue(refresh);
         refreshTokenService.saveRefresh(kakaoId,newRefresh,expiredS);
 
         response.addHeader("Authorization", "Bearer " + newAccess);
-        ResponseCookie newRefreshCookie = CookieUtil.createCookie("refresh", newRefresh, expiredS);
+        ResponseCookie newRefreshCookie = CookieUtil.createCookie("refreshToken", newRefresh, expiredS);
 
         response.addHeader(HttpHeaders.SET_COOKIE, newRefreshCookie.toString());
         return new ResponseEntity<>(HttpStatus.OK);

@@ -10,8 +10,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.filter.GenericFilterBean;
 import swyp_11.ssubom.domain.user.repository.RefreshRepository;
+import swyp_11.ssubom.global.security.util.CookieUtil;
 
 import java.io.IOException;
 
@@ -20,7 +23,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private final  JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
-
+    private  final CookieUtil cookieUtil;
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
@@ -83,12 +86,13 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         refreshRepository.deleteByRefreshValue(refresh);
 
-        //refresh 토큰 cookie 값 0
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+
+
+        ResponseCookie deleteRefreshCookie = cookieUtil.createCookie("refreshToken", null, 0);
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteRefreshCookie.toString());
         response.setStatus(HttpServletResponse.SC_OK);
+
+
 
     }
 }

@@ -21,6 +21,7 @@ public class SwaggerConfig {
                         .description("자기계발형 글쓰기 AI 코칭 서비스")
                         .version("v1.0.0")
                 )
+                // TODO: Local, Prod 에 따라 나눠지게 만들기
                 .servers(List.of(
                         new Server()
                                 .url("https://api.seobom.site")

@@ -14,8 +14,6 @@ import swyp_11.ssubom.domain.user.dto.userDTO;
 import swyp_11.ssubom.domain.user.entity.User;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,8 +28,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response = null;
-
-//        System.out.println("❇️ AccessToken = " + userRequest.getAccessToken().getTokenValue());
 
         if (registrationId.equals("kakao")) {
             oAuth2Response = new KaKaoResponse(oAuth2User.getAttributes());
@@ -48,7 +44,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                     oAuth2Response.getName(),
                     oAuth2Response.getEmail(),
             "ROLE_USER");
-//            user.setCreatedAt(LocalDateTime.now());
             userRepository.save(user);
 
             userDTO userDTO = new userDTO();

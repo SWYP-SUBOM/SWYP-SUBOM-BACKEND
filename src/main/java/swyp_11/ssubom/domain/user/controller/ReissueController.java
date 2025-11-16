@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import swyp_11.ssubom.domain.user.service.reissueService;
+import swyp_11.ssubom.domain.user.service.ReissueService;
 
 
 @Tag(name = "refresh token", description = "토큰 재발급")
@@ -17,7 +17,7 @@ import swyp_11.ssubom.domain.user.service.reissueService;
 @ResponseBody
 @RequiredArgsConstructor
 public class ReissueController {
-    private final reissueService reissueService;
+    private final ReissueService reissueService;
 
     @Operation(
             summary = "토큰 재발급 API",

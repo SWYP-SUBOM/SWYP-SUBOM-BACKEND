@@ -1,14 +1,27 @@
 package swyp_11.ssubom.global.security.util;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CookieUtil {
-    public static ResponseCookie createCookie(String key , String value , Integer expireS){
+
+    @Value("${cookie.domain}")
+    private String domain;
+
+    @Value("${cookie.secure}")
+    private boolean secure;
+
+    @Value("${cookie.same-site}")
+    private String sameSite;
+
+    public ResponseCookie createCookie(String key , String value , Integer expireS){
         return ResponseCookie.from(key, value)
-                .domain(".seobom.site")
+                .domain(domain)
                 .path("/")
-                .sameSite("None")
-                .secure(true)
+                .sameSite(sameSite)
+                .secure(secure)
                 .httpOnly(true)
                 .maxAge(expireS)
                 .build();

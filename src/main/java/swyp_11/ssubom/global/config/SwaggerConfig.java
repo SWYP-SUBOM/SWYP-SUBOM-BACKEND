@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,7 +14,14 @@ import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
-    final String securitySchemeName = "bearerAuth";
+    private final String securitySchemeName = "bearerAuth";
+
+    @Value("${swagger.server.url}")
+    private String serverUrl;
+
+    @Value("${swagger.server.description}")
+    private String serverDescription;
+
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
@@ -21,14 +29,10 @@ public class SwaggerConfig {
                         .description("자기계발형 글쓰기 AI 코칭 서비스")
                         .version("v1.0.0")
                 )
-                // TODO: Local, Prod 에 따라 나눠지게 만들기
                 .servers(List.of(
                         new Server()
-                                .url("https://api.seobom.site")
-                                .description("배포 서버"),
-                        new Server()
-                                .url("http://localhost:8080")
-                                .description("개발용 서버")
+                                .url(serverUrl)
+                                .description(serverDescription)
                 ))
                 .components(new Components().addSecuritySchemes(securitySchemeName,
                 new SecurityScheme()

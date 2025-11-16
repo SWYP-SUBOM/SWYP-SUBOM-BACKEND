@@ -2,6 +2,7 @@ package swyp_11.ssubom.global.security.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -37,13 +38,16 @@ public class SecurityConfig {
     private final RefreshRepository refreshRepository;
     private final UserRepository userRepository;
 
+    @Value("${cors.allowed-origins}")
+    private String[] allowedOrigins;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOriginPatterns(List.of("https://seobom.site", "https://www.seobom.site"));
+                configuration.setAllowedOriginPatterns(List.of(allowedOrigins));
                 configuration.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
                 configuration.setAllowedHeaders(List.of("*"));
                 configuration.setAllowCredentials(true);
@@ -91,13 +95,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->auth
                         .requestMatchers("/assets/**", "/favicon.ico", "/swagger-resources/**", "/swagger-ui.html", "/swagger-ui/**",
                                 "/webjars/**", "/swagger/**","/api-docs/**","/images/logo.png","/v3/api-docs/**", "/actuator/**").permitAll()
-                        .requestMatchers("/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories","/api/home").permitAll()
+                        .requestMatchers("/","/login","/join","/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories/**","/api/home").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/posts").permitAll()
                         .requestMatchers("/api/unregister").hasRole("USER")
-                        .requestMatchers("/api/my").hasRole("USER")
+                        .requestMatchers("/api/me").hasRole("USER")
                         .requestMatchers("/api/posts/**").hasRole("USER")
                         .requestMatchers("/api/notifications").hasRole("USER")
-                        .requestMatchers("/api/categories").hasRole("USER")
 
                         .anyRequest().authenticated());
 

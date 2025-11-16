@@ -45,7 +45,7 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String access = null;
 
-//        access=request.getHeader("access");
+//        access=request.getHeader();
 //        if(access==null){
 //            filterChain.doFilter(request, response);
 //            return;
@@ -62,7 +62,7 @@ public class JWTFilter extends OncePerRequestFilter {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("access")) {
+                    if (cookie.getName().equals("accessToken")) {
                         access = cookie.getValue();
                         break;
                     }
@@ -85,7 +85,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String category = jwtUtil.getCategory(access);
 
-        if(!category.equals("access")){
+        if(!category.equals("accessToken")){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }

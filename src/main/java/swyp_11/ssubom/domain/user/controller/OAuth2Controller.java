@@ -37,7 +37,7 @@ public class OAuth2Controller {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             headers = {
                     @Header(
-                            name = "access",
+                            name = "accessToken",
                             description = "쿠키에서 꺼낸 액세스 토큰(JWT)",
                             schema = @Schema(type = "string"),
                             example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -63,7 +63,7 @@ public class OAuth2Controller {
         String kakaoId = user.getKakaoId();
         userService.userDelete(kakaoId);
 
-        Cookie refreshCookie = new Cookie("refresh", null);
+        Cookie refreshCookie = new Cookie("refreshToken", null);
         refreshCookie.setMaxAge(0);
         refreshCookie.setPath("/");
         refreshCookie.setSecure(true);

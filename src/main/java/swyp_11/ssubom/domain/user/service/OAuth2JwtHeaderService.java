@@ -21,7 +21,7 @@ public class OAuth2JwtHeaderService {
         }
 
         for(Cookie cookie : cookies){
-            if(cookie.getName().equals("access")){
+            if(cookie.getName().equals("accessToken")){
                 access = cookie.getValue();
             }
         }
@@ -31,7 +31,7 @@ public class OAuth2JwtHeaderService {
             return "bad";
         }
 
-        ResponseCookie deleteAccessCookie = CookieUtil.createCookie("access",null,0);
+        ResponseCookie deleteAccessCookie = CookieUtil.createCookie("accessToken",null,0);
         response.addHeader(HttpHeaders.SET_COOKIE, deleteAccessCookie.toString());
         response.addHeader("Authorization", "Bearer "+ access);
         response.setStatus(HttpServletResponse.SC_OK);

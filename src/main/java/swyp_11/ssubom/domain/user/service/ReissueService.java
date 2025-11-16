@@ -57,9 +57,9 @@ public class ReissueService {
         }
 
         //todo 엑세스시간 refresh 시간 변경
-        String newAccess = jwtUtil.createJWT("accessToken", kakaoId, role, 2 * 24 * 60 * 60);
+        String newAccess = jwtUtil.createJWT("accessToken", kakaoId, role,  60 * 60 *1000L);
         int expiredS = 60 * 60 * 24;
-        String newRefresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expiredS);
+        String newRefresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expiredS*1000L);
 
         refreshRepository.deleteByRefreshValue(refresh);
         refreshTokenService.saveRefresh(kakaoId,newRefresh,expiredS);

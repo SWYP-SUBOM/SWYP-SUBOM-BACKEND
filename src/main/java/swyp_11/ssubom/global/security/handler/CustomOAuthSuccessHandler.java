@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 import swyp_11.ssubom.domain.user.entity.User;
+import swyp_11.ssubom.global.security.jwt.JWTUtil;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.domain.user.service.RefreshTokenService;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
@@ -53,14 +54,14 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         //refresh
-        int expireS = 24 * 60 * 60;
+        Integer expireS = 24 * 60 * 60; // 24시간
 
-        String access = jwtUtil.createJWT("accessToken", kakaoId, role, 2 * 24 * 60 * 60);
-        String refresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expireS);
+        String access = jwtUtil.createJWT("accessToken", kakaoId, role,  60 * 60 *1000L);
+        String refresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expireS*1000L);
 
         refreshTokenService.saveRefresh(kakaoId,refresh,expireS);
 
-        ResponseCookie accessCookie = cookieUtil.createCookie("accessToken", access, 2 * 24 * 60 * 60);
+        ResponseCookie accessCookie = cookieUtil.createCookie("accessToken", access, 2 * 60 * 60);
         ResponseCookie refreshCookie = cookieUtil.createCookie("refreshToken", refresh, expireS);
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());

@@ -16,16 +16,14 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import swyp_11.ssubom.domain.user.repository.RefreshRepository;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
+import swyp_11.ssubom.domain.user.service.CustomOauth2UserService;
 import swyp_11.ssubom.global.security.handler.CustomOAuthSuccessHandler;
 import swyp_11.ssubom.global.security.jwt.CustomLogoutFilter;
 import swyp_11.ssubom.global.security.jwt.JWTFilter;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
-import swyp_11.ssubom.domain.user.repository.RefreshRepository;
-import swyp_11.ssubom.domain.user.service.CustomOauth2UserService;
 
-
-import java.util.Collections;
 import java.util.List;
 
 @EnableWebSecurity
@@ -45,11 +43,11 @@ public class SecurityConfig {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*","https://seobom.site", "https://www.seobom.site", "https://api.seobom.site"));
+                configuration.setAllowedOrigins(List.of("https://seobom.site"));
                 configuration.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
                 configuration.setAllowedHeaders(List.of("*"));
                 configuration.setAllowCredentials(true);
-                configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
                 configuration.setMaxAge(3600L);
                 return configuration;
             }

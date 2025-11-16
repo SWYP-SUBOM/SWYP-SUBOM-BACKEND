@@ -18,18 +18,19 @@ import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
-public class reissueService {
+public class ReissueService {
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final RefreshTokenService refreshTokenService;
 
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 
-        String refresh = null;
         Cookie[] cookies = request.getCookies();
-
-        refresh= Arrays.stream(cookies).filter(c -> c.getName().equals("refresh"))
-                .findFirst().get().getValue();
+        String refresh = Arrays.stream(cookies)
+                .filter(c -> c.getName().equals("refresh"))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
 
         if(refresh == null) {
             return new ResponseEntity<>("refresh token is null", HttpStatus.BAD_REQUEST);
@@ -55,23 +56,15 @@ public class reissueService {
         }
 
         //todo 엑세스시간 refresh 시간 변경
-        String newAccess = jwtUtil.createJWT("access", kakaoId, role, 60 * 60 * 1000L);
-        Integer expiredS = 60 * 60 * 24;
-        String newRefresh = jwtUtil.createJWT("refresh", kakaoId, role, expiredS * 1000L);
+        String newAccess = jwtUtil.createJWT("access", kakaoId, role, 2 * 24 * 60 * 60);
+        int expiredS = 60 * 60 * 24;
+        String newRefresh = jwtUtil.createJWT("refresh", kakaoId, role, expiredS);
 
         refreshRepository.deleteByRefreshValue(refresh);
         refreshTokenService.saveRefresh(kakaoId,newRefresh,expiredS);
 
-        response.setHeader("access", newAccess);
-
-//        response.addCookie(CookieUtil.createCookie("refresh", newRefresh, expiredS));
-        ResponseCookie newRefreshCookie = ResponseCookie.from("refresh", newRefresh)
-                .path("/")
-                .sameSite("None")
-                .secure(true)
-                .httpOnly(true)
-                .maxAge(expiredS)
-                .build();
+        response.addHeader("Authorization", "Bearer " + newAccess);
+        ResponseCookie newRefreshCookie = CookieUtil.createCookie("refresh", newRefresh, expiredS);
 
         response.addHeader(HttpHeaders.SET_COOKIE, newRefreshCookie.toString());
         return new ResponseEntity<>(HttpStatus.OK);

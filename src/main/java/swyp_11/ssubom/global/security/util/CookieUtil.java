@@ -1,13 +1,16 @@
 package swyp_11.ssubom.global.security.util;
 
-import jakarta.servlet.http.Cookie;
+import org.springframework.http.ResponseCookie;
 
 public class CookieUtil {
-    public static Cookie createCookie(String key , String value , Integer expireS){
-        Cookie cookie = new Cookie(key,value);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(expireS);
-        return cookie;
+    public static ResponseCookie createCookie(String key , String value , Integer expireS){
+        return ResponseCookie.from(key, value)
+                .domain(".seobom.site")
+                .path("/")
+                .sameSite("None")
+                .secure(true)
+                .httpOnly(true)
+                .maxAge(expireS)
+                .build();
     }
 }

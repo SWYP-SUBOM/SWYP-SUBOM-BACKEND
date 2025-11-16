@@ -31,15 +31,7 @@ public class OAuth2JwtHeaderService {
             return "bad";
         }
 
-//        response.addCookie(CookieUtil.createCookie("access",null,0));
-        ResponseCookie deleteAccessCookie = ResponseCookie.from("access", null) // value는 null 또는 ""
-                .path("/")
-                .sameSite("None")
-                .secure(true)
-                .httpOnly(true)
-                .maxAge(0)            // 쿠키 삭제
-                .build();
-
+        ResponseCookie deleteAccessCookie = CookieUtil.createCookie("access",null,0);
         response.addHeader(HttpHeaders.SET_COOKIE, deleteAccessCookie.toString());
         response.addHeader("Authorization", "Bearer "+ access);
         response.setStatus(HttpServletResponse.SC_OK);

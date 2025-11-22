@@ -57,7 +57,8 @@ public class TopicService {
                         t.getCategory().getName(),
                         t.getName(),
                         t.getCategory().getId(),
-                        t.getId()
+                        t.getId(),
+                        t.getTopicType()
                 )
         );
     }

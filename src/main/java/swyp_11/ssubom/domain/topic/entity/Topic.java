@@ -32,6 +32,10 @@ public class Topic extends BaseTimeEntity {
    @Column(name = "used_at")
     private LocalDate usedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "topic_type", length = 20, nullable = false)
+    private TopicType topicType;
+
     public void use(LocalDate today) {
         this.isUsed = true;
         this.usedAt = today;

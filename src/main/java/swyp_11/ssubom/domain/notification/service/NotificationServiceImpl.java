@@ -146,15 +146,15 @@ public class NotificationServiceImpl implements NotificationService{
 
     @Override
     @Transactional
-    public NotificationListResponse getNotifications(Long userId, int limit, LocalDateTime beforeUpdatedAt) {
+    public NotificationListResponse getNotifications(Long userId, int limit, LocalDateTime cursor) {
         Pageable pageable = PageRequest.of(0, limit);
-        List<Notification> notifications = notificationRepository.findRecentNotifications(userId, beforeUpdatedAt, pageable);
+        List<Notification> notifications = notificationRepository.findRecentNotifications(userId, cursor, pageable);
 
         notifications.forEach(Notification::markAsRead);
         notificationRepository.saveAll(notifications);
 
         boolean hasMore = hasMoreNotifications(notifications, limit);
-        Long nextBeforeId = getNextBeforeId(notifications, hasMore);
+        LocalDateTime nextCursor = getNextCursor(notifications, hasMore);
 
         List<NotificationItem> items = notifications.stream()
                 .map(n -> NotificationItem.of(
@@ -162,15 +162,15 @@ public class NotificationServiceImpl implements NotificationService{
                 ))
                 .toList();
 
-        return new NotificationListResponse(items, nextBeforeId, hasMore);
+        return new NotificationListResponse(items, nextCursor, hasMore);
     }
 
     private boolean hasMoreNotifications(List<Notification> notifications, int limit) {
         return notifications.size() >= limit;
     }
 
-    private Long getNextBeforeId(List<Notification> notifications, boolean hasMore) {
+    private LocalDateTime getNextCursor(List<Notification> notifications, boolean hasMore) {
         if (!hasMore || notifications.isEmpty()) return null;
-        return notifications.get(notifications.size() - 1).getId();
+        return notifications.get(notifications.size() - 1).getUpdatedAt();
     }
 }

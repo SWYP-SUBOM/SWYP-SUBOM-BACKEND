@@ -13,6 +13,7 @@ import swyp_11.ssubom.domain.post.entity.AIFeedbackStatus;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.repository.AiFeedbackRepository;
 import swyp_11.ssubom.domain.post.repository.PostRepository;
+import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 
@@ -32,9 +33,11 @@ public class AiFeedbackService {
         // 1. Post 엔티티 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
-        String content = post.getContent(); // (post에서 content를 가져온다고 가정)
+        String content = post.getContent();
 
-        // 2. [ ✨ 핵심 ✨ ] 비동기 호출 전에 글자 수 검증
+        Topic topic = post.getTopic();
+
+        // 2. 비동기 호출 전에 글자 수 검증
         if (content == null || content.trim().length() < MIN_CONTENT_LENGTH) {
             // 400 Bad Request 에러를 즉시 발생시킴
             throw new BusinessException(ErrorCode.AIFEEDBACK_CONTENT_TOO_SHORT);
@@ -44,11 +47,11 @@ public class AiFeedbackService {
         AIFeedback feedback = AIFeedback.createProcessingFeedback(post, post.getContent());
         AIFeedback savedFeedback = aiFeedbackRepository.save(feedback);
 
-        // 3. 비동기 작업자 호출 ((트랜잭션 분리)
+        // 3. 비동기 작업자 호출 (트랜잭션 분리)
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                asyncGenerator.generateAndSaveFeedback(savedFeedback.getId(), savedFeedback.getContent());
+                asyncGenerator.generateAndSaveFeedback(savedFeedback.getId(), savedFeedback.getContent(), topic.getTopicType(), topic.getCategory().getName(), topic.getName());
             }
         });
 
@@ -56,34 +59,6 @@ public class AiFeedbackService {
         return new AiFeedbackStartResponseDto(savedFeedback.getId(), savedFeedback.getStatus());
     }
 
-    public AiFeedbackResultResponseDto getFeedbackResult(Long aiFeedbackId) {
-
-        // 1. AIFeedback 엔티티 조회
-        AIFeedback feedback = aiFeedbackRepository.findById(aiFeedbackId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
-
-        // 2. DTO로 변환하여 반환
-        return convertToResultDto(feedback);
-    }
-
-    private AiFeedbackResultResponseDto convertToResultDto(AIFeedback feedback) {
-        AiFeedbackResultResponseDto dto = new AiFeedbackResultResponseDto(
-                feedback.getId(),
-                feedback.getStatus(),
-                feedback.getStrength(),
-                feedback.getSummary(),
-                feedback.getImprovementPoints(),
-                feedback.getErrorMessage()
-        );
-
-        if (feedback.getStatus() == AIFeedbackStatus.COMPLETED) {
-            dto.setStrength(feedback.getStrength());
-            dto.setSummary(feedback.getSummary());
-            dto.setImprovementPoints(feedback.getImprovementPoints());
-        }
-        return dto;
-
-    }
 
     @Transactional
     public AiFeedbackResultResponseDto getAiFeedback(Long userId,Long postId, Long AiFeedbackId) {
@@ -105,7 +80,8 @@ public class AiFeedbackService {
                     aiFeedback.getStrength(),
                     aiFeedback.getSummary(),
                     aiFeedback.getImprovementPoints(),
-                    aiFeedback.getErrorMessage()
+                    aiFeedback.getErrorMessage(),
+                    aiFeedback.getGrade().toString()
             );
         }
         else if (aiFeedback.getStatus() == AIFeedbackStatus.PROCESSING) {

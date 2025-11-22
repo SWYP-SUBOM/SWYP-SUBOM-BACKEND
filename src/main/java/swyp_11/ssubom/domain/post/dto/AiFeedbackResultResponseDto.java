@@ -19,14 +19,16 @@ public class AiFeedbackResultResponseDto {
     private String summary;
     private List<String> improvementPoints;
     private String errorMessage;
+    private String grade;
 
     @Builder
-    public AiFeedbackResultResponseDto(Long aiFeedbackId, AIFeedbackStatus status, String errorMessage) {
+    public AiFeedbackResultResponseDto(Long aiFeedbackId, AIFeedbackStatus status, String errorMessage, String grade) {
         this.status = status;
         this.aiFeedbackId = aiFeedbackId;
         this.strength = "";
         this.summary = "";
         this.improvementPoints = new ArrayList<>();
         this.errorMessage = errorMessage;
+        this.grade = grade;
     }
 }

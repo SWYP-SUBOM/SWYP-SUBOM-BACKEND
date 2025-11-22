@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.HyperClovaResponseDto;
 import swyp_11.ssubom.domain.post.entity.AIFeedback;
 import swyp_11.ssubom.domain.post.repository.AiFeedbackRepository;
+import swyp_11.ssubom.domain.topic.entity.TopicType;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 
@@ -21,18 +22,19 @@ public class AsyncFeedbackGenerator {
 
     @Async
     @Transactional
-    public void generateAndSaveFeedback(Long aiFeedbackId, String content) {
+    public void generateAndSaveFeedback(Long aiFeedbackId, String content, TopicType topicType, String topicCategoryName, String topicName) {
         log.info("[Async Start] AI 피드백 생성 시작 (ID: {})", aiFeedbackId);
 
         AIFeedback feedback = aiFeedbackRepository.findById(aiFeedbackId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
         try {
-            HyperClovaResponseDto responseDto = hyperClovaService.getFeedback(content);
+            HyperClovaResponseDto responseDto = hyperClovaService.getFeedback(content, topicType, topicCategoryName, topicName);
 
             feedback.completeFeedback(
                     responseDto.getSummary(),
                     responseDto.getStrength(),
-                    responseDto.getImprovementPoints()
+                    responseDto.getImprovementPoints(),
+                    responseDto.getGrade()
             );
             log.info("[Async Success] AI 피드백 생성 완료 (ID: {})", aiFeedbackId);
 

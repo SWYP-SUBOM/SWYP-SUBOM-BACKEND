@@ -16,5 +16,5 @@ RUN mkdir -p /apps/logs \
 
 COPY --from=build /apps/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-Xms256m", "-Xmx512m", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-Xms256m", "-Xmx512m", "-jar", "app.jar"]
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,11 +14,13 @@ import swyp_11.ssubom.domain.post.dto.ClovaApiRequestDto;
 import swyp_11.ssubom.domain.post.dto.ClovaApiResponseDto;
 import swyp_11.ssubom.domain.post.dto.HyperClovaResponseDto;
 import org.springframework.core.io.Resource;
+import swyp_11.ssubom.domain.topic.entity.TopicType;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
-import org.springframework.http.HttpStatus;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -31,13 +32,18 @@ public class HyperClovaService {
 
     private final ObjectMapper objectMapper;
     // 1. 프롬프트 파일 로드
-    @Value("classpath:/static/clova-feedback-system.txt")
-    private Resource systemPromptResource;
+    @Value("classpath:/static/logical-clova-feedback-system.txt")
+    private Resource systemPromptResourceForLogicalTopic;
+
+    @Value("classpath:/static/question-clova-feedback-system.txt")
+    private Resource systemPromptResourceForQuestionTopic;
 
     @Value("classpath:/static/clova-feedback-schema.json")
     private Resource schemaResource;
 
-    private String systemPrompt;
+    private String systemPromptForLogicalTopic;
+
+    private String systemPromptForQuestionTopic;
 
     private Map<String, Object> responseSchema;
 
@@ -50,8 +56,12 @@ public class HyperClovaService {
     @PostConstruct
     public void init() throws IOException {
         // System 프롬프트 로드
-        this.systemPrompt = new String(
-                systemPromptResource.getInputStream().readAllBytes(),
+        this.systemPromptForLogicalTopic = new String(
+                systemPromptResourceForLogicalTopic.getInputStream().readAllBytes(),
+                StandardCharsets.UTF_8
+        );
+        this.systemPromptForQuestionTopic = new String(
+                systemPromptResourceForQuestionTopic.getInputStream().readAllBytes(),
                 StandardCharsets.UTF_8
         );
         log.info("Clova system prompt loaded.");
@@ -68,22 +78,30 @@ public class HyperClovaService {
         log.info("Clova response schema loaded.");
     }
 
-    public HyperClovaResponseDto getFeedback(String content) {
+    public HyperClovaResponseDto getFeedback(String writing, TopicType topicType, String topicCategoryName, String topicName) {
+
+        // 0. user prompt 맥락 추가!
+        String content = constructTopicAndPost(writing, topicCategoryName, topicName);
 
         // 1. Naver API 요청 DTO 생성
+        String targetSystemPrompt = (topicType == TopicType.QUESTION)
+                ? this.systemPromptForQuestionTopic
+                : this.systemPromptForLogicalTopic;
+
+        // 요청 DTO 생성
         ClovaApiRequestDto apiRequest = ClovaApiRequestDto.builder()
                 .messages(List.of(
-                        ClovaApiRequestDto.Message.builder().role("system").content(this.systemPrompt).build(),
+                        ClovaApiRequestDto.Message.builder().role("system").content(targetSystemPrompt).build(),
                         ClovaApiRequestDto.Message.builder().role("user").content(content).build()
                 ))
                 .responseFormat(ClovaApiRequestDto.ResponseFormat.builder()
                         .type("json")
-                        .schema(this.responseSchema) // (로드해둔 스키마 주입)
+                        .schema(this.responseSchema)
                         .build())
                 .thinking(ClovaApiRequestDto.Thinking.builder().effort("none").build())
-                .temperature(0.5) // todo: 조정!
-                .maxCompletionTokens(1024) // todo: 조정!
-                .topP(0.8) //todo: 조정!
+                .temperature(0.5)
+                .maxCompletionTokens(1024)
+                .topP(0.8)
                 .build();
 
         // 2. (로깅) API에 보낼 최종 요청 serialize
@@ -103,6 +121,7 @@ public class HyperClovaService {
                             })
                 )
                 .bodyToMono(String.class)
+                .timeout(Duration.ofSeconds(60))
                 .block();
 
         // 4. (로깅) API에서 받은 원본(Raw) 응답 기록 (디버깅 핵심)
@@ -131,6 +150,10 @@ public class HyperClovaService {
 
         log.info("Clova API 2-stage parsing successful.");
         return feedbackDto;
+    }
+
+    private String constructTopicAndPost(String writing, String topicCategoryName, String topicName) {
+        return String.format("주제 카테고리: \n%s\n\n 주제: \n%s\n\n 내용:\n%s", topicCategoryName, topicName, writing);
     }
 
 

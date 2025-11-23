@@ -18,11 +18,17 @@
         "type": "string",
         "description": "개선할 점"
       }
+    },
+    "grade": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D", "F"],
+      "description": "글의 완성도 등급 (A: 최우수, F: 미흡)"
     }
   },
   "required": [
     "summary",
     "strength",
-    "improvementPoints"
+    "improvementPoints",
+    "grade"
   ]
 }

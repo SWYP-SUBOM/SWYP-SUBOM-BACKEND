@@ -7,8 +7,8 @@ pipeline {
         PROJECT_NAME = "seobom-backend"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'release'}"
 
-        TEST_COMPOSE_PATH = "${env.WORKSPACE}/docker/docker-compose-test.yml"
-        PROD_COMPOSE_PATH = "${env.WORKSPACE}/docker/docker-compose-prod.yml"
+        TEST_COMPOSE_PATH = "${WORKSPACE}/docker/docker-compose-test.yml"
+        PROD_COMPOSE_PATH = "${WORKSPACE}/docker/docker-compose-prod.yml"
 
         PROD_SSH_USER = credentials('prod-ssh-user')
         PROD_SSH_HOST = credentials('prod-ssh-host')
@@ -52,15 +52,13 @@ pipeline {
             steps{
                 script {
                     if (BRANCH_NAME == "release") {
-                        echo "TEST 환경 빌드"
-                          sh """
+                        sh """
                             docker build -t seobom-backend-test:latest -f docker/Dockerfile .
-                          """
-                    } else if(BRANCH_NAME == "main") {
-                        echo "TEST 환경 빌드"
-                          sh """
+                        """
+                    } else if (BRANCH_NAME == "main") {
+                        sh """
                             docker build -t seobom-backend-prod:latest -f docker/Dockerfile .
-                          """
+                        """
                     }
                 }
             }
@@ -70,8 +68,8 @@ pipeline {
             when { branch 'release' }
             steps {
                 sh """
-                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} down || true
-                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} up -d --force-recreate
+                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} stop || true
+                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} up -d --force-recreate --remove-orphans
                 """
             }
         }
@@ -81,11 +79,10 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'prod-ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \\
-                        ${PROD_SSH_USER}@${PROD_SSH_HOST} \\
-                        "docker compose -f ${PROD_COMPOSE_PATH} down || true &&
-                         docker compose -f ${PROD_COMPOSE_PATH} build --no-cache &&
-                         docker compose -f ${PROD_COMPOSE_PATH} up -d"
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
+                        ${PROD_SSH_USER}@${PROD_SSH_HOST} \
+                        "docker compose -f ${PROD_COMPOSE_PATH} stop || true &&
+                         docker compose -f ${PROD_COMPOSE_PATH} up -d --force-recreate --remove-orphans"
                     """
                 }
             }
@@ -99,7 +96,7 @@ pipeline {
                     sh '''
                         for i in $(seq 1 20); do
                             echo "Checking service health... Attempt $i"
-                            result=$(curl -s -w "%{http_code}" -o /tmp/health.json http://seobom-backend:8080/actuator/health || true)
+                            result=$(curl -s -o /tmp/health.json http://seobom-backend-test:8080/actuator/health || true)
                             cat /tmp/health.json || true
 
                             if grep -q "UP" /tmp/health.json; then
@@ -111,7 +108,7 @@ pipeline {
                             sleep 5
                         done
 
-                        echo "Health check failed after 20 attempts!"
+                        echo "Health check failed!"
                         exit 1
                     '''
                 }
@@ -132,18 +129,13 @@ pipeline {
                 }
             }
             steps {
-                echo "Cleaning up..."
                 sh "docker image prune -f || true"
             }
         }
     }
 
     post {
-        success {
-            echo "Deployment succeeded!"
-        }
-        failure {
-            echo "Deployment failed!"
-        }
+        success { echo "Deployment succeeded!" }
+        failure { echo "Deployment failed!" }
     }
 }

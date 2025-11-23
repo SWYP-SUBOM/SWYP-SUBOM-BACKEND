@@ -3,100 +3,78 @@ pipeline {
 
     environment {
         PATH = "/usr/libexec/docker/cli-plugins:/usr/bin:/usr/local/bin:/bin"
-
         PROJECT_NAME = "seobom-backend"
+        DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'release'}"
-
-        TEST_COMPOSE_PATH = "${WORKSPACE}/docker/docker-compose-test.yml"
-        PROD_COMPOSE_PATH = "${WORKSPACE}/docker/docker-compose-prod.yml"
-
-        PROD_SSH_USER = credentials('prod-ssh-user')
-        PROD_SSH_HOST = credentials('prod-ssh-host')
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                echo "Current Branch: ${BRANCH_NAME}"
+                echo "Branch: ${BRANCH_NAME}"
                 git branch: "${BRANCH_NAME}",
                     url: "https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git",
                     credentialsId: 'github-cred'
             }
         }
 
-        stage('Create Properties') {
-            steps{
-                script {
-                    if (BRANCH_NAME == "release") {
-                        echo "TEST 환경 application-test.properties 복사"
-                        withCredentials([file(credentialsId: 'app-props-test', variable: 'APP_PROPS')]) {
-                            sh '''
-                                mkdir -p ./src/main/resources
-                                cp "$APP_PROPS" ./src/main/resources/application-test.properties
-                            '''
-                        }
-                    } else if (BRANCH_NAME == "main") {
-                        echo "PROD 환경 application-prod.properties 복사"
-                        withCredentials([file(credentialsId: 'app-props-prod', variable: 'APP_PROPS')]) {
-                            sh '''
-                                mkdir -p ./src/main/resources
-                                cp "$APP_PROPS" ./src/main/resources/application-prod.properties
-                            '''
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Build') {
-            steps{
-                script {
-                    if (BRANCH_NAME == "release") {
-                        sh """
-                            docker build -t seobom-backend-test:latest -f docker/Dockerfile .
-                        """
-                    } else if (BRANCH_NAME == "main") {
-                        sh """
-                            docker build -t seobom-backend-prod:latest -f docker/Dockerfile .
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Deploy TEST') {
-            when { branch 'release' }
+        stage('Create application.properties') {
             steps {
-                sh """
-                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} stop || true
-                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} up -d --force-recreate --remove-orphans
-                """
+                withCredentials([file(credentialsId: 'application-properties', variable: 'APP_PROPS')]) {
+                    echo "Writing application.properties file"
+                    sh '''
+                        mkdir -p ./src/main/resources
+                        cp "$APP_PROPS" ./src/main/resources/application-prod.properties
+                    '''
+                }
             }
         }
 
-        stage('Deploy PROD') {
-            when { branch 'main' }
+        stage('Prepare Environment') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'prod-ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    sh """
-                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \
-                        ${PROD_SSH_USER}@${PROD_SSH_HOST} \
-                        "docker compose -f ${PROD_COMPOSE_PATH} stop || true &&
-                         docker compose -f ${PROD_COMPOSE_PATH} up -d --force-recreate --remove-orphans"
-                    """
+                echo "Using docker-compose and Dockerfile in docker/ directory"
+                script {
+                    env.DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
                 }
+            }
+        }
+
+        stage('Docker Down') {
+            steps {
+                echo "Docker compose down"
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} down --rmi all || true"
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                echo "Building Docker image..."
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} build --no-cache"
+            }
+            post {
+                failure {
+                    echo "Docker build failed, cleaning up unused files..."
+                    sh "docker system prune -f || true"
+                    error 'Build aborted'
+                }
+            }
+        }
+
+        stage('Docker Up') {
+            steps {
+                echo "Starting containers..."
+                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} up -d"
             }
         }
 
         stage('Health Check') {
-            when { branch 'release' }
             steps {
                 script {
                     echo "Checking health of backend service..."
                     sh '''
                         for i in $(seq 1 20); do
                             echo "Checking service health... Attempt $i"
-                            result=$(curl -s -o /tmp/health.json http://seobom-backend-test:8080/actuator/health || true)
+                            result=$(curl -s -w "%{http_code}" -o /tmp/health.json http://seobom-backend:8080/actuator/health || true)
                             cat /tmp/health.json || true
 
                             if grep -q "UP" /tmp/health.json; then
@@ -108,7 +86,7 @@ pipeline {
                             sleep 5
                         done
 
-                        echo "Health check failed!"
+                        echo "Health check failed after 20 attempts!"
                         exit 1
                     '''
                 }
@@ -122,20 +100,19 @@ pipeline {
         }
 
         stage('Docker Clear') {
-            when {
-                anyOf {
-                    branch 'release'
-                    branch 'main'
-                }
-            }
             steps {
+                echo "Cleaning up..."
                 sh "docker image prune -f || true"
             }
         }
     }
 
     post {
-        success { echo "Deployment succeeded!" }
-        failure { echo "Deployment failed!" }
+        success {
+            echo "Deployment succeeded!"
+        }
+        failure {
+            echo "Deployment failed!"
+        }
     }
 }

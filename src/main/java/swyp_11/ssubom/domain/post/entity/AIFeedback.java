@@ -48,6 +48,10 @@ public class AIFeedback extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length=2)
+    private AIFeedbackGrade grade;
+
     public static AIFeedback createProcessingFeedback(Post post, String content) {
         AIFeedback feedback = new AIFeedback();
         feedback.post = post;
@@ -56,11 +60,12 @@ public class AIFeedback extends BaseTimeEntity {
         return feedback;
     }
 
-    public void completeFeedback(String summary, String strength, List<String> points) {
+    public void completeFeedback(String summary, String strength, List<String> points, String rawGrade) {
         this.summary = summary;
         this.strength = strength;
         this.improvementPoints = new ArrayList<>(points);
         this.status = AIFeedbackStatus.COMPLETED;
+        this.grade = AIFeedbackGrade.fromString(rawGrade);
     }
 
     public void failFeedback(String errorMessage) {

@@ -1,9 +1,6 @@
 services:
   seobom-backend-test:
     container_name: seobom-backend-test
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
     image: seobom-backend-test:latest
     expose:
       - "8080" # 내부망 통신만 허용

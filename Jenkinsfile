@@ -7,8 +7,8 @@ pipeline {
         PROJECT_NAME = "seobom-backend"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'release'}"
 
-        TEST_COMPOSE_PATH = credentials('compose-test-path')
-        PROD_COMPOSE_PATH = credentials('compose-prod-path')
+        TEST_COMPOSE_PATH = "${env.WORKSPACE}/docker/docker-compose-test.yml"
+        PROD_COMPOSE_PATH = "${env.WORKSPACE}/docker/docker-compose-prod.yml"
 
         PROD_SSH_USER = credentials('prod-ssh-user')
         PROD_SSH_HOST = credentials('prod-ssh-host')
@@ -48,13 +48,30 @@ pipeline {
             }
         }
 
+        stage('Build') {
+            steps{
+                script {
+                    if (BRANCH_NAME == "release") {
+                        echo "TEST 환경 빌드"
+                          sh """
+                            docker build -t seobom-backend-test:latest -f docker/Dockerfile .
+                          """
+                    } else if(BRANCH_NAME == "main") {
+                        echo "TEST 환경 빌드"
+                          sh """
+                            docker build -t seobom-backend-prod:latest -f docker/Dockerfile .
+                          """
+                    }
+                }
+            }
+        }
+
         stage('Deploy TEST') {
             when { branch 'release' }
             steps {
                 sh """
                     docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} down || true
-                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} build --no-cache
-                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} up -d
+                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} up -d --force-recreate
                 """
             }
         }

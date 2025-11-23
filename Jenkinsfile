@@ -3,71 +3,79 @@ pipeline {
 
     environment {
         PATH = "/usr/libexec/docker/cli-plugins:/usr/bin:/usr/local/bin:/bin"
+
         PROJECT_NAME = "seobom-backend"
-        DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'release'}"
+
+        TEST_COMPOSE_PATH = credentials('compose-test-path')
+        PROD_COMPOSE_PATH = credentials('compose-prod-path')
+
+        PROD_SSH_USER = credentials('prod-ssh-user')
+        PROD_SSH_HOST = credentials('prod-ssh-host')
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                echo "Branch: ${BRANCH_NAME}"
+                echo "Current Branch: ${BRANCH_NAME}"
                 git branch: "${BRANCH_NAME}",
                     url: "https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git",
                     credentialsId: 'github-cred'
             }
         }
 
-        stage('Create application.properties') {
-            steps {
-                withCredentials([file(credentialsId: 'application-properties', variable: 'APP_PROPS')]) {
-                    echo "Writing application.properties file"
-                    sh '''
-                        mkdir -p ./src/main/resources
-                        cp "$APP_PROPS" ./src/main/resources/application-prod.properties
-                    '''
-                }
-            }
-        }
-
-        stage('Prepare Environment') {
-            steps {
-                echo "Using docker-compose and Dockerfile in docker/ directory"
+        stage('Create Properties') {
+            steps{
                 script {
-                    env.DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
+                    if (BRANCH_NAME == "release") {
+                        echo "TEST 환경 application-test.properties 복사"
+                        withCredentials([file(credentialsId: 'app-props-test', variable: 'APP_PROPS')]) {
+                            sh '''
+                                mkdir -p ./src/main/resources
+                                cp "$APP_PROPS" ./src/main/resources/application-test.properties
+                            '''
+                        }
+                    } else if (BRANCH_NAME == "main") {
+                        echo "PROD 환경 application-prod.properties 복사"
+                        withCredentials([file(credentialsId: 'app-props-prod', variable: 'APP_PROPS')]) {
+                            sh '''
+                                mkdir -p ./src/main/resources
+                                cp "$APP_PROPS" ./src/main/resources/application-prod.properties
+                            '''
+                        }
+                    }
                 }
             }
         }
 
-        stage('Docker Down') {
+        stage('Deploy TEST') {
+            when { branch 'release' }
             steps {
-                echo "Docker compose down"
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} down --rmi all || true"
+                sh """
+                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} down || true
+                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} build --no-cache
+                    docker compose -p ${PROJECT_NAME} -f ${TEST_COMPOSE_PATH} up -d
+                """
             }
         }
 
-        stage('Docker Build') {
+        stage('Deploy PROD') {
+            when { branch 'main' }
             steps {
-                echo "Building Docker image..."
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} build --no-cache"
-            }
-            post {
-                failure {
-                    echo "Docker build failed, cleaning up unused files..."
-                    sh "docker system prune -f || true"
-                    error 'Build aborted'
+                withCredentials([sshUserPrivateKey(credentialsId: 'prod-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    sh """
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no \\
+                        ${PROD_SSH_USER}@${PROD_SSH_HOST} \\
+                        "docker compose -f ${PROD_COMPOSE_PATH} down || true &&
+                         docker compose -f ${PROD_COMPOSE_PATH} build --no-cache &&
+                         docker compose -f ${PROD_COMPOSE_PATH} up -d"
+                    """
                 }
-            }
-        }
-
-        stage('Docker Up') {
-            steps {
-                echo "Starting containers..."
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} up -d"
             }
         }
 
         stage('Health Check') {
+            when { branch 'release' }
             steps {
                 script {
                     echo "Checking health of backend service..."
@@ -100,6 +108,12 @@ pipeline {
         }
 
         stage('Docker Clear') {
+            when {
+                anyOf {
+                    branch 'release'
+                    branch 'main'
+                }
+            }
             steps {
                 echo "Cleaning up..."
                 sh "docker image prune -f || true"

@@ -9,6 +9,7 @@ import swyp_11.ssubom.domain.post.service.PostService;
 import swyp_11.ssubom.domain.topic.dto.*;
 import swyp_11.ssubom.domain.topic.entity.Category;
 import swyp_11.ssubom.domain.topic.entity.Topic;
+import swyp_11.ssubom.domain.topic.entity.TopicType;
 import swyp_11.ssubom.domain.topic.repository.CategoryRepository;
 import swyp_11.ssubom.domain.topic.repository.TopicRepository;
 import swyp_11.ssubom.domain.user.dto.StreakResponse;
@@ -33,6 +34,7 @@ public class TopicService {
     private final CategoryRepository categoryRepository;
     private final UserService userService;
     private final PostService postService;
+    private final TopicAIService topicAIService;
 
     @Transactional
     public Optional<Topic> ensureTodayPicked(Long categoryId) {
@@ -90,6 +92,25 @@ public class TopicService {
 
         return new TopicListResponse(categories,categoryName,topicCollectionResponses);
     }
+
+    @Transactional
+    public void generateTopics(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()->  new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+
+    //AI 생성
+        List<TopicGenerationResponse> topics =
+                topicAIService.generate(category.getName());
+
+        List<Topic> entites = topics.stream()
+                .map(t->Topic.create(
+                        category,t.topicName(), TopicType.valueOf(t.topicType().toUpperCase())
+                )).toList();
+
+        topicRepository.saveAll(entites);
+    }
+
+
 
     public HomeResponse getHome(Long userId) {
         StreakResponse streakCount = null;

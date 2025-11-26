@@ -40,4 +40,14 @@ public class Topic extends BaseTimeEntity {
         this.isUsed = true;
         this.usedAt = today;
     }
+
+    public static Topic create(Category category, String topicName,TopicType topicType) {
+        Topic topic = new Topic();
+        topic.category = category;
+        topic.name = topicName;
+        topic.topicType = topicType;
+        topic.isUsed = false;
+        topic.usedAt = null;
+        return topic;
+    }
 }

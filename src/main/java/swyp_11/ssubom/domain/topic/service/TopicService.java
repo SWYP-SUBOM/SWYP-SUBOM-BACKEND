@@ -9,6 +9,7 @@ import swyp_11.ssubom.domain.post.service.PostService;
 import swyp_11.ssubom.domain.topic.dto.*;
 import swyp_11.ssubom.domain.topic.entity.Category;
 import swyp_11.ssubom.domain.topic.entity.Topic;
+import swyp_11.ssubom.domain.topic.entity.TopicType;
 import swyp_11.ssubom.domain.topic.repository.CategoryRepository;
 import swyp_11.ssubom.domain.topic.repository.TopicRepository;
 import swyp_11.ssubom.domain.user.dto.StreakResponse;
@@ -33,6 +34,7 @@ public class TopicService {
     private final CategoryRepository categoryRepository;
     private final UserService userService;
     private final PostService postService;
+    private final TopicAIService topicAIService;
 
     @Transactional
     public Optional<Topic> ensureTodayPicked(Long categoryId) {
@@ -91,6 +93,22 @@ public class TopicService {
         return new TopicListResponse(categories,categoryName,topicCollectionResponses);
     }
 
+    @Transactional
+    public void generateTopicsForCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        // clovaservice 호출 -> 리스트 받아오기
+        List<TopicGenerationResponse> aiTopics =topicAIService.generateTopics(category.getName());
+
+        //DTO -> Entity
+        List<Topic> entities = aiTopics.stream()
+                .map(t->Topic.create(category,t.topicName(), TopicType.valueOf(t.topicType().toUpperCase()))).toList();
+
+        //저장
+        topicRepository.saveAll(entities);
+        log.info("카테고리 [{}] 에 대해 주제 {}개 생성 및 저장 완료", category.getName(), entities.size());
+    }
     public HomeResponse getHome(Long userId) {
         StreakResponse streakCount = null;
         TodayPostResponse todayPostResponse = null;

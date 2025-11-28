@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -43,6 +45,13 @@ public class SecurityConfig {
     private String[] allowedOrigins;
 
     @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+        hierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+        return hierarchy;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
             @Override
@@ -57,6 +66,7 @@ public class SecurityConfig {
                 return configuration;
             }
         }));
+
 
         http.sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -100,6 +110,7 @@ public class SecurityConfig {
                         .requestMatchers("/","/login","/join","/api/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories/**","/api/home").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/posts").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/topic/generation").hasRole("ADMIN")
                         .requestMatchers("/api/unregister").hasRole("USER")
                         .requestMatchers("/api/me").hasRole("USER")
                         .requestMatchers("/api/posts/**").hasRole("USER")

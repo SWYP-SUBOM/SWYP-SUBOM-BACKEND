@@ -19,8 +19,7 @@ import swyp_11.ssubom.global.error.ErrorCode;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -98,17 +97,93 @@ public class TopicService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        // clovaservice 호출 -> 리스트 받아오기
+        //1. 새 topic 30개 생성
         List<TopicGenerationResponse> aiTopics =topicAIService.generateTopics(category.getName());
 
-        //DTO -> Entity
-        List<Topic> entities = aiTopics.stream()
-                .map(t->Topic.create(category,t.topicName(), TopicType.valueOf(t.topicType().toUpperCase()))).toList();
+        // 2. 신규 토픽 embedding 30개 한 번에 생성
+        Map<String, List<Double>> newEmbeddingCache = new HashMap<>();
+        for (TopicGenerationResponse t : aiTopics) {
+            newEmbeddingCache.put(t.topicName(), topicAIService.getEmbedding(t.topicName()));
+            try {
+                Thread.sleep(250);  // 0.25초 딜레이
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // 인터럽트 상태 복구
+                throw new RuntimeException(e);
+            }
+        }
 
-        //저장
+    // 3. 중복 제거 (embedding 재사용)
+        List<TopicGenerationResponse> filtered =
+                removeDuplicates(categoryId, aiTopics, newEmbeddingCache);
+
+        List<Topic> entities = filtered.stream()
+                .map(t -> Topic.create(
+                        category,
+                        t.topicName(),
+                        TopicType.valueOf(t.topicType().toUpperCase()),
+                        newEmbeddingCache.get(t.topicName())
+                ))
+                .toList();
+
         topicRepository.saveAll(entities);
         log.info("카테고리 [{}] 에 대해 주제 {}개 생성 및 저장 완료", category.getName(), entities.size());
     }
+
+    public List<TopicGenerationResponse> removeDuplicates(
+            Long categoryId,
+            List<TopicGenerationResponse> newTopics,
+            Map<String, List<Double>> newEmbeddingCache) {
+
+        // 최근 토픽 30개 가져오기
+        List<Topic> recentTopics =
+                topicRepository.findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtDesc(categoryId);
+
+        List<TopicGenerationResponse> result = new ArrayList<>();
+
+        for (TopicGenerationResponse t : newTopics) {
+
+            List<Double> newEmb = newEmbeddingCache.get(t.topicName());
+
+            if (isNotDuplicate(newEmb, recentTopics)) {
+                result.add(t);
+                // 중복 없으면 recentTopics에 추가 (메모리 상)
+                Topic fake = Topic.create(null, t.topicName(),
+                        TopicType.valueOf(t.topicType().toUpperCase()),
+                        newEmb);
+                recentTopics.add(fake);
+            }
+            else{ log.info("유사 질문 : {}", t.topicName());}
+        }
+        return result;
+    }
+
+    private boolean isNotDuplicate(List<Double> newEmbedding, List<Topic> recentTopics) {
+
+        for (Topic old : recentTopics) {
+            List<Double> oldEmbedding = old.getEmbedding();
+            double sim = cosineSimilarity(newEmbedding, oldEmbedding);
+            if (sim >= 0.9) {
+                log.info(old.getName());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public double cosineSimilarity(List<Double> v1, List<Double> v2) {
+        double dot = 0.0;
+        double normA =0.0;
+        double normB =0.0;
+
+        for(int i=0;i<v1.size();i++){
+            dot += v1.get(i)*v2.get(i);
+            normA += Math.pow(v2.get(i),2);
+            normB += Math.pow(v1.get(i),2);
+        }
+        return dot / (Math.sqrt(normA)*Math.sqrt(normB));
+    }
+
+
     public HomeResponse getHome(Long userId) {
         StreakResponse streakCount = null;
         TodayPostResponse todayPostResponse = null;

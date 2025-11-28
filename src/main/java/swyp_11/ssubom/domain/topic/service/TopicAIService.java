@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import swyp_11.ssubom.domain.post.dto.ClovaApiRequestDto;
 import swyp_11.ssubom.domain.post.dto.ClovaApiResponseDto;
+import swyp_11.ssubom.domain.topic.dto.EmbeddingApiResponseDto;
 import swyp_11.ssubom.domain.topic.dto.TopicGenerationResponse;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
@@ -20,6 +21,7 @@ import swyp_11.ssubom.global.error.ErrorCode;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +51,7 @@ public class TopicAIService {
         String schemaJson = new String(topicSchema.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
         this.schema = objectMapper.readValue(schemaJson, new TypeReference<Map<String, Object>>() {});
     }
+
     public List<TopicGenerationResponse> generateTopics(String categoryName){
             String userPrompt= "카테고리 : "+categoryName;
         ClovaApiRequestDto requestDto = ClovaApiRequestDto.builder()
@@ -91,6 +94,7 @@ public class TopicAIService {
 
         log.info("[Topic Clova Response Raw] {}", rawResponse);
         ClovaApiResponseDto apiResponse = readJson(rawResponse, ClovaApiResponseDto.class);
+
         if (!apiResponse.isSuccess()) {
             log.error("Topic Clova API 실패 code={}, message={}",
                     apiResponse.getStatus().getCode(),
@@ -132,5 +136,45 @@ public class TopicAIService {
         } catch (Exception e) {
             throw new RuntimeException("JSON 역직렬화 실패", e);
         }
+    }
+
+    public List<Double> getEmbedding(String text){
+        // 429 TOO_MANY_REQUESTS 방지
+        try {
+            Thread.sleep(250);  // 0.25초 딜레이
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+
+        Map<String,Object> request = Map.of(
+                "text", text);
+
+        String raw = clovaWebClient.post()
+                .uri("/v1/api-tools/embedding/v2")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        log.info("Embedding raw data: {}", raw);
+
+        EmbeddingApiResponseDto response;
+        // wrapper 파싱
+        try {
+             response = objectMapper.readValue(raw, EmbeddingApiResponseDto.class);
+        }catch (Exception e){
+            throw new RuntimeException("JSON 역직렬화 실패", e);
+        }
+
+        if(!response.isSuccess()){
+            throw new RuntimeException("Embedding API failed: " + response.getStatus().getMessage());
+        }
+        List<Double> vector = response.getVector();
+
+        if(vector.isEmpty()||vector.size()==0){
+            throw new RuntimeException("Embedding vector is empty");
+        }
+        return vector;
     }
 }

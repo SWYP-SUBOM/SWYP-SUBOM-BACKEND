@@ -12,7 +12,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TopicSchedule {
+public class TopicGenerationService {
     private final TopicService topicService;
     private final CategoryRepository categoryRepository;
 
@@ -24,7 +24,7 @@ public class TopicSchedule {
         log.info("오늘의 질문 할당 완료!");
     }
 
-    @Scheduled(cron = "30 35 23  * * *")
+
     public void generateTopics() {
         List<Category> categories = categoryRepository.findAll();
         for (Category category : categories) {
@@ -36,6 +36,6 @@ public class TopicSchedule {
                 log.error(" 카테고리 [{}] 주제 생성 실패", category.getName(), e);
             }
         }
-        log.info("===  일일 주제 생성 스케줄러 종료 ===");
+        log.info("===  주제 생성 스케줄러 종료 ===");
     }
 }

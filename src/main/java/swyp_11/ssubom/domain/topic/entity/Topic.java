@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import swyp_11.ssubom.domain.common.BaseTimeEntity;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Entity
@@ -36,17 +37,44 @@ public class Topic extends BaseTimeEntity {
     @Column(name = "topic_type", length = 20, nullable = false)
     private TopicType topicType;
 
+    @Column(name = "embedding_json", columnDefinition = "TEXT")
+    private String embeddingJson;
+
+    @Transient
+    private List<Double> embedding;
+
     public void use(LocalDate today) {
         this.isUsed = true;
         this.usedAt = today;
     }
-    public static Topic create(Category category, String topicName,TopicType topicType) {
+    public static Topic create(Category category, String topicName,TopicType topicType,List<Double> embedding) {
         Topic topic = new Topic();
         topic.category = category;
         topic.name = topicName;
         topic.topicType = topicType;
+        topic.embedding = embedding;
+        topic.embeddingJson = toJson(embedding);
         topic.isUsed = false;
         topic.usedAt = null;
         return topic;
+    }
+    private static String toJson(List<Double> embedding) {
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(embedding);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Double> getEmbedding() {
+        if (embedding == null && embeddingJson != null) {
+            try {
+                embedding = new com.fasterxml.jackson.databind.ObjectMapper()
+                        .readValue(embeddingJson, new com.fasterxml.jackson.core.type.TypeReference<List<Double>>() {});
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return embedding;
     }
 }

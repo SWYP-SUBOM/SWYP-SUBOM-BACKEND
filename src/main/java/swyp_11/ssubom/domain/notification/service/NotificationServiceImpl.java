@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -115,8 +116,17 @@ public class NotificationServiceImpl implements NotificationService{
      * 최초 연결 시 unreadCount 전달
      */
     private void sendSnapshotAsync(Long userId, SseEmitter emitter) {
-        long unreadCount = getUnreadCount(userId);
-        sendEvent(emitter, "snapshot", Map.of("unreadCount", unreadCount));
+        CompletableFuture.runAsync(() -> {
+            try {
+                long unreadCount = getUnreadCount(userId); // 트랜잭션 정상 작동
+
+                sendEvent(emitter, "snapshot", Map.of("unreadCount", unreadCount));
+                log.info("[SSE 초기 snapshot 전송 완료] userId={}, unread={}", userId, unreadCount);
+
+            } catch (Exception e) {
+                log.error("[SSE 초기 snapshot 전송 실패] userId={}", userId, e);
+            }
+        });
     }
 
     /**

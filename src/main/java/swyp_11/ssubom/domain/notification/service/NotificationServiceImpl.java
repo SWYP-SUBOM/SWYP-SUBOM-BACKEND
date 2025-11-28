@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import swyp_11.ssubom.domain.calendar.dto.CategoryInfo;
 import swyp_11.ssubom.domain.notification.dto.NotificationItem;
@@ -27,9 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class NotificationServiceImpl implements NotificationService{
-    private static final long TIMEOUT = 1000L * 60 * 60; // 1시간 유지
+    private static final long TIMEOUT = 1000L * 60 * 10; // 10분
 
     private final NotificationRepository notificationRepository;
     private final ReactionRepository reactionRepository;
@@ -44,12 +45,22 @@ public class NotificationServiceImpl implements NotificationService{
         emitters.put(userId, emitter);
         log.info("[SSE 연결 성공] userId={}", userId);
 
-        sendSnapshot(userId, emitter);
+        sendSnapshotAsync(userId, emitter);
 
-        emitter.onCompletion(() -> emitters.remove(userId));
-        emitter.onTimeout(() -> emitters.remove(userId));
-        emitter.onError(e -> emitters.remove(userId));
+        emitter.onCompletion(() -> {
+            emitters.remove(userId);
+            log.info("[SSE 연결 종료] userId={}", userId);
+        });
 
+        emitter.onTimeout(() -> {
+            emitters.remove(userId);
+            log.info("[SSE 타임아웃] userId={}", userId);
+        });
+
+        emitter.onError(e -> {
+            emitters.remove(userId);
+            log.error("[SSE 에러] userId={}", userId, e);
+        });
         return emitter;
     }
 
@@ -88,29 +99,42 @@ public class NotificationServiceImpl implements NotificationService{
             long newCount = reactionRepository.countByPostAndType(post.getPostId(), newType.getId());
             newNoti.setActorCount(newCount);
             newNoti.markAsUnread();
-            notificationRepository.save(newNoti);
+            Notification savedNoti = notificationRepository.save(newNoti);
 
-            sendNotification(newNoti);
+            // Transaction commit 후에 SSE 전송
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    sendNotificationAfterCommit(savedNoti);
+                }
+            });
         }
     }
 
     /**
      * 최초 연결 시 unreadCount 전달
      */
-    private void sendSnapshot(Long userId, SseEmitter emitter) {
-        long unreadCount = notificationRepository.countByReceiver_UserIdAndIsReadFalse(userId);
+    private void sendSnapshotAsync(Long userId, SseEmitter emitter) {
+        long unreadCount = getUnreadCount(userId);
         sendEvent(emitter, "snapshot", Map.of("unreadCount", unreadCount));
+    }
+
+    /**
+     * Unread count 조회
+     */
+    @Transactional(readOnly = true)
+    public long getUnreadCount(Long userId) {
+        return notificationRepository.countByReceiver_UserIdAndIsReadFalse(userId);
     }
 
     /**
      * 새 알림 전송
      */
-    @Transactional
-    private void sendNotification(Notification notification) {
+    private void sendNotificationAfterCommit(Notification notification) {
         Long userId = notification.getReceiver().getUserId();
         SseEmitter emitter = emitters.get(userId);
         if (emitter != null) {
-            long unreadCount = notificationRepository.countByReceiver_UserIdAndIsReadFalse(userId);
+            long unreadCount = getUnreadCount(userId);
 
             Map<String, Object> data = Map.of(
                     "unreadCount", unreadCount,

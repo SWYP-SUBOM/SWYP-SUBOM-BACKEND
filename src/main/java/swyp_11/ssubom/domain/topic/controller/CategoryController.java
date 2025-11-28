@@ -85,7 +85,7 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
-    //관리자용
+    // 관리자용
     @PostMapping("/topic/generation")
     public ApiResponse<Void> topicGeneration(){
         topicGenerationService.generateTopics();

@@ -30,5 +30,4 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     Optional<Topic> findByUsedAtAndCategory_Id(LocalDate usedAt, Long categoryId);
 
-
 }

@@ -73,7 +73,7 @@ public class NotificationServiceImpl implements NotificationService{
     @Transactional
     public void createReactionNotification(Post post, User actor, ReactionType oldType, ReactionType newType) {
         User receiver = post.getUser();
-//        if (receiver.getUserId().equals(actor.getUserId())) return;
+        if (receiver.getUserId().equals(actor.getUserId())) return;
 
         // 1. 기존 반응(oldType) 알림 count 감소
         if (oldType != null && !oldType.equals(newType)) {

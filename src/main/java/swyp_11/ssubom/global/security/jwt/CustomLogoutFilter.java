@@ -86,8 +86,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         refreshRepository.deleteByRefreshValue(refresh);
 
-
-
         ResponseCookie deleteRefreshCookie = cookieUtil.createCookie("refreshToken", null, 0);
         response.addHeader(HttpHeaders.SET_COOKIE, deleteRefreshCookie.toString());
         response.setStatus(HttpServletResponse.SC_OK);

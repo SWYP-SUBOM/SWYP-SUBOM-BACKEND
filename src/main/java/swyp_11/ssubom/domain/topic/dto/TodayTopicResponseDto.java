@@ -24,4 +24,14 @@ public class TodayTopicResponseDto {
                 .topicType(topicType)
                 .build();
     }
+
+    public static TodayTopicResponseDto fromTopic(Topic savedTopic) {
+        return TodayTopicResponseDto.builder()
+                .categoryName(savedTopic.getCategory().getName())
+                .topicName(savedTopic.getName())
+                .categoryId(savedTopic.getCategory().getId())
+                .topicId(savedTopic.getId())
+                .topicType(savedTopic.getTopicType())
+                .build();
+    }
 }

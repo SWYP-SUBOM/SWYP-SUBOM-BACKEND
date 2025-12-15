@@ -10,9 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import swyp_11.ssubom.domain.topic.dto.HomeResponse;
-import swyp_11.ssubom.domain.topic.dto.TodayTopicResponseDto;
-import swyp_11.ssubom.domain.topic.dto.TopicListResponse;
+import swyp_11.ssubom.domain.topic.dto.*;
+import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.topic.service.TopicGenerationService;
 import swyp_11.ssubom.domain.topic.service.TopicService;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
@@ -85,10 +84,5 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
-    // 관리자용
-    @PostMapping("/topic/generation")
-    public ApiResponse<Void> topicGeneration(){
-        topicGenerationService.generateTopics();
-        return ApiResponse.success(null);
-    }
+
 }

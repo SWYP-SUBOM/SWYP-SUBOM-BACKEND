@@ -47,6 +47,20 @@ public class Topic extends BaseTimeEntity {
         this.isUsed = true;
         this.usedAt = today;
     }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void updateNameAndType(String topicName, TopicType topicType) {
+        if (topicName != null) {
+            this.name = topicName;
+        }
+        if (topicType != null) {
+            this.topicType = topicType;
+        }
+    }
+
     public static Topic create(Category category, String topicName,TopicType topicType,List<Double> embedding) {
         Topic topic = new Topic();
         topic.category = category;

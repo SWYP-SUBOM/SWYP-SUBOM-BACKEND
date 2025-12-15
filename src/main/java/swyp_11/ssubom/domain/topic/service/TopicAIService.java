@@ -138,6 +138,7 @@ public class TopicAIService {
         }
     }
 
+    // 다중호출
     public List<Double> getEmbedding(String text){
         // 429 TOO_MANY_REQUESTS 방지
         try {
@@ -145,7 +146,6 @@ public class TopicAIService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-
 
         Map<String,Object> request = Map.of(
                 "text", text);
@@ -177,4 +177,6 @@ public class TopicAIService {
         }
         return vector;
     }
+
+
 }

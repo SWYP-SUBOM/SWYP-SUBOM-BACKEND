@@ -112,7 +112,7 @@ public class TopicService {
             }
         }
 
-    // 3. 중복 제거 (embedding 재사용)
+        // 3. 중복 제거 (embedding 재사용)
         List<TopicGenerationResponse> filtered =
                 removeDuplicates(categoryId, aiTopics, newEmbeddingCache);
 
@@ -129,14 +129,47 @@ public class TopicService {
         log.info("카테고리 [{}] 에 대해 주제 {}개 생성 및 저장 완료", category.getName(), entities.size());
     }
 
+    @Transactional
+    public Topic generateTopicForCategory(Long categoryId, String topicName ,TopicType topicType) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        //1.단일 토픽 임베딩 생성
+        List<Double> newEmbedding = topicAIService.getEmbedding(topicName);
+
+        //2. 임시 Topic 객체생성
+        Topic newTopic = Topic.create(
+                category,
+                topicName,
+                topicType,
+                newEmbedding
+        );
+
+        // 3. 최근 토픽 40개 가져오기
+        List<Topic> recentTopics =
+                topicRepository.findTop40ByCategoryIdOrderByUpdatedAtDesc(categoryId);
+
+        if(isNotDuplicate(newEmbedding, recentTopics)) {
+            Topic savedTopic = topicRepository.save(newTopic);
+            log.info("카테고리 [{}] 수동 주제 [{}] 생성 및 저장 완료", category.getName(), topicName);
+            return savedTopic;
+        }else {
+            // 중복일 경우 비즈니스 예외 발생 또는 null 반환 등 정책 결정
+            log.warn("카테고리 [{}] 에 대해 주제 [{}]는 중복되어 저장하지 않음", category.getName(), topicName);
+            throw new BusinessException(ErrorCode.DUPLICATE_TOPIC_NOT_ALLOWED);
+        }
+
+    }
+
+
     public List<TopicGenerationResponse> removeDuplicates(
             Long categoryId,
             List<TopicGenerationResponse> newTopics,
             Map<String, List<Double>> newEmbeddingCache) {
 
-        // 최근 토픽 30개 가져오기
+        // 최근 토픽 40개 가져오기
         List<Topic> recentTopics =
-                topicRepository.findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtDesc(categoryId);
+                topicRepository.findTop40ByCategoryIdOrderByUpdatedAtDesc(categoryId);
 
         List<TopicGenerationResponse> result = new ArrayList<>();
 
@@ -163,7 +196,7 @@ public class TopicService {
             List<Double> oldEmbedding = old.getEmbedding();
             double sim = cosineSimilarity(newEmbedding, oldEmbedding);
             if (sim >= 0.9) {
-                log.info(old.getName());
+                log.info("DB에 존재한 질문 :{}", old.getName());
                 return false;
             }
         }
@@ -183,6 +216,23 @@ public class TopicService {
         return dot / (Math.sqrt(normA)*Math.sqrt(normB));
     }
 
+    @Transactional
+    public Topic updateTopic(Long topicId, TopicUpdateRequest request) {
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
+        if (request.getCategoryId() != null) {
+            Category newCategory = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() ->new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+            topic.setCategory(newCategory);
+        }
+        topic.updateNameAndType(request.getTopicName(), request.getTopicType());
+        return topic;
+    }
+
+    @Transactional
+    public void deleteTopic(Long topicId) {
+        topicRepository.deleteById(topicId);
+    }
 
     public HomeResponse getHome(Long userId) {
         StreakResponse streakCount = null;
@@ -199,4 +249,6 @@ public class TopicService {
 
         return HomeResponse.toDto(streakCount, categories, todayPostResponse);
     }
+
+
 }

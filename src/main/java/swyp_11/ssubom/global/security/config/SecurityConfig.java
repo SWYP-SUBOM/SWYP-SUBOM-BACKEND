@@ -109,7 +109,7 @@ public class SecurityConfig {
                         .requestMatchers("/","/login","/join","/api/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories/**","/api/home").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/posts").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/topic/generation").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/unregister").hasRole("USER")
                         .requestMatchers("/api/me").hasRole("USER")
                         .requestMatchers("/api/posts/**").hasRole("USER")

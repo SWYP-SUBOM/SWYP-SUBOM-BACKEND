@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import swyp_11.ssubom.domain.topic.dto.AdminTopicListResponse;
 import swyp_11.ssubom.domain.topic.dto.TodayTopicResponseDto;
 import swyp_11.ssubom.domain.topic.dto.TopicCreationRequest;
 import swyp_11.ssubom.domain.topic.dto.TopicUpdateRequest;
@@ -12,6 +13,8 @@ import swyp_11.ssubom.domain.topic.service.TopicAIService;
 import swyp_11.ssubom.domain.topic.service.TopicGenerationService;
 import swyp_11.ssubom.domain.topic.service.TopicService;
 import swyp_11.ssubom.global.response.ApiResponse;
+
+import java.util.List;
 
 @Tag(name = "Admin 페이지전용 ", description = " topic 관련 admin API")
 @RestController
@@ -51,4 +54,10 @@ public class AdminController {
         return ApiResponse.success(null);
     }
 
+
+    @GetMapping("/topic/{categoryId}")
+    public ApiResponse<AdminTopicListResponse> getTopicByCategory(@PathVariable Long categoryId) {
+        AdminTopicListResponse topics = topicService.getTopicByCategory(categoryId);
+        return ApiResponse.success(topics, "AD0004", "질문 조회 성공");
+    }
 }

@@ -18,6 +18,8 @@ import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -250,5 +252,16 @@ public class TopicService {
         return HomeResponse.toDto(streakCount, categories, todayPostResponse);
     }
 
+    public AdminTopicListResponse getTopicByCategory(Long categoryId) {
+        LocalDateTime start = LocalDate.now().atStartOfDay();
+        LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
+        List<Topic> topics = topicRepository.findAllByCategoryIdAndCreatedAtBetween(categoryId, start, end);
+
+        List<AdminTopicListResponse.AdminTopicResponse> adminTopics= topics.stream()
+                .map(AdminTopicListResponse.AdminTopicResponse::from)
+                .toList();
+
+        return AdminTopicListResponse.of(adminTopics);
+    }
 
 }

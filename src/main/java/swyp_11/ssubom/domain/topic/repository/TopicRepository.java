@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,5 +33,5 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     List<Topic> findTop40ByCategoryIdOrderByUpdatedAtDesc(Long categoryId);
 
-
+    List<Topic> findAllByCategoryIdAndCreatedAtBetween(Long categoryId, LocalDateTime start, LocalDateTime end);
 }

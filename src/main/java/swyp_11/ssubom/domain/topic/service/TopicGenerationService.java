@@ -24,7 +24,6 @@ public class TopicGenerationService {
         log.info("오늘의 질문 할당 완료!");
     }
 
-
     public void generateTopics() {
         List<Category> categories = categoryRepository.findAll();
         for (Category category : categories) {

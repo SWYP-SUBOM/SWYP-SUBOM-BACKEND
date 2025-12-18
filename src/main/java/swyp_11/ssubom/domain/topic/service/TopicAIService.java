@@ -52,8 +52,8 @@ public class TopicAIService {
         this.schema = objectMapper.readValue(schemaJson, new TypeReference<Map<String, Object>>() {});
     }
 
-    public List<TopicGenerationResponse> generateTopics(String categoryName){
-            String userPrompt= "카테고리 : "+categoryName;
+    public List<TopicGenerationResponse> generateTopics(String prompt){
+            String userPrompt= "카테고리 주제" + prompt;
         ClovaApiRequestDto requestDto = ClovaApiRequestDto.builder()
                 .messages(List.of(
                         ClovaApiRequestDto.Message.builder()

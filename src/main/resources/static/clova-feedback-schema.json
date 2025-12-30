@@ -11,12 +11,22 @@
     },
     "improvementPoints": {
       "type": "array",
-      "description": "개선할 점 2가지를 담은 배열",
+      "description": "개선할 점들과 해당되는 원본 텍스트",
       "minItems": 2,
       "maxItems": 2,
       "items": {
-        "type": "string",
-        "description": "개선할 점"
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "구체적인 개선 제안 내용. 이때 인덱스에 대한 직접 명시를 금합니다."
+          },
+          "sentenceIndex": {
+            "type": "integer",
+            "description": "문제가 되는 문장의 인덱스 번호 (예: [0] -> 0). 특정 문장이 아니면 -1 반환"
+          }
+        },
+        "required": ["reason", "sentenceIndex"]
       }
     },
     "grade": {

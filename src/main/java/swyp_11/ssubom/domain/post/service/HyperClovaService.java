@@ -17,6 +17,7 @@ import org.springframework.core.io.Resource;
 import swyp_11.ssubom.domain.topic.entity.TopicType;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
+import swyp_11.ssubom.global.utils.SentenceSplitter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -79,9 +80,9 @@ public class HyperClovaService {
     }
 
     public HyperClovaResponseDto getFeedback(String writing, TopicType topicType, String topicCategoryName, String topicName) {
-
-        // 0. user prompt 맥락 추가!
-        String content = constructTopicAndPost(writing, topicCategoryName, topicName);
+        // 0. BreakIterator로 문장 분리
+        List<String> sentences = SentenceSplitter.split(writing);
+        String content = constructIndexedContent(sentences, topicCategoryName, topicName);
 
         // 1. Naver API 요청 DTO 생성
         String targetSystemPrompt = (topicType == TopicType.QUESTION)
@@ -149,11 +150,35 @@ public class HyperClovaService {
         );
 
         log.info("Clova API 2-stage parsing successful.");
+
+        mapIndexToOriginalText(feedbackDto, sentences);
+
         return feedbackDto;
     }
 
-    private String constructTopicAndPost(String writing, String topicCategoryName, String topicName) {
-        return String.format("주제 카테고리: \n%s\n\n 주제: \n%s\n\n 내용:\n%s", topicCategoryName, topicName, writing);
+    private String constructIndexedContent(List<String> sentences, String category, String topic) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("주제 카테고리: %s\n주제: %s\n\n내용:\n", category, topic));
+        for (int i = 0; i < sentences.size(); i++) {
+            sb.append("[").append(i).append("] ").append(sentences.get(i)).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private void mapIndexToOriginalText(HyperClovaResponseDto dto, List<String> sentences) {
+        if (dto.getImprovementPoints() == null) return;
+
+        for (HyperClovaResponseDto.FeedbackPoint point : dto.getImprovementPoints()) {
+            int idx = point.getSentenceIndex();
+
+            // 인덱스가 유효하면 원본 문장을 넣어줌
+            if (idx >= 0 && idx < sentences.size()) {
+                point.setOriginalText(sentences.get(idx));
+            } else {
+                // 인덱스가 -1이거나 범위를 벗어나면 원본 텍스트 비움 (전체 피드백 등)
+                point.setOriginalText(null);
+            }
+        }
     }
 
 

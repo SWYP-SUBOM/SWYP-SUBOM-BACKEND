@@ -21,7 +21,7 @@ VALUES
 --     ('오늘 하루 중 가장 기억에 남는 순간은?', 1, false, NOW(), NOW()),
 --     ('최근에 웃었던 일은 무엇인가요?', 1, false, NOW(), NOW()),
 --     ('하루를 마무리할 때 어떤 생각을 하나요?', 1, false, NOW(), NOW());
---
+-- --
 -- -- Category 2 (인간관계)
 -- INSERT INTO sseobom.topic (topic_name, category_id, is_used, created_at, updated_at)
 -- VALUES

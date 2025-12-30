@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.post.dto.*;
 import swyp_11.ssubom.domain.post.entity.AIFeedback;
+import swyp_11.ssubom.domain.post.entity.ImprovementPoint;
 import swyp_11.ssubom.domain.post.entity.Post;
 import swyp_11.ssubom.domain.post.entity.Reaction;
 import swyp_11.ssubom.domain.post.repository.PostRepository;
@@ -101,7 +102,7 @@ public class PostReadServiceImpl implements PostReadService {
         AiFeedbackInfo aiFeedbackInfo = null;
         AIFeedback aiFeedback = post.getAiFeedback(); // null가능
         if (aiFeedback != null) {
-            List<String> improvementPoints = aiFeedback.getImprovementPoints();
+            List<ImprovementPoint> improvementPoints = aiFeedback.getImprovementPoints();
             aiFeedbackInfo = new AiFeedbackInfo(
                     aiFeedback.getId(),
                     aiFeedback.getStrength(),

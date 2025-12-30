@@ -43,6 +43,8 @@ gradle-app.setting
 build/resources/main/application.properties
 # 환경 설정 파일 (민감한 정보 포함)
 src/main/resources/application.properties
+application-test.properties
+application-prod.properties
 application-local.yml
 application-local.properties
 application-secret.yml

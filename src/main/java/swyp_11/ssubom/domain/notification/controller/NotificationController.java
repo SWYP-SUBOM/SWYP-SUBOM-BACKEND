@@ -52,13 +52,13 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<NotificationListResponse>> getNotifications(
             @AuthenticationPrincipal CustomOAuth2User user,
             @RequestParam(defaultValue = "10") int limit,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime beforeUpdatedAt
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime cursor
     ) {
         Long userId = user.getUserId();
-        if (beforeUpdatedAt == null) {
-            beforeUpdatedAt = LocalDateTime.now();
+        if (cursor == null) {
+            cursor = LocalDateTime.now();
         }
-        NotificationListResponse response = notificationService.getNotifications(userId, limit, beforeUpdatedAt);
+        NotificationListResponse response = notificationService.getNotifications(userId, limit, cursor);
         return ResponseEntity.ok(ApiResponse.success(response, "N0001", "알림 리스트 조회에 성공했습니다."));
     }
 }

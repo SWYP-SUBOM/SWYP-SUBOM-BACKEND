@@ -17,15 +17,18 @@ import java.util.Optional;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     long countByReceiver_UserIdAndIsReadFalse(Long userId);
+
     Optional<Notification> findByReceiverAndPostAndReactionType(User receiver, Post post, ReactionType type);
+
     @Query("""
-        SELECT n FROM Notification n
-        WHERE n.receiver.userId = :userId
-        AND n.updatedAt < :beforeUpdatedAt
-        ORDER BY n.updatedAt DESC
-        """)
+            SELECT n FROM Notification n
+            WHERE n.receiver.userId = :userId
+            AND n.updatedAt < :cursor
+            ORDER BY n.updatedAt DESC
+            """)
     List<Notification> findRecentNotifications(
             @Param("userId") Long userId,
-            @Param("beforeUpdatedAt") LocalDateTime beforeUpdatedAt,
+            @Param("cursor") LocalDateTime cursor,
             Pageable pageable
-    );}
+    );
+}

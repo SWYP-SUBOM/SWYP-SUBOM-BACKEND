@@ -1,9 +1,6 @@
 package swyp_11.ssubom.domain.post.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import swyp_11.ssubom.domain.post.entity.AIFeedbackStatus;
 
 import java.util.ArrayList;
@@ -11,24 +8,36 @@ import java.util.List;
 
 @Setter
 @Getter
-@AllArgsConstructor
 public class AiFeedbackResultResponseDto {
     private Long aiFeedbackId;
     private AIFeedbackStatus status;
     private String strength;
     private String summary;
-    private List<String> improvementPoints;
+    private List<FeedbackPointDto> improvementPoints;
     private String errorMessage;
     private String grade;
 
     @Builder
-    public AiFeedbackResultResponseDto(Long aiFeedbackId, AIFeedbackStatus status, String errorMessage, String grade) {
-        this.status = status;
+    public AiFeedbackResultResponseDto(Long aiFeedbackId, AIFeedbackStatus status,
+                                       String strength, String summary,
+                                       List<FeedbackPointDto> improvementPoints,
+                                       String errorMessage, String grade) {
         this.aiFeedbackId = aiFeedbackId;
-        this.strength = "";
-        this.summary = "";
-        this.improvementPoints = new ArrayList<>();
+        this.status = status;
+        this.strength = strength;
+        this.summary = summary;
+        this.improvementPoints = improvementPoints != null ? improvementPoints : new ArrayList<>();
         this.errorMessage = errorMessage;
         this.grade = grade;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FeedbackPointDto {
+        private String reason;        // 피드백 내용
+        private int sentenceIndex;    // 문장 번호
+        private String originalText;  // 원본 문장 (프론트 하이라이팅용)
     }
 }

@@ -11,6 +11,9 @@ import swyp_11.ssubom.domain.post.repository.AiFeedbackRepository;
 import swyp_11.ssubom.domain.topic.entity.TopicType;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
+import swyp_11.ssubom.domain.post.entity.ImprovementPoint;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -30,10 +33,17 @@ public class AsyncFeedbackGenerator {
         try {
             HyperClovaResponseDto responseDto = hyperClovaService.getFeedback(content, topicType, topicCategoryName, topicName);
 
+            List<ImprovementPoint> entityPoints = responseDto.getImprovementPoints().stream()
+                    .map(dtoPoint -> new ImprovementPoint(
+                            dtoPoint.getReason(),
+                            dtoPoint.getSentenceIndex()
+                    ))
+                    .toList();
+
             feedback.completeFeedback(
                     responseDto.getSummary(),
                     responseDto.getStrength(),
-                    responseDto.getImprovementPoints(),
+                    entityPoints,
                     responseDto.getGrade()
             );
             log.info("[Async Success] AI 피드백 생성 완료 (ID: {})", aiFeedbackId);

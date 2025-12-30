@@ -40,6 +40,10 @@ public class Topic extends BaseTimeEntity {
     @Column(name = "embedding_json", columnDefinition = "TEXT")
     private String embeddingJson;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "topic_status")
+    private Status topicStatus;
+
     @Transient
     private List<Double> embedding;
 
@@ -67,6 +71,7 @@ public class Topic extends BaseTimeEntity {
         topic.name = topicName;
         topic.topicType = topicType;
         topic.embedding = embedding;
+        topic.topicStatus=Status.PENDING;
         topic.embeddingJson = toJson(embedding);
         topic.isUsed = false;
         topic.usedAt = null;

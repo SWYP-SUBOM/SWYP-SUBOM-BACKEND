@@ -40,12 +40,27 @@ public class TopicService {
     @Transactional
     public Optional<Topic> ensureTodayPicked(Long categoryId) {
         LocalDate today = LocalDate.now(KST);
+
+        //0. 이미 오늘 할당이 완료된 경우
         Optional<Topic> existing = topicRepository.findByCategory_IdAndIsUsedTrueAndUsedAt(categoryId, today);
         if(existing.isPresent()) {
             return existing;
         }
+        //1순위
+        Optional<Topic> reserved = topicRepository.findReservedTopic(categoryId,today);
+            Topic targetTopic;
+            if(reserved.isPresent()){
+                targetTopic =reserved.get();
+                if(!targetTopic.isUsed()){
+                    targetTopic.use(today);
+                } //isUsed = ture처리
+                return Optional.of(targetTopic);
+            }
+
+        // 2순위
         Topic topic =topicRepository.lockOneUnused(categoryId);
-        //다 씀
+
+        //할당할 수 있는 주제가 없음
         if (topic == null) {
             throw new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC);
         }
@@ -103,8 +118,8 @@ public class TopicService {
             case "일상" -> "일상: 매일 반복되는 습관, 공간, 감정의 변화를 관찰하고 의미를 찾는 주제";
             case "인간관계" -> "인간관계: 연애, 가족, 친구 사이의 심리, 소통, 갈등 해법을 탐구하는 주제 등 (예: 연인의 과거에 대한 태도 등)";
             case "문화·트렌드" -> "문화*트렌드:  SNS, 소비 트렌드, 최신 라이프스타일을 해석하는 주제 등등(예: 연애 프로그램 출연 선택 등)";
-            case "가치관" -> "가치관: 삶의 우선순위, 행복의 기준, 도덕적 딜레마를 다루는 주제 등등";
-            case "시대·사회" -> "시대와 사회: AI 기술, 세대 갈등, 환경, 공정성 등 시대 및 사회의 변화를 비판적으로 사고하는 주제 등등";
+            case "가치관" -> "가치관: 삶의 우선순위, 행복의 기준, 도덕적 딜레마를 다루는 주제 등";
+            case "시대·사회" -> "시대와 사회: AI 기술, 세대 갈등, 환경, 공정성 등 시대 및 사회의 변화를 비판적으로 사고하는 주제 등";
             default -> throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
         };
         List<TopicGenerationResponse> aiTopics =topicAIService.generateTopics(categoryPrompt);

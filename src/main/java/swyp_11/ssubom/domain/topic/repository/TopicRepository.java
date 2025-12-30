@@ -1,5 +1,6 @@
 package swyp_11.ssubom.domain.topic.repository;
 
+import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,11 +15,19 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     //중복확인
     Optional<Topic> findByCategory_IdAndIsUsedTrueAndUsedAt(Long categoryId, LocalDate usedAt);
 
-    //사용 안된 것 하나 선택하기
+    //관리자 페이지 ) 이미 할당 완료한 경우
+    @Query("SELECT t FROM Topic t " +
+            "WHERE t.category.id = :categoryId " +
+            "AND t.usedAt = :usedAt " +
+            "AND t.topicStatus = 'APPROVED'")
+    Optional<Topic> findReservedTopic(@Param("categoryId") Long categoryId , @Param("usedAt")LocalDate usedAt);
+
+    //예약된 게 없을 때 사용 안된 것 하나 선택하기
     @Query(value = """
         select * from sseobom.topic
         where category_id = :categoryId
         and is_used = false 
+        and topic_status='APPROVED'
           ORDER BY random()
          FOR UPDATE SKIP LOCKED
         LIMIT 1

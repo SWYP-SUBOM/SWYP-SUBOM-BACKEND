@@ -118,7 +118,7 @@ public class TopicService {
         String categoryPrompt = switch (category.getName()) {
             case "일상" -> "일상: 매일 반복되는 습관, 공간, 감정의 변화를 관찰하고 의미를 찾는 주제";
             case "인간관계" -> "인간관계: 연애, 가족, 친구 사이의 심리, 소통, 갈등 해법을 탐구하는 주제 등 (예: 연인의 과거에 대한 태도 등)";
-            case "문화·트렌드" -> "문화*트렌드:  SNS, 소비 트렌드, 최신 라이프스타일을 해석하는 주제 등등(예: 연애 프로그램 출연 선택 등)";
+            case "문화·트렌드" -> "문화,트렌드:  SNS, 소비 트렌드, 최신 라이프스타일을 해석하는 주제 등등(예: 연애 프로그램 출연 선택 등)";
             case "가치관" -> "가치관: 삶의 우선순위, 행복의 기준, 도덕적 딜레마를 다루는 주제 등";
             case "시대·사회" -> "시대와 사회: AI 기술, 세대 갈등, 환경, 공정성 등 시대 및 사회의 변화를 비판적으로 사고하는 주제 등";
             default -> throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
@@ -221,7 +221,7 @@ public class TopicService {
         for (Topic old : recentTopics) {
             List<Double> oldEmbedding = old.getEmbedding();
             double sim = cosineSimilarity(newEmbedding, oldEmbedding);
-            if (sim >= 0.9) {
+            if (sim >= 0.88) {
                 log.info("DB에 존재한 질문 :{}", old.getName());
                 return false;
             }
@@ -301,11 +301,9 @@ public class TopicService {
     public void updateTopicStatus(Long topicId,Status newStatus){
         Topic topic = topicRepository.findById(topicId)
                 .orElseThrow(()->new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
-
         if (topic.getTopicStatus() == newStatus) {
             return;
         }
-
         topic.setTopicStatus(newStatus);
     }
 

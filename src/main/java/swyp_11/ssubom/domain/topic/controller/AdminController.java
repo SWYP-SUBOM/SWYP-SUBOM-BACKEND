@@ -67,7 +67,7 @@ public class AdminController {
         return ApiResponse.success(null,"AD0005","질문 상태 변경 성공");
     }
 
-    @PatchMapping("/topics/{topicId}/reservation")
+    @PatchMapping("/topic/{topicId}/reservation")
     public ApiResponse<Void> updateReservation(
             @PathVariable Long topicId,
             @RequestParam(required = false)

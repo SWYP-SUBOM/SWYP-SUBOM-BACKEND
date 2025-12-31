@@ -252,7 +252,17 @@ public class TopicService {
             topic.setCategory(newCategory);
         }
         topic.updateNameAndType(request.getTopicName(), request.getTopicType());
+
         return topic;
+    }
+
+    @Transactional
+    public void updateReservation(Long topicId, LocalDate usedAt) {
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
+        // usedAt != null  예약
+        // usedAt == null  예약 취소 (자동 픽 대상)
+        topic.reserveAt(usedAt);
     }
 
     @Transactional

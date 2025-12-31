@@ -2,6 +2,7 @@ package swyp_11.ssubom.domain.topic.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import swyp_11.ssubom.domain.topic.dto.*;
@@ -12,6 +13,7 @@ import swyp_11.ssubom.domain.topic.service.TopicGenerationService;
 import swyp_11.ssubom.domain.topic.service.TopicService;
 import swyp_11.ssubom.global.response.ApiResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "Admin 페이지전용 ", description = " topic 관련 admin API")
@@ -63,5 +65,16 @@ public class AdminController {
     public ApiResponse<Void> updateTopicStatus(@PathVariable Long topicId, @RequestParam Status status){
         topicService.updateTopicStatus(topicId,status);
         return ApiResponse.success(null,"AD0005","질문 상태 변경 성공");
+    }
+
+    @PatchMapping("/topics/{topicId}/reservation")
+    public ApiResponse<Void> updateReservation(
+            @PathVariable Long topicId,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate usedAt
+    ) {
+        topicService.updateReservation(topicId, usedAt);
+        return ApiResponse.success(null, "AD0006", "예약 변경 성공");
     }
 }

@@ -53,7 +53,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
                                 or(:mode = 'QUESTION' AND t.topicType = 'QUESTION')
                                 or(:mode = 'LOGICAL' AND t.topicType = 'LOGICAL')
                                         )
-                        order by t.updatedAt desc 
+                        order by t.id desc 
         """)
     List<Topic> findAdminTopics(@Param("mode")String mode , @Param("categoryId") Long categoryId);
 

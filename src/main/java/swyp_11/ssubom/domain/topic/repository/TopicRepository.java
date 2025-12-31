@@ -4,6 +4,7 @@ import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import swyp_11.ssubom.domain.topic.entity.Status;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 
 import java.time.LocalDate;
@@ -34,13 +35,27 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
   """, nativeQuery = true)
     Topic lockOneUnused(@Param("categoryId") Long categoryId);
 
-    List<Topic> findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtDesc(Long categoryId);
+    List<Topic> findTop30ByCategoryIdAndIsUsedTrueOrderByUsedAtDesc(Long categoryId);
 
-    List<Topic> findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtAsc(Long categoryId);
+    List<Topic> findTop30ByCategoryIdAndIsUsedTrueOrderByUsedAtAsc(Long categoryId);
 
     Optional<Topic> findByUsedAtAndCategory_Id(LocalDate usedAt, Long categoryId);
 
-    List<Topic> findTop40ByCategoryIdOrderByUpdatedAtDesc(Long categoryId);
+    List<Topic> findTop40ByCategoryIdAndTopicStatusOrderByUpdatedAtDesc(Long categoryId, Status topicStatus);
 
-    List<Topic> findAllByCategoryIdAndCreatedAtBetween(Long categoryId, LocalDateTime start, LocalDateTime end);
+    @Query("""
+        select t from Topic t
+                where (:categoryId is null or t.category.id=:categoryId )
+                        and t.isUsed=false
+                        and(:mode='ALL'
+                                or(:mode='APPROVED' and t.topicStatus='APPROVED')
+                                or(:mode = 'PENDING' AND t.topicStatus = 'PENDING')
+                                or(:mode = 'QUESTION' AND t.topicType = 'QUESTION')
+                                or(:mode = 'LOGICAL' AND t.topicType = 'LOGICAL')
+                                        )
+                        order by t.updatedAt desc 
+        """)
+    List<Topic> findAdminTopics(@Param("mode")String mode , @Param("categoryId") Long categoryId);
+
+
 }

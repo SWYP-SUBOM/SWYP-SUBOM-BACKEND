@@ -8,6 +8,7 @@ import swyp_11.ssubom.domain.post.dto.TodayPostResponse;
 import swyp_11.ssubom.domain.post.service.PostService;
 import swyp_11.ssubom.domain.topic.dto.*;
 import swyp_11.ssubom.domain.topic.entity.Category;
+import swyp_11.ssubom.domain.topic.entity.Status;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.topic.entity.TopicType;
 import swyp_11.ssubom.domain.topic.repository.CategoryRepository;
@@ -84,10 +85,10 @@ public class TopicService {
     public TopicListResponse getAll(Long categoryId, String sort) {
         List<Topic> topics;
         if(sort.equals("latest")){
-             topics = topicRepository.findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtDesc(categoryId);
+             topics = topicRepository.findTop30ByCategoryIdAndIsUsedTrueOrderByUsedAtDesc(categoryId);
         }
         else{
-             topics = topicRepository.findTop30ByCategoryIdAndUsedAtIsNotNullOrderByUsedAtAsc(categoryId);
+             topics = topicRepository.findTop30ByCategoryIdAndIsUsedTrueOrderByUsedAtAsc(categoryId);
         }
         List<CategorySummaryDto> categories =categoryRepository.findAll().stream()
                 .map(c->CategorySummaryDto.builder()
@@ -171,7 +172,7 @@ public class TopicService {
 
         // 3. 최근 토픽 40개 가져오기
         List<Topic> recentTopics =
-                topicRepository.findTop40ByCategoryIdOrderByUpdatedAtDesc(categoryId);
+                topicRepository.findTop40ByCategoryIdAndTopicStatusOrderByUpdatedAtDesc(categoryId, Status.APPROVED);
 
         if(isNotDuplicate(newEmbedding, recentTopics)) {
             Topic savedTopic = topicRepository.save(newTopic);
@@ -193,7 +194,8 @@ public class TopicService {
 
         // 최근 토픽 40개 가져오기
         List<Topic> recentTopics =
-                topicRepository.findTop40ByCategoryIdOrderByUpdatedAtDesc(categoryId);
+                topicRepository.findTop40ByCategoryIdAndTopicStatusOrderByUpdatedAtDesc(categoryId, Status.APPROVED);
+
 
         List<TopicGenerationResponse> result = new ArrayList<>();
 
@@ -274,16 +276,27 @@ public class TopicService {
         return HomeResponse.toDto(streakCount, categories, todayPostResponse);
     }
 
-    public AdminTopicListResponse getTopicByCategory(Long categoryId) {
-        LocalDateTime start = LocalDate.now().atStartOfDay();
-        LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
-        List<Topic> topics = topicRepository.findAllByCategoryIdAndCreatedAtBetween(categoryId, start, end);
+     //ADMIN 페이지 관련조회
+    public AdminTopicListResponse getAdminTopics(String mode,Long categoryId) {
 
-        List<AdminTopicListResponse.AdminTopicResponse> adminTopics= topics.stream()
-                .map(AdminTopicListResponse.AdminTopicResponse::from)
+        List<Topic> topics = topicRepository.findAdminTopics(mode,categoryId);
+        List<AdminTopicDto> adminTopics = topics.stream()
+                .map(AdminTopicDto::from)
                 .toList();
 
         return AdminTopicListResponse.of(adminTopics);
+    }
+
+    @Transactional
+    public void updateTopicStatus(Long topicId,Status newStatus){
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(()->new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
+
+        if (topic.getTopicStatus() == newStatus) {
+            return;
+        }
+
+        topic.setTopicStatus(newStatus);
     }
 
 }

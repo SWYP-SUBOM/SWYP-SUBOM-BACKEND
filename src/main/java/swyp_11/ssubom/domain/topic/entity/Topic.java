@@ -56,6 +56,9 @@ public class Topic extends BaseTimeEntity {
         this.category = category;
     }
 
+    public void setTopicStatus(Status newStatus){
+        this.topicStatus=newStatus;
+    }
     public void updateNameAndType(String topicName, TopicType topicType) {
         if (topicName != null) {
             this.name = topicName;

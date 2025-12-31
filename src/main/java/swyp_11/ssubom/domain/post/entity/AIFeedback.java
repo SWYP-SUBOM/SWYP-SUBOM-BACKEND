@@ -42,8 +42,7 @@ public class AIFeedback extends BaseTimeEntity {
             name = "improvement_point",
             joinColumns = @JoinColumn(name = "ai_feedback_id")
     )
-    @Column(name = "improvement_points", columnDefinition = "TEXT")
-    private List<String> improvementPoints = new ArrayList<>();
+    private List<ImprovementPoint> improvementPoints = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
@@ -60,7 +59,7 @@ public class AIFeedback extends BaseTimeEntity {
         return feedback;
     }
 
-    public void completeFeedback(String summary, String strength, List<String> points, String rawGrade) {
+    public void completeFeedback(String summary, String strength, List<ImprovementPoint> points, String rawGrade) {
         this.summary = summary;
         this.strength = strength;
         this.improvementPoints = new ArrayList<>(points);

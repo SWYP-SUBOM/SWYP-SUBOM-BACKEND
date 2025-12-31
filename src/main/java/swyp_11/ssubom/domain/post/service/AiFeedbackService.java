@@ -16,8 +16,12 @@ import swyp_11.ssubom.domain.post.repository.PostRepository;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
+import swyp_11.ssubom.global.utils.SentenceSplitter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -74,20 +78,37 @@ public class AiFeedbackService {
                 .orElseThrow(()-> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
 
          if (aiFeedback.getStatus() == AIFeedbackStatus.COMPLETED) {
-            return  new AiFeedbackResultResponseDto(
-                    aiFeedback.getId(),
-                    aiFeedback.getStatus(),
-                    aiFeedback.getStrength(),
-                    aiFeedback.getSummary(),
-                    aiFeedback.getImprovementPoints(),
-                    aiFeedback.getErrorMessage(),
-                    aiFeedback.getGrade().toString()
-            );
+             List<String> originalSentences = SentenceSplitter.split(aiFeedback.getContent());
+             List<AiFeedbackResultResponseDto.FeedbackPointDto> pointDtos = aiFeedback.getImprovementPoints().stream()
+                     .map(point -> {
+                         String originalText = null;
+                         int idx = point.getSentenceIndex();
+
+                         if (idx >= 0 && idx < originalSentences.size()) {
+                             originalText = originalSentences.get(idx);
+                         }
+
+                         return AiFeedbackResultResponseDto.FeedbackPointDto.builder()
+                                 .reason(point.getReason())
+                                 .sentenceIndex(idx)
+                                 .originalText(originalText)
+                                 .build();
+                     })
+                     .collect(Collectors.toList());
+             return AiFeedbackResultResponseDto.builder()
+                     .aiFeedbackId(aiFeedback.getId())
+                     .status(AIFeedbackStatus.COMPLETED)
+                     .strength(aiFeedback.getStrength())
+                     .summary(aiFeedback.getSummary())
+                     .grade(aiFeedback.getGrade().toString())
+                     .improvementPoints(pointDtos)
+                     .build();
         }
         else if (aiFeedback.getStatus() == AIFeedbackStatus.PROCESSING) {
                 return AiFeedbackResultResponseDto.builder()
                         .aiFeedbackId(aiFeedback.getId())
                         .status(AIFeedbackStatus.PROCESSING)
+                        .improvementPoints(new ArrayList<>())
                         .build();
         }
         else {
@@ -95,6 +116,7 @@ public class AiFeedbackService {
                          .aiFeedbackId(aiFeedback.getId())
                          .status(AIFeedbackStatus.FAILED)
                          .errorMessage(aiFeedback.getErrorMessage())
+                         .improvementPoints(new ArrayList<>())
                          .build();
          }
     }

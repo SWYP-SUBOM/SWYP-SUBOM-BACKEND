@@ -68,7 +68,9 @@ public class SecurityConfig {
         }));
 
         http.sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
+        http.securityContext(securityContext -> securityContext.requireExplicitSave(false));
 
         http.csrf(auth->auth.disable());
 
@@ -93,7 +95,6 @@ public class SecurityConfig {
                         )
                 );
 
-
         http.
                 oauth2Login((oauth2)->oauth2
                 .userInfoEndpoint((userInfoEndpointConfig)->userInfoEndpointConfig
@@ -114,6 +115,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/me").hasRole("USER")
                         .requestMatchers("/api/posts/**").hasRole("USER")
                         .requestMatchers("/api/notifications").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/notifications/stream").authenticated()
 
                         .anyRequest().authenticated());
 

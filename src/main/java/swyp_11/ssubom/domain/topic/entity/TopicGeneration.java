@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 public class TopicGeneration {
-    @Id @GeneratedValue
+    @Id  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)

@@ -4,17 +4,26 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import swyp_11.ssubom.domain.topic.entity.Category;
+import swyp_11.ssubom.domain.topic.entity.TopicGeneration;
 import swyp_11.ssubom.domain.topic.repository.CategoryRepository;
+import swyp_11.ssubom.domain.topic.repository.TopicGenerationRepository;
 
 import java.util.List;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import swyp_11.ssubom.global.error.BusinessException;
+import swyp_11.ssubom.global.error.ErrorCode;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class TopicGenerationService {
     private final TopicService topicService;
-    private final CategoryRepository categoryRepository;
+    private final TopicGenerationRepository topicGenerationRepository;
+    private final AsyncTopicGenerationWorker asyncWorker;
 
     @Scheduled(cron = "0 0 0 * * *", zone="Asia/Seoul")
     public void dailyPick() {
@@ -24,17 +33,29 @@ public class TopicGenerationService {
         log.info("오늘의 질문 할당 완료!");
     }
 
-    public void generateTopics() {
-        List<Category> categories = categoryRepository.findAll();
-        for (Category category : categories) {
-            try {
-                log.info("카테고리 [{}] 주제 생성 시작", category.getName());
-                topicService.generateTopicsForCategory(category.getId());
-                log.info("카테고리 [{}] 주제 생성 완료", category.getName());
-            } catch (Exception e) {
-                log.error(" 카테고리 [{}] 주제 생성 실패", category.getName(), e);
-            }
-        }
-        log.info("===  주제 생성 스케줄러 종료 ===");
+    //시작 기록 남기기
+    @Transactional
+    public TopicGeneration startGeneration(){
+        TopicGeneration tg = topicGenerationRepository.save(
+                TopicGeneration.start()
+        );
+         //비동기실행
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        asyncWorker.generate(tg.getId());
+                    }
+                }
+        );
+        log.info(" ---- 주제 생성 작업번호 {} 완료 ------",tg.getId());
+        return tg;
     }
+
+    @Transactional(readOnly = true)
+    public TopicGeneration getGeneration(Long generationId){
+        return topicGenerationRepository.findById(generationId)
+                .orElseThrow(()->new BusinessException(ErrorCode.TOPICGENERATIONID_NOT_FOUND));
+    }
+
 }

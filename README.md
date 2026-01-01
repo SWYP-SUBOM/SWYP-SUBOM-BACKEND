@@ -58,4 +58,4 @@ https://www.seobom.site
 ![architecture](img/architecture.png)
 
 ## 회고 및 고민한 점
-추가 예정
+1. [[스위프 웹 11기]NCP 활용 프로젝트 소개 - 써봄](https://545aa7.tistory.com/119)

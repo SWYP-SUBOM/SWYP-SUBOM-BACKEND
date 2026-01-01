@@ -57,6 +57,30 @@ pipeline {
             }
         }
 
+        stage('Prepare Environment') {
+            steps {
+                script {
+                    echo "⚙️ 환경 준비 및 찌꺼기 제거 시작"
+                    sh """
+                        # 1. 이전 빌드에서 Docker가 잘못 만든 '디렉토리' 삭제 (파일이어야 하는 경로)
+                        if [ -d "${WORKSPACE_DIR}/nginx/conf.d/default-test.conf" ]; then
+                            echo "⚠️ 파일 경로에 디렉토리가 발견되었습니다. 삭제합니다."
+                            rm -rf "${WORKSPACE_DIR}/nginx/conf.d/default-test.conf"
+                        fi
+
+                        # 2. 진짜 파일이 들어왔는지 최종 확인
+                        if [ ! -f "${WORKSPACE_DIR}/nginx/conf.d/default-test.conf" ]; then
+                            echo "❌ 에러: Git에서 파일을 가져오지 못했거나 경로가 틀렸습니다."
+                            find ${WORKSPACE_DIR} -name "default-test.conf"
+                            exit 1
+                        fi
+
+                        echo "✅ 설정 파일 검증 완료"
+                    """
+                }
+            }
+        }
+
         stage('Create application.properties') {
             steps {
                 script {
@@ -68,19 +92,6 @@ pipeline {
                             echo "✅ application-${env.SPRING_PROFILE}.properties 생성 완료"
                         """
                     }
-                }
-            }
-        }
-
-        stage('Prepare Environment') {
-            steps {
-                echo "⚙️ 환경 준비: ${env.DEPLOY_ENV}"
-                script {
-                    sh """
-                        echo "Docker Compose 파일: ${env.DOCKER_COMPOSE}"
-                        ls -la ${WORKSPACE_DIR}/docker/ || echo "docker 디렉토리 확인 중..."
-                        ls -la ${WORKSPACE_DIR}/docker/nginx/ || echo "nginx 디렉토리 확인 중..."
-                    """
                 }
             }
         }
@@ -117,8 +128,8 @@ pipeline {
                 echo "▶️ 컨테이너 시작: ${env.PROJECT_NAME}"
                 sh """
                     docker compose -p ${env.PROJECT_NAME} -f ${env.DOCKER_COMPOSE} up -d
-                    echo "✅ 컨테이너 시작 완료"
                 """
+                echo "✅ 컨테이너 시작 완료"
             }
         }
 

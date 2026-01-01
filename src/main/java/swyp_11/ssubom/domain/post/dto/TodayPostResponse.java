@@ -18,16 +18,18 @@ public class TodayPostResponse {
     private String categoryName;
     private Long topicId;
     private String topicName;
+    private String topicType;
     private Long aiFeedbackId;
 
     @Builder
-    public TodayPostResponse(Long postId, String postStatus, Long categoryId, String categoryName, Long topicId, String topicName, Long aiFeedbackId) {
+    public TodayPostResponse(Long postId, String postStatus, Long categoryId, String categoryName, Long topicId, String topicName, String topicType, Long aiFeedbackId) {
         this.postId = postId;
         this.postStatus = postStatus;
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.topicId = topicId;
         this.topicName = topicName;
+        this.topicType = topicType;
         this.aiFeedbackId = aiFeedbackId;
     }
 
@@ -39,6 +41,7 @@ public class TodayPostResponse {
                 .categoryName(null)
                 .topicId(null)
                 .topicName(null)
+                .topicType(null)
                 .aiFeedbackId(null)
                 .build();
     }
@@ -61,6 +64,7 @@ public class TodayPostResponse {
                 .categoryName(category.getName())
                 .topicId(topic.getId())
                 .topicName(topic.getName())
+                .topicType(topic.getTopicType().name())
                 .aiFeedbackId(aiFeedbackId)
                 .build();
     }

@@ -3,15 +3,54 @@ pipeline {
 
     environment {
         PATH = "/usr/libexec/docker/cli-plugins:/usr/bin:/usr/local/bin:/bin"
-        PROJECT_NAME = "seobom-backend"
-        DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
-        BRANCH_NAME = "${env.BRANCH_NAME ?: 'release'}"
+        BASE_PROJECT_NAME = "seobom-backend"
+        WORKSPACE_DIR = "${WORKSPACE}"
+        // Git 브랜치 이름 정리 (origin/ 제거)
+        BRANCH_NAME = "${env.GIT_BRANCH?.replaceAll('origin/', '') ?: 'release'}"
     }
 
     stages {
+        stage('Set Environment') {
+            steps {
+                script {
+                    echo "=== 환경 설정 시작 ==="
+                    echo "Git Branch: ${env.GIT_BRANCH}"
+                    echo "Branch Name: ${BRANCH_NAME}"
+
+                    // 브랜치에 따라 환경 결정
+                    if (BRANCH_NAME == 'main') {
+                        env.DEPLOY_ENV = 'PRODUCTION'
+                        env.PROJECT_NAME = "${BASE_PROJECT_NAME}-prod"
+                        env.DOCKER_COMPOSE = "${WORKSPACE_DIR}/docker/docker-compose-prod.yml"
+                        env.APP_PROPS_ID = 'application-prod-properties'
+                        env.SPRING_PROFILE = 'prod'
+                        env.CONTAINER_NAME = 'seobom-backend-prod'
+                        echo '🏭 PRODUCTION 환경으로 설정'
+                    } else if (BRANCH_NAME == 'release') {
+                        env.DEPLOY_ENV = 'TEST'
+                        env.PROJECT_NAME = "${BASE_PROJECT_NAME}-test"
+                        env.DOCKER_COMPOSE = "${WORKSPACE_DIR}/docker/docker-compose-test.yml"
+                        env.APP_PROPS_ID = 'application-test-properties'
+                        env.SPRING_PROFILE = 'test'
+                        env.CONTAINER_NAME = 'seobom-backend-test'
+                        echo '🧪 TEST 환경으로 설정'
+                    } else {
+                        error "❌ 지원하지 않는 브랜치입니다: ${BRANCH_NAME}"
+                    }
+
+                    echo "=== 환경 설정 완료 ==="
+                    echo "Environment: ${env.DEPLOY_ENV}"
+                    echo "Project Name: ${env.PROJECT_NAME}"
+                    echo "Docker Compose: ${env.DOCKER_COMPOSE}"
+                    echo "Spring Profile: ${env.SPRING_PROFILE}"
+                    echo "Container Name: ${env.CONTAINER_NAME}"
+                }
+            }
+        }
+
         stage('Clone Repository') {
             steps {
-                echo "Branch: ${BRANCH_NAME}"
+                echo "📥 코드 가져오기: ${BRANCH_NAME} 브랜치"
                 git branch: "${BRANCH_NAME}",
                     url: "https://github.com/SWYP-SUBOM/SWYP-SUBOM-BACKEND.git",
                     credentialsId: 'github-cred'
@@ -20,40 +59,53 @@ pipeline {
 
         stage('Create application.properties') {
             steps {
-                withCredentials([file(credentialsId: 'application-properties', variable: 'APP_PROPS')]) {
-                    echo "Writing application.properties file"
-                    sh '''
-                        mkdir -p ./src/main/resources
-                        cp "$APP_PROPS" ./src/main/resources/application-prod.properties
-                    '''
+                script {
+                    echo "📝 application-${env.SPRING_PROFILE}.properties 생성 중..."
+                    withCredentials([file(credentialsId: "${env.APP_PROPS_ID}", variable: 'APP_PROPS')]) {
+                        sh """
+                            mkdir -p ./src/main/resources
+                            cp "\$APP_PROPS" ./src/main/resources/application-${env.SPRING_PROFILE}.properties
+                            echo "✅ application-${env.SPRING_PROFILE}.properties 생성 완료"
+                        """
+                    }
                 }
             }
         }
 
         stage('Prepare Environment') {
             steps {
-                echo "Using docker-compose and Dockerfile in docker/ directory"
+                echo "⚙️ 환경 준비: ${env.DEPLOY_ENV}"
                 script {
-                    env.DOCKER_COMPOSE = "${WORKSPACE}/docker/docker-compose.yml"
+                    sh """
+                        echo "Docker Compose 파일: ${env.DOCKER_COMPOSE}"
+                        ls -la ${WORKSPACE_DIR}/docker/ || echo "docker 디렉토리 확인 중..."
+                        ls -la ${WORKSPACE_DIR}/docker/nginx/ || echo "nginx 디렉토리 확인 중..."
+                    """
                 }
             }
         }
 
         stage('Docker Down') {
             steps {
-                echo "Docker compose down"
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} down --rmi all || true"
+                echo "🛑 기존 컨테이너 중지: ${env.PROJECT_NAME}"
+                sh """
+                    docker compose -p ${env.PROJECT_NAME} -f ${env.DOCKER_COMPOSE} down --rmi all || true
+                    echo "✅ 기존 컨테이너 정리 완료"
+                """
             }
         }
 
         stage('Docker Build') {
             steps {
-                echo "Building Docker image..."
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} build --no-cache"
+                echo "🐳 Docker 이미지 빌드 중: ${env.DEPLOY_ENV}"
+                sh """
+                    docker compose -p ${env.PROJECT_NAME} -f ${env.DOCKER_COMPOSE} build --no-cache
+                    echo "✅ Docker 이미지 빌드 완료"
+                """
             }
             post {
                 failure {
-                    echo "Docker build failed, cleaning up unused files..."
+                    echo "❌ Docker 빌드 실패, 정리 중..."
                     sh "docker system prune -f || true"
                     error 'Build aborted'
                 }
@@ -62,38 +114,44 @@ pipeline {
 
         stage('Docker Up') {
             steps {
-                echo "Starting containers..."
-                sh "docker compose -p ${PROJECT_NAME} -f ${DOCKER_COMPOSE} up -d"
+                echo "▶️ 컨테이너 시작: ${env.PROJECT_NAME}"
+                sh """
+                    docker compose -p ${env.PROJECT_NAME} -f ${env.DOCKER_COMPOSE} up -d
+                    echo "✅ 컨테이너 시작 완료"
+                """
             }
         }
 
         stage('Health Check') {
             steps {
                 script {
-                    echo "Checking health of backend service..."
-                    sh '''
-                        for i in $(seq 1 20); do
-                            echo "Checking service health... Attempt $i"
-                            result=$(curl -s -w "%{http_code}" -o /tmp/health.json http://seobom-backend:8080/actuator/health || true)
-                            cat /tmp/health.json || true
+                    echo "🏥 헬스 체크 시작: ${env.DEPLOY_ENV}"
+                    sh """
+                        for i in \$(seq 1 20); do
+                            echo "헬스 체크 시도 \$i/20..."
+                            result=\$(curl -s -w "%{http_code}" -o /tmp/health-${env.DEPLOY_ENV}.json http://${env.CONTAINER_NAME}:8080/actuator/health || true)
+                            cat /tmp/health-${env.DEPLOY_ENV}.json || true
 
-                            if grep -q "UP" /tmp/health.json; then
-                                echo "Service is UP!"
+                            if grep -q "UP" /tmp/health-${env.DEPLOY_ENV}.json; then
+                                echo "✅ ${env.DEPLOY_ENV} 서비스가 정상 작동 중입니다!"
                                 exit 0
                             fi
 
-                            echo "Waiting for service to be ready... ($i/20)"
+                            echo "대기 중... (\$i/20)"
                             sleep 5
                         done
 
-                        echo "Health check failed after 20 attempts!"
+                        echo "❌ 헬스 체크 실패: 20회 시도 후에도 응답 없음"
                         exit 1
-                    '''
+                    """
                 }
             }
             post {
                 failure {
-                    sh "docker logs ${PROJECT_NAME} | tail -n 50 || true"
+                    sh """
+                        echo "❌ 헬스 체크 실패, 컨테이너 로그 출력:"
+                        docker logs ${env.CONTAINER_NAME} | tail -n 50 || true
+                    """
                     error 'Pipeline aborted: Service not responding.'
                 }
             }
@@ -101,18 +159,24 @@ pipeline {
 
         stage('Docker Clear') {
             steps {
-                echo "Cleaning up..."
-                sh "docker image prune -f || true"
+                echo "🧹 불필요한 이미지 정리..."
+                sh """
+                    docker image prune -f || true
+                    echo "✅ 정리 완료"
+                """
             }
         }
     }
 
     post {
         success {
-            echo "Deployment succeeded!"
+            echo "🎉 ${env.DEPLOY_ENV} 배포 성공!"
         }
         failure {
-            echo "Deployment failed!"
+            echo "❌ ${env.DEPLOY_ENV} 배포 실패!"
+        }
+        always {
+            echo "📊 배포 완료: ${env.DEPLOY_ENV} (${env.PROJECT_NAME})"
         }
     }
 }

@@ -1,6 +1,6 @@
 services:
-  seobom-backend:
-    container_name: seobom-backend
+  seobom-backend-test:
+    container_name: seobom-backend-test
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -8,14 +8,15 @@ services:
     expose:
       - "8080" # 내부망 통신만 허용
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=test
     volumes:
-      - /var/log/seobom:/apps/logs
+      - /var/log/seobom-test:/apps/logs
     networks:
       - deploy
     restart: always
 
-  nginx:
+  nginx-test:
+    container_name: nginx-test
     image: nginx:latest
     ports:
       - "80:80"
@@ -24,16 +25,16 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro   # SSL 인증서 공유
       - /var/lib/letsencrypt:/var/lib/letsencrypt
       - /var/www/certbot:/var/www/certbot
-      - /jenkins/workspace/seobom-backend/nginx/conf.d:/etc/nginx/conf.d:ro   # 설정파일 마운트
+      - ./nginx/default-test.conf:/etc/nginx/conf.d/default.conf:ro   # 설정파일 마운트
     depends_on:
-      - seobom-backend
+      - seobom-backend-test
     networks:
       - deploy
     restart: always
 
-  certbot:
+  certbot-test:
+    container_name: certbot-test
     image: certbot/certbot
-    container_name: certbot
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/lib/letsencrypt:/var/lib/letsencrypt

@@ -25,7 +25,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro   # SSL 인증서 공유
       - /var/lib/letsencrypt:/var/lib/letsencrypt
       - /var/www/certbot:/var/www/certbot
-      - ${WORKSPACE}/nginx/conf.d/test:/etc/nginx/conf.d:ro
+      - ../nginx/conf.d/test:/etc/nginx/conf.d:ro
     depends_on:
       - seobom-backend-test
     networks:

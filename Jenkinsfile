@@ -60,22 +60,16 @@ pipeline {
         stage('Prepare Environment') {
             steps {
                 script {
-                    echo "⚙️ 환경 준비 및 찌꺼기 제거 시작"
                     sh """
-                        # 1. 이전 빌드에서 Docker가 잘못 만든 '디렉토리' 삭제 (파일이어야 하는 경로)
-                        if [ -d "${WORKSPACE_DIR}/nginx/conf.d/default-test.conf" ]; then
-                            echo "⚠️ 파일 경로에 디렉토리가 발견되었습니다. 삭제합니다."
-                            rm -rf "${WORKSPACE_DIR}/nginx/conf.d/default-test.conf"
-                        fi
+                        echo "⚙️ Nginx 설정 디렉토리 확인"
+                        # 만약 기존에 잘못 생성된 '파일 이름의 폴더'가 있다면 삭제
+                        rm -rf ${WORKSPACE_DIR}/nginx/conf.d/default-test.conf
 
-                        # 2. 진짜 파일이 들어왔는지 최종 확인
-                        if [ ! -f "${WORKSPACE_DIR}/nginx/conf.d/default-test.conf" ]; then
-                            echo "❌ 에러: Git에서 파일을 가져오지 못했거나 경로가 틀렸습니다."
-                            find ${WORKSPACE_DIR} -name "default-test.conf"
+                        # 테스트용 설정 파일이 담긴 폴더가 있는지 확인
+                        if [ ! -d "${WORKSPACE_DIR}/nginx/conf.d/test" ]; then
+                            echo "❌ 에러: nginx/conf.d/test 폴더가 없습니다!"
                             exit 1
                         fi
-
-                        echo "✅ 설정 파일 검증 완료"
                     """
                 }
             }

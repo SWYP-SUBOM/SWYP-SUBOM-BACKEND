@@ -1,0 +1,20 @@
+{
+  "type": "array",
+  "minItems": 30,
+  "maxItems": 30,
+  "items": {
+    "type": "object",
+    "properties": {
+      "topicName": {
+        "type": "string",
+        "minLength": 25,
+        "maxLength": 60
+      },
+      "topicType": {
+        "type": "string",
+        "enum": ["QUESTION", "LOGICAL"]
+      }
+    },
+    "required": ["topicName", "topicType"]
+  }
+}

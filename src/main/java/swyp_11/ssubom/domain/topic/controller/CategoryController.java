@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import swyp_11.ssubom.domain.topic.dto.HomeResponse;
-import swyp_11.ssubom.domain.topic.dto.TodayTopicResponseDto;
-import swyp_11.ssubom.domain.topic.dto.TopicListResponse;
+import swyp_11.ssubom.domain.topic.dto.*;
+import swyp_11.ssubom.domain.topic.entity.Topic;
+import swyp_11.ssubom.domain.topic.service.TopicGenerationService;
 import swyp_11.ssubom.domain.topic.service.TopicService;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 import swyp_11.ssubom.global.error.BusinessException;
@@ -26,7 +26,7 @@ import swyp_11.ssubom.global.response.ApiResponse;
 @RequiredArgsConstructor
 public class CategoryController {
     private final TopicService topicService;
-
+    private final TopicGenerationService topicGenerationService;
     @Operation(
             summary = "카테고리 오늘의 질문 조회 API",
             description = """
@@ -83,4 +83,6 @@ public class CategoryController {
         );
         return ResponseEntity.ok(response);
     }
+
+
 }

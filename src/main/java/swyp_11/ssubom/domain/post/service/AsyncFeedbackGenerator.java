@@ -1,0 +1,56 @@
+package swyp_11.ssubom.domain.post.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import swyp_11.ssubom.domain.post.dto.HyperClovaResponseDto;
+import swyp_11.ssubom.domain.post.entity.AIFeedback;
+import swyp_11.ssubom.domain.post.repository.AiFeedbackRepository;
+import swyp_11.ssubom.domain.topic.entity.TopicType;
+import swyp_11.ssubom.global.error.BusinessException;
+import swyp_11.ssubom.global.error.ErrorCode;
+import swyp_11.ssubom.domain.post.entity.ImprovementPoint;
+
+import java.util.List;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class AsyncFeedbackGenerator {
+    private final AiFeedbackRepository aiFeedbackRepository;
+    private final HyperClovaService hyperClovaService;
+    private final AiFeedbackStatusService statusService;
+
+    @Async
+    @Transactional
+    public void generateAndSaveFeedback(Long aiFeedbackId, String content, TopicType topicType, String topicCategoryName, String topicName) {
+        log.info("[Async Start] AI 피드백 생성 시작 (ID: {})", aiFeedbackId);
+
+        AIFeedback feedback = aiFeedbackRepository.findById(aiFeedbackId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.AIFEEDBACK_NOT_FOUND));
+        try {
+            HyperClovaResponseDto responseDto = hyperClovaService.getFeedback(content, topicType, topicCategoryName, topicName);
+
+            List<ImprovementPoint> entityPoints = responseDto.getImprovementPoints().stream()
+                    .map(dtoPoint -> new ImprovementPoint(
+                            dtoPoint.getReason(),
+                            dtoPoint.getSentenceIndex()
+                    ))
+                    .toList();
+
+            feedback.completeFeedback(
+                    responseDto.getSummary(),
+                    responseDto.getStrength(),
+                    entityPoints,
+                    responseDto.getGrade()
+            );
+            log.info("[Async Success] AI 피드백 생성 완료 (ID: {})", aiFeedbackId);
+
+        } catch (Exception e) {
+            log.error("[Async Fail] AI 피드백 생성 중 오류 발생 (ID: {})", aiFeedbackId, e);
+            statusService.markAsFailed(aiFeedbackId, e.getMessage());
+        }
+    }
+}

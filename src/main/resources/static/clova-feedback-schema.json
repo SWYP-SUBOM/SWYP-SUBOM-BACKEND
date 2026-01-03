@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "전체 글에 대한 한 줄 요약"
+    },
+    "strength": {
+      "type": "string",
+      "description": "글의 장점 1가지"
+    },
+    "improvementPoints": {
+      "type": "array",
+      "description": "개선할 점들과 해당되는 원본 텍스트",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "구체적인 개선 제안 내용. 이때 인덱스에 대한 직접 명시를 금합니다."
+          },
+          "sentenceIndex": {
+            "type": "integer",
+            "description": "문제가 되는 문장의 인덱스 번호 (예: [0] -> 0). 특정 문장이 아니면 -1 반환"
+          }
+        },
+        "required": ["reason", "sentenceIndex"]
+      }
+    },
+    "grade": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D", "F"],
+      "description": "글의 완성도 등급 (A: 최우수, F: 미흡)"
+    }
+  },
+  "required": [
+    "summary",
+    "strength",
+    "improvementPoints",
+    "grade"
+  ]
+}

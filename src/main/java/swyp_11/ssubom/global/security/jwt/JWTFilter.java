@@ -11,8 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.domain.admin.dto.AdminDetails;
 import swyp_11.ssubom.domain.user.dto.userDTO;
+import swyp_11.ssubom.domain.admin.entity.Admin;
 import swyp_11.ssubom.domain.user.entity.User;
+import swyp_11.ssubom.domain.admin.repository.AdminRepository;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.global.error.BusinessException;
 import swyp_11.ssubom.global.error.ErrorCode;
@@ -22,10 +25,11 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
-
-    public JWTFilter(JWTUtil jwtUtil, UserRepository userRepository) {
+    private final AdminRepository adminRepository;
+    public JWTFilter(JWTUtil jwtUtil, UserRepository userRepository,AdminRepository adminRepository) {
         this.jwtUtil = jwtUtil;
         this.userRepository=userRepository;
+        this.adminRepository=adminRepository;
     }
 
     // Swagger 및 인증 불필요한 경로는 JWT 필터 건너뛰기
@@ -44,12 +48,6 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String access = null;
-
-//        access=request.getHeader();
-//        if(access==null){
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
 
         // 1. (Swagger/API용) Authorization 헤더에서 Bearer 토큰 추출
         String authorizationHeader = request.getHeader("Authorization");
@@ -90,24 +88,34 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        String kakaoId = jwtUtil.getKakaoId(access);
+        String principal = jwtUtil.getprincipal(access);
         String role = jwtUtil.getRole(access);
+        Authentication authToken;
 
-        User userEntity = userRepository.findByKakaoId(kakaoId);
+        if("ROLE_ADMIN".equals(role)){
+            Admin admin = adminRepository.findByEmail(principal)
+                    .orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        userDTO userDTO = new userDTO();
-        userDTO.setKakaoId(kakaoId);
-        userDTO.setRole(role);
+            AdminDetails adminDetails = new AdminDetails(admin);
+            authToken = new UsernamePasswordAuthenticationToken(
+                    adminDetails,
+                    null,
+                    adminDetails.getAuthorities()
+            );
 
-        if(userEntity!=null){
-            userDTO.setUserId(userEntity.getUserId());
-        }
-        else {
+        }else{
+            User userEntity = userRepository.findByKakaoId(principal);
+            if(userEntity==null) {
                 throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-        }
+            }
+            userDTO userDTO = new userDTO();
+            userDTO.setKakaoId(principal);
+            userDTO.setUserId(userEntity.getUserId());
+            userDTO.setRole(role);
+            CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+            authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
 
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
         filterChain.doFilter(request, response);

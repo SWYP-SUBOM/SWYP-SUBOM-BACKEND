@@ -43,7 +43,7 @@ public interface ReactionRepository extends JpaRepository<Reaction, Long> {
     long countByPost(Post post);
 
     @Query(
-            value = "SELECT COUNT(*) FROM sseobom.feed_reaction WHERE post_id = :postId AND reaction_type_id = :reactionTypeId",
+            value = "SELECT COUNT(*) FROM seobom.feed_reaction WHERE post_id = :postId AND reaction_type_id = :reactionTypeId",
             nativeQuery = true
     )
     long countByPostAndType(@Param("postId") Long postId, @Param("reactionTypeId") Long reactionTypeId);

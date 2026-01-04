@@ -12,11 +12,9 @@ import swyp_11.ssubom.global.error.ErrorCode;
 public class SecurityUtil {
     public Admin getCurrentAdmin() {
 
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null ||
-                !(authentication.getPrincipal() instanceof AdminDetails)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof AdminDetails)) {
             throw new BusinessException(ErrorCode.ADMIN_NOT_FOUND);
         }
 

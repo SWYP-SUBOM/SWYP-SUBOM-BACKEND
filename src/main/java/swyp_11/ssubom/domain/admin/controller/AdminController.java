@@ -24,6 +24,8 @@ import swyp_11.ssubom.domain.admin.service.AdminLoginService;
 import swyp_11.ssubom.global.response.ApiResponse;
 import swyp_11.ssubom.global.security.util.SecurityUtil;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 @Tag(name = "Admin 전용 ", description = " admin API")
@@ -38,17 +40,25 @@ public class AdminController {
     private final AdminRepository adminRepository;
     private final SecurityUtil securityUtil;
     private final QrCodeService qrCodeService;
+
+    @Operation(
+            summary = "관리자 페이지 로그인",
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @PostMapping("/manage/login")
     public ResponseEntity<AdminLoginResponse> login(
             @RequestBody AdminLoginRequest request) {
         return ResponseEntity.ok(adminLoginService.login(request));
     }
 
+    @Operation(
+            summary = "관리자 페이지 qr 생성 (1회성)",
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
     @PostMapping("/2fa/setup")
     public ResponseEntity<byte[]> setup2fa() throws Exception {
-
+        // 인증 -> secret 생성 -> admin 2FA 설정 ->otp url 생성 : 폰에게 secret 알려주는 방법 -> QR 생성 -> 응답
         Admin admin = securityUtil.getCurrentAdmin();
-
         String secret = totpService.generateSecret();
         admin.enable2fa(secret);
         adminRepository.save(admin);
@@ -56,14 +66,14 @@ public class AdminController {
         String otpUrl = String.format(
                 "otpauth://totp/%s:%s?secret=%s&issuer=%s",
                 "SSUBOM-ADMIN",
-                admin.getEmail(),
+                URLEncoder.encode(admin.getEmail(), StandardCharsets.UTF_8),
                 secret,
-                "SSUBOM-ADMIN");
+                "SSUBOM-ADMIN"
+        );
 
         byte[] qrImage = qrCodeService.generateQr(otpUrl);
 
-        return ResponseEntity.ok()
-                .body(qrImage);
+        return ResponseEntity.ok().body(qrImage);
     }
 
     @Operation(

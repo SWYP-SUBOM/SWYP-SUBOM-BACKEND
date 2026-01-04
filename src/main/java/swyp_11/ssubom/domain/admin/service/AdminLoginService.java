@@ -32,12 +32,14 @@ public class AdminLoginService {
             throw new BusinessException(ErrorCode.ADMIN_LOCKED);
         }
 
+        // 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
             admin.increaseFail();
             adminRepository.save(admin);
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
 
+        // 2FA 설정 이후는 검증
         if (admin.is2faEnabled()) {
             if (request.getTotpCode() == null || !totpService.verify(admin.getTotpSecret(), request.getTotpCode())) {
                 throw new BusinessException(ErrorCode.INVALID_2FA);
@@ -46,12 +48,7 @@ public class AdminLoginService {
         admin.resetFail();
         adminRepository.save(admin);
 
-        String access = jwtUtil.createJWT(
-                "accessToken",
-                admin.getEmail(),
-                "ROLE_ADMIN",
-                60 * 60 * 1000L
-        );
+        String access = jwtUtil.createJWT("accessToken", admin.getEmail(), "ROLE_ADMIN", 80 * 60 * 1000L);
 
         return new AdminLoginResponse(access);
     }

@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 public class Admin {
 
     @Id
-    @GeneratedValue
-    private Long amdinId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long adminId;
 
     @Column(unique = true ,nullable = false)
     private String email;

@@ -18,11 +18,11 @@ public class JWTUtil {
         System.out.println("SecretKey initialized: " + secretKey);
     }
 
-    public String createJWT(String category , String kakaoId , String role , Long expiredMs) {
-        System.out.println("Creating JWT with category: " + category + ", kakaoId: " + kakaoId + ", role: " + role + ", expiredMs: " + expiredMs);
+    public String createJWT(String category , String principal , String role , Long expiredMs) {
+        System.out.println("Creating JWT with category: " + category + ", principal: " + principal + ", role: " + role + ", expiredMs: " + expiredMs);
          String jwt = Jwts.builder()
                 .claim("category",category)
-                .claim("kakaoId",kakaoId)
+                .claim("principal",principal)
                 .claim("role",role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis()+expiredMs))
@@ -31,8 +31,8 @@ public class JWTUtil {
         return jwt;
     }
 
-    public String getKakaoId(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("kakaoId", String.class);
+    public String getprincipal(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("principal", String.class);
 
     }
 

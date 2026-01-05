@@ -47,7 +47,7 @@ public class ReissueService {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
-        String kakaoId = jwtUtil.getKakaoId(refresh);
+        String kakaoId = jwtUtil.getprincipal(refresh);
         String role = jwtUtil.getRole(refresh);
 
         Boolean isExist = refreshRepository.existsByRefreshValue(refresh);

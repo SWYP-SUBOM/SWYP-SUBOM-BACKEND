@@ -7,12 +7,10 @@ public class KaKaoResponse implements OAuth2Response {
     private final Map<String , Object> attributes;
     private final Map<String , Object> kakaoAccount;
 
-
     public KaKaoResponse(Map<String, Object> attributes) {
         this.attributes = attributes;
         this.kakaoAccount = (Map<String , Object>) attributes.get("kakao_account");
     }
-
 
     @Override
     public String getProviderId() {

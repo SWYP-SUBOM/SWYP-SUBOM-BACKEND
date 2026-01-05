@@ -33,6 +33,11 @@ public enum ErrorCode {
     UNREGISTER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U003", "카카오 회원 탈퇴 처리 중 오류가 발생했습니다."),
     POST_ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "U004", "사용자가 작성한 글이 아닙니다"),
 
+   //Admin errors
+    ADMIN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AD001", "관리자를 찾을 수 없습니다"),
+    ADMIN_LOCKED(HttpStatus.FORBIDDEN, "AD002", "잠금상태의 관리자 입니다"),
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST,"AD003","올바르지 않은 비밀번호입니다"),
+    INVALID_2FA(HttpStatus.UNAUTHORIZED, "AD004", "올바르지 않은 인증입니다"),
     // Topic errors
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "카테고리를 찾을 수 없습니다."),
     TOPIC_NOT_FOUND(HttpStatus.NOT_FOUND, "T002", "질문을 찾을 수 없습니다."),

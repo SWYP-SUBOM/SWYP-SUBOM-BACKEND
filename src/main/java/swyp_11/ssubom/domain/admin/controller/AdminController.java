@@ -1,31 +1,81 @@
-package swyp_11.ssubom.domain.topic.controller;
+package swyp_11.ssubom.domain.admin.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import swyp_11.ssubom.domain.admin.entity.Admin;
+import swyp_11.ssubom.domain.admin.repository.AdminRepository;
+import swyp_11.ssubom.domain.admin.service.QrCodeService;
+import swyp_11.ssubom.domain.admin.service.TotpService;
 import swyp_11.ssubom.domain.topic.dto.*;
 import swyp_11.ssubom.domain.topic.entity.Status;
 import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.topic.entity.TopicGeneration;
-import swyp_11.ssubom.domain.topic.service.TopicAIService;
 import swyp_11.ssubom.domain.topic.service.TopicGenerationService;
 import swyp_11.ssubom.domain.topic.service.TopicService;
+import swyp_11.ssubom.domain.admin.dto.AdminLoginRequest;
+import swyp_11.ssubom.domain.admin.dto.AdminLoginResponse;
+import swyp_11.ssubom.domain.admin.service.AdminLoginService;
 import swyp_11.ssubom.global.response.ApiResponse;
+import swyp_11.ssubom.global.security.util.SecurityUtil;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.List;
 
-@Tag(name = "Admin 전용 ", description = "topic 관련 admin API")
+@Tag(name = "Admin 전용 ", description = " admin API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
 public class AdminController {
     private final TopicService topicService;
     private final TopicGenerationService topicGenerationService;
+    private final AdminLoginService adminLoginService;
+    private final TotpService totpService;
+    private final AdminRepository adminRepository;
+    private final SecurityUtil securityUtil;
+    private final QrCodeService qrCodeService;
+
+    @Operation(
+            summary = "관리자 페이지 로그인",
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
+    @PostMapping("/manage/login")
+    public ResponseEntity<AdminLoginResponse> login(
+            @RequestBody AdminLoginRequest request) {
+        return ResponseEntity.ok(adminLoginService.login(request));
+    }
+
+    @Operation(
+            summary = "관리자 페이지 qr 생성 (1회성)",
+            security = { @SecurityRequirement(name = "bearerAuth") }
+    )
+    @PostMapping("/2fa/setup")
+    public ResponseEntity<byte[]> setup2fa() throws Exception {
+        // 인증 -> secret 생성 -> admin 2FA 설정 ->otp url 생성 : 폰에게 secret 알려주는 방법 -> QR 생성 -> 응답
+        Admin admin = securityUtil.getCurrentAdmin();
+        String secret = totpService.generateSecret();
+        admin.enable2fa(secret);
+        adminRepository.save(admin);
+
+        String otpUrl = String.format(
+                "otpauth://totp/%s:%s?secret=%s&issuer=%s",
+                "SSUBOM-ADMIN",
+                URLEncoder.encode(admin.getEmail(), StandardCharsets.UTF_8),
+                secret,
+                "SSUBOM-ADMIN"
+        );
+
+        byte[] qrImage = qrCodeService.generateQr(otpUrl);
+
+        return ResponseEntity.ok().body(qrImage);
+    }
+
     @Operation(
             summary = "AI 토픽 자동 생성 버튼 API",
             description = """

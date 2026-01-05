@@ -12,6 +12,8 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -19,6 +21,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import swyp_11.ssubom.domain.admin.repository.AdminRepository;
 import swyp_11.ssubom.domain.user.repository.RefreshRepository;
 import swyp_11.ssubom.domain.user.repository.UserRepository;
 import swyp_11.ssubom.domain.user.service.CustomOauth2UserService;
@@ -41,6 +44,7 @@ public class SecurityConfig {
     private final RefreshRepository refreshRepository;
     private final UserRepository userRepository;
     private final CookieUtil cookieUtil;
+    private final AdminRepository adminRepository;
     @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
 
@@ -50,7 +54,10 @@ public class SecurityConfig {
         hierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
         return hierarchy;
     }
-
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
@@ -79,7 +86,7 @@ public class SecurityConfig {
         http.httpBasic(auth->auth.disable());
 
         http.
-                addFilterAfter(new JWTFilter(jwtUtil,userRepository), OAuth2LoginAuthenticationFilter.class);
+                addFilterAfter(new JWTFilter(jwtUtil,userRepository,adminRepository), OAuth2LoginAuthenticationFilter.class);
 
         http.
                 addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository,cookieUtil), LogoutFilter.class);
@@ -110,6 +117,7 @@ public class SecurityConfig {
                         .requestMatchers("/","/login","/join","/api/logout","/api/oauth2-jwt-header","/api/reissue","/api/categories/**","/api/home").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/posts").permitAll()
+                        .requestMatchers("/api/admin/manage/login").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/unregister").hasRole("USER")
                         .requestMatchers("/api/me").hasRole("USER")

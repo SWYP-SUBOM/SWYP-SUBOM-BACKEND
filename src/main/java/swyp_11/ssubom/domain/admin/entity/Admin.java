@@ -24,6 +24,7 @@ public class Admin {
     @Column(nullable = false)
     private String role;
 
+    @Column(name = "is_2fa_enabled")
     private boolean is2faEnabled;
 
     private String totpSecret;

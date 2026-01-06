@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 public class Admin {
 
     @Id
-    @GeneratedValue
-    private Long amdinId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long adminId;
 
     @Column(unique = true ,nullable = false)
     private String email;
@@ -24,6 +24,7 @@ public class Admin {
     @Column(nullable = false)
     private String role;
 
+    @Column(name = "is_2fa_enabled")
     private boolean is2faEnabled;
 
     private String totpSecret;

@@ -15,11 +15,9 @@ public class JWTUtil {
 
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
-        System.out.println("SecretKey initialized: " + secretKey);
     }
 
     public String createJWT(String category , String principal , String role , Long expiredMs) {
-        System.out.println("Creating JWT with category: " + category + ", principal: " + principal + ", role: " + role + ", expiredMs: " + expiredMs);
          String jwt = Jwts.builder()
                 .claim("category",category)
                 .claim("principal",principal)

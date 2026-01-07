@@ -31,7 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService{
-    private static final long TIMEOUT = 1000L * 60 * 10; // 10분
+    //private static final long TIMEOUT = 1000L * 60 * 10; // 10분
+    private static final long TIMEOUT = 1000L * 60 * 3; // 3분
 
     private final NotificationRepository notificationRepository;
     private final ReactionRepository reactionRepository;

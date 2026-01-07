@@ -4,13 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.topic.entity.Category;
-import swyp_11.ssubom.domain.topic.entity.TopicGeneration;
 import swyp_11.ssubom.domain.topic.repository.CategoryRepository;
 import swyp_11.ssubom.domain.topic.repository.TopicGenerationRepository;
-import swyp_11.ssubom.global.error.BusinessException;
-import swyp_11.ssubom.global.error.ErrorCode;
+
 
 import java.util.List;
 
@@ -21,17 +18,13 @@ public class AsyncTopicGenerationWorker {
     private final TopicGenerationRepository topicGenerationRepository;
     private final CategoryRepository categoryRepository;
     private final TopicService topicService;
+    private final TopicStatusService statusService;
 
     @Async
-    @Transactional
     public void generate(Long generationId){
-        TopicGeneration tg = topicGenerationRepository.findById(generationId)
-                .orElseThrow(()->new BusinessException(ErrorCode.TOPICGENERATIONID_NOT_FOUND));
 
         try {
             List<Category> categories = categoryRepository.findAll();
-
-
             boolean hasError = false;
             StringBuilder errorMessage = new StringBuilder();
 
@@ -40,17 +33,19 @@ public class AsyncTopicGenerationWorker {
                     topicService.generateTopicsForCategory(category.getId());
                 } catch (Exception e) {
                     hasError = true;
-                    errorMessage.append(" [카테고리- ").append(category.getName()).append(" 에러 : ]").append(e.getMessage()).append("\n");
+                    errorMessage.append(" [카테고리-").append(category.getName()).append("에러]").append(e.getMessage()).append("\n");
                     log.error("카테고리 {} 토픽 생성실패 ", category.getName(), e);
                 }
             }
+            // 별도 트랜잭션 사용 수정
             if (hasError) {
-                tg.completeWithErrors(errorMessage.toString());
+                statusService.updateToCompleteWithErrors(generationId, errorMessage.toString());
             } else {
-                tg.complete();
+                statusService.updateToSuccess(generationId);
             }
         }catch (Exception e){
-            tg.fail("시스템 오류 : "+e.getMessage());
+            log.error("비동기 작업 중  시스템 오류", e);
+            statusService.updateToFail(generationId, e.getMessage());
         }
     }
 }

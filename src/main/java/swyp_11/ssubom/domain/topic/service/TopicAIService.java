@@ -75,14 +75,13 @@ public class TopicAIService {
                         .effort("none")
                         .build()
                 )
-                .temperature(0.7)
+                .temperature(0.78)
                 .maxCompletionTokens(5000)
                 .topP(0.8)
                 .build();
 
         // 요청 JSON 로깅용
         String requestJson = writeJson(requestDto);
-        log.info("[Topic Clova Request] {}", requestJson);
 
         // 2. 클로바 호출
         String rawResponse = clovaWebClient.post()
@@ -92,7 +91,8 @@ public class TopicAIService {
                 .bodyToMono(String.class)
                 .block();
 
-        log.info("[Topic Clova Response Raw] {}", rawResponse);
+//        log.info("[Topic Clova Response Raw] {}", rawResponse);
+
         ClovaApiResponseDto apiResponse = readJson(rawResponse, ClovaApiResponseDto.class);
 
         if (!apiResponse.isSuccess()) {
@@ -142,7 +142,7 @@ public class TopicAIService {
     public List<Double> getEmbedding(String text){
         // 429 TOO_MANY_REQUESTS 방지
         try {
-            Thread.sleep(250);  // 0.25초 딜레이
+            Thread.sleep(200);  // 딜레이
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -156,8 +156,6 @@ public class TopicAIService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-
-        log.info("Embedding raw data: {}", raw);
 
         EmbeddingApiResponseDto response;
         // wrapper 파싱
@@ -177,6 +175,5 @@ public class TopicAIService {
         }
         return vector;
     }
-
 
 }

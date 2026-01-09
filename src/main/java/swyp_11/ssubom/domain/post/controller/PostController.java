@@ -219,17 +219,18 @@ public class PostController {
     }
 
     @Operation(
-            summary = "피드 전체 조회 API",
+            summary = "피드 조회 API",
             description = """
-                카테고리 별로 feed를 조회합니다.
+                오늘 카테고리 별로 feed를 조회 , 과거 주제에 대한 피드조회
             """
     )
     @GetMapping
     public ResponseEntity<ApiResponse<PostListResponseDto>> getPostListByCategoryId(
             @RequestParam(name = "categoryId",defaultValue = "1") Long categoryId,
             @RequestParam(required = false) LocalDateTime curUpdatedAt,
-            @RequestParam(required = false) Long curPostId) {
-        PostListResponseDto responseDto = postService.getPostList(categoryId,curUpdatedAt,curPostId);
+            @RequestParam(required = false) Long curPostId,
+            @RequestParam(required = false) Long topicId) {
+        PostListResponseDto responseDto = postService.getPostList(categoryId,curUpdatedAt,curPostId,topicId);
         return ResponseEntity.ok(ApiResponse.success(responseDto,"F0002","글 리스트 조회에 성공했습니다."));
     }
 }

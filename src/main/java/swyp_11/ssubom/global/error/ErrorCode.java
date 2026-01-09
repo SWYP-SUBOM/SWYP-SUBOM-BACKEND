@@ -44,6 +44,8 @@ public enum ErrorCode {
     NO_AVAILABLE_TOPIC(HttpStatus.NOT_FOUND, "T003", "사용 가능한 주제가 없습니다."),
     DUPLICATE_TOPIC_NOT_ALLOWED(HttpStatus.BAD_REQUEST,"T004", "이미 비슷한 주제가 있습니다"),
     TOPICGENERATIONID_NOT_FOUND(HttpStatus.NOT_FOUND, "T005", "카테고리 생성 작업을 찾을 수없습니다."),
+    DUPLICATE_TOPIC_DATE(HttpStatus.CONFLICT, "T006", "해당 날짜와 카테고리에 이미 등록된 질문이 존재합니다."),
+
     // Writing errors (API 명세 기반)
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "글을 찾을 수 없습니다."),
     INVALID_STATUS_TRANSITION(HttpStatus.BAD_REQUEST, "P002", "유효하지 않은 글 상태 변경입니다."),

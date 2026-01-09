@@ -260,9 +260,16 @@ public class TopicService {
     public void updateReservation(Long topicId, LocalDate usedAt) {
         Topic topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
+
         // usedAt != null  예약
         // usedAt == null  예약 취소 (자동 픽 대상)
-        topic.reserveAt(usedAt);
+        Optional<Topic> checkTopic = topicRepository.findByUsedAtAndCategory_Id(usedAt,topic.getCategory().getId());
+        if(checkTopic==null){
+            topic.reserveAt(usedAt);
+        }
+       else{
+           throw new BusinessException(ErrorCode.DUPLICATE_TOPIC_DATE);
+        }
     }
 
     @Transactional

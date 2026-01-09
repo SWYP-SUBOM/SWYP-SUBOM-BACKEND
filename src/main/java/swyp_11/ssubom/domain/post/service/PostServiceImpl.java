@@ -1,6 +1,7 @@
 package swyp_11.ssubom.domain.post.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -174,17 +176,24 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostListResponseDto getPostList(Long categoryId,LocalDateTime cursorUpdatedAt,Long cursorPostId) {
+    public PostListResponseDto getPostList(Long categoryId,LocalDateTime cursorUpdatedAt,Long cursorPostId,Long topicId) {
+        LocalDate targetDay;
+        if (topicId != null) {
+            Topic requestTopic = topicRepository.findById(topicId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
+            targetDay = requestTopic.getUsedAt();
+        } else {
+            targetDay = LocalDate.now();
+        }
 
-        LocalDate today = LocalDate.now();
-        Topic topic = topicRepository.findByUsedAtAndCategory_Id(today,categoryId)
+        Topic topic = topicRepository.findByUsedAtAndCategory_Id(targetDay,categoryId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
 
-        Long topicId = topic.getId();
+        Long tid = topic.getId();
 
         int limit = DEFAULT_PAGE_SIZE;
         List<Post> posts = postRepository.findPostsForInfiniteScroll(
-                topicId,
+                tid,
                 cursorUpdatedAt,
                 cursorPostId,
                 limit

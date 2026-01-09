@@ -25,7 +25,7 @@ public class TopicGenerationService {
     private final TopicGenerationRepository topicGenerationRepository;
     private final AsyncTopicGenerationWorker asyncWorker;
 
-    @Scheduled(cron = "30 26 0 * * *", zone="Asia/Seoul")
+    @Scheduled(cron = "0 0 0 * * *", zone="Asia/Seoul")
     public void dailyPick() {
         for(Long id=1L;id<=5;id++){
             topicService.ensureTodayPicked(id);

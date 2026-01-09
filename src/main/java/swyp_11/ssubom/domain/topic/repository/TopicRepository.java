@@ -25,7 +25,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     //예약된 게 없을 때 사용 안된 것 하나 선택하기
     @Query(value = """
-        select * from sseobom.topic
+        select * from seobom.topic
         where category_id = :categoryId
         and is_used = false 
         and topic_status='APPROVED'

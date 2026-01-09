@@ -1,16 +1,18 @@
 package swyp_11.ssubom.global.error;
 
-import org.springframework.validation.BindingResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import swyp_11.ssubom.global.response.ApiResponse;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import swyp_11.ssubom.global.response.ApiResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +21,22 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * SSE Timeout - 정상 동작
+     */
+    @ExceptionHandler(AsyncRequestTimeoutException.class)
+    public void handleAsyncTimeout(AsyncRequestTimeoutException e) {
+        log.info("----------------- [sse timeout] ---------------------");
+    }
+
+    /**
+     * SSE 클라이언트 연결 끊김 - 정상 동작
+     */
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleAsyncNotUsable(AsyncRequestNotUsableException e) {
+        log.info("------------------ [사용자의 페이지 이탈 : sse 연결 끊김] --------------------");
+    }
 
     // 1. businessException 처리
     @ExceptionHandler(BusinessException.class)
@@ -29,7 +47,6 @@ public class GlobalExceptionHandler {
         ApiResponse<?> apiResponse = ApiResponse.error(errorCode);
         return new ResponseEntity<>(apiResponse, errorCode.getHttpStatus());
     }
-
 
     // 2. @Valid 유효성 검사 실패 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -20,7 +20,7 @@ public interface PostService {
 
     PostDetailResponse getPostDetail(CustomOAuth2User user, Long postId);
 
-    PostListResponseDto getPostList(Long categoryId,LocalDateTime cursorUpdatedAt,Long cursorPostId);
+    PostListResponseDto getPostList(Long categoryId,LocalDateTime cursorUpdatedAt,Long cursorPostId,Long topicId);
 
 
 

@@ -84,6 +84,7 @@ public class TopicService {
 
     public TopicListResponse getAll(Long categoryId, String sort) {
         List<Topic> topics;
+        log.info("⭐⭐⭐⭐Requested sort: {}", sort);
         if(sort.equals("latest")){
              topics = topicRepository.findTop30ByCategoryIdAndIsUsedTrueOrderByUsedAtDesc(categoryId);
         }

@@ -1,7 +1,6 @@
 package swyp_11.ssubom.domain.post.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -27,8 +26,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -83,12 +82,12 @@ public class PostServiceImpl implements PostService {
             throw new BusinessException(ErrorCode.FORBIDDEN_WRITING_MODIFICATION);
         }
 
+        PostStatus prevStatus = post.getStatus();
         PostStatus nextStatus = request.getStatus();
-        post.update(nextStatus, request.getContent());
-
-        if (nextStatus == PostStatus.PUBLISHED) {
+        if (prevStatus == PostStatus.DRAFT && nextStatus == PostStatus.PUBLISHED) {
             recordStreakProgress(post.getUser());
         }
+        post.update(nextStatus, request.getContent());
 
         return PostUpdateResponse.of(post);
     }
@@ -103,20 +102,14 @@ public class PostServiceImpl implements PostService {
         LocalDate today = LocalDate.now();
 
         Streak streak = streakRepository.findByUser(user)
-                .orElseGet(() -> streakRepository.save(Streak.create(user)));
+                .orElseGet(() -> streakRepository.save(Streak.empty(user)));
+        streak.increaseDaily();
 
-        boolean hasPostedToday = postRepository.existsByUser_UserIdAndStatusAndUpdatedAtBetween(
-                user.getUserId(), PostStatus.PUBLISHED,
-                today.atStartOfDay(), today.atTime(LocalTime.MAX)
-        );
-        streak.increaseDaily(hasPostedToday);
-
-        LocalDate startOfWeek = today.with(DayOfWeek.SUNDAY);
-        LocalDate endOfWeek = startOfWeek.plusDays(6);
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));        LocalDate endOfWeek = startOfWeek.plusDays(6);
         long weeklyPostCount = postRepository.countByUser_UserIdAndStatusAndUpdatedAtBetween(
                 user.getUserId(), PostStatus.PUBLISHED,
                 startOfWeek.atStartOfDay(), endOfWeek.atTime(LocalTime.MAX)
-        );
+        ) + 1;
         streak.updateWeeklyChallenge(weeklyPostCount);
     }
 

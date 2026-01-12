@@ -34,14 +34,6 @@ public class Streak extends BaseTimeEntity {
         this.user = user;
     }
 
-    public static Streak create(User user) {
-        return Streak.builder()
-                .user(user)
-                .streakCount(1L)
-                .weeklyChallengeCount(0L)
-                .build();
-    }
-
     public static Streak empty(User user) {
         return Streak.builder()
                 .user(user)
@@ -50,12 +42,12 @@ public class Streak extends BaseTimeEntity {
                 .build();
     }
 
-    public void increaseDaily(boolean alreadyPostedToday) {
-        if (!alreadyPostedToday) this.streakCount++;
+    public void increaseDaily() {
+        this.streakCount++;
     }
 
     public void updateWeeklyChallenge(long publishedCountThisWeek) {
-        if (publishedCountThisWeek >= 5) this.weeklyChallengeCount++;
+        if (publishedCountThisWeek == 5) this.weeklyChallengeCount++;
     }
 
     public void resetMonthly() {

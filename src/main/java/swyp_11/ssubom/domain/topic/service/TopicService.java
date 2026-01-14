@@ -264,7 +264,7 @@ public class TopicService {
         // usedAt != null  예약
         // usedAt == null  예약 취소 (자동 픽 대상)
         Optional<Topic> checkTopic = topicRepository.findByUsedAtAndCategory_Id(usedAt,topic.getCategory().getId());
-        if(checkTopic==null){
+        if(checkTopic.isEmpty()){
             topic.reserveAt(usedAt);
         }
        else{

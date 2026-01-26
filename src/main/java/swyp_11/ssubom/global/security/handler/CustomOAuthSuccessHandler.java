@@ -53,8 +53,8 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             username =customOAuth2User.getName();
         }
 
-        //refresh
-        Integer expireS = 24 * 60 * 60; // 24시간
+
+        Integer expireS = 2 * 24 * 60 * 60; // 2*24시간
 
         String access = jwtUtil.createJWT("accessToken", kakaoId, role,  60 * 60 *1000L);
         String refresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expireS*1000L);

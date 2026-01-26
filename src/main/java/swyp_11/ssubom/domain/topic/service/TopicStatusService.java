@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TopicStatusService {
     private final TopicGenerationRepository repository;
 
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW) // 새 트랜잭션 강제 생성
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateToSuccess(Long id) {
         repository.findById(id).ifPresent(TopicGeneration::complete);
     }

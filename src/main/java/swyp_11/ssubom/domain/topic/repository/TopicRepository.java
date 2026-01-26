@@ -14,7 +14,10 @@ import java.util.Optional;
 
 public interface TopicRepository extends JpaRepository<Topic, Long> {
     //중복확인
-    Optional<Topic> findByCategory_IdAndIsUsedTrueAndUsedAt(Long categoryId, LocalDate usedAt);
+
+    @Query("SELECT t FROM Topic t JOIN FETCH t.category " +
+            "WHERE t.category.id = :categoryId AND t.isUsed = true AND t.usedAt = :usedAt")
+    Optional<Topic> findByCategory_IdAndIsUsedTrueAndUsedAt(@Param("categoryId") Long categoryId, @Param("usedAt") LocalDate usedAt);
 
     //관리자 페이지 ) 이미 할당 완료한 경우
     @Query("SELECT t FROM Topic t " +

@@ -42,12 +42,12 @@ public class TopicService {
     public Optional<Topic> ensureTodayPicked(Long categoryId) {
         LocalDate today = LocalDate.now(KST);
 
-        //0. 이미 오늘 할당이 완료된 경우
+        // 불러오는데 이미 오늘 할당이 완료된 경우
         Optional<Topic> existing = topicRepository.findByCategory_IdAndIsUsedTrueAndUsedAt(categoryId, today);
         if(existing.isPresent()) {
             return existing;
         }
-        //1순위
+        //처리 1순위
         Optional<Topic> reserved = topicRepository.findReservedTopic(categoryId,today);
             Topic targetTopic;
             if(reserved.isPresent()){
@@ -57,29 +57,39 @@ public class TopicService {
                 } //isUsed = ture처리
                 return Optional.of(targetTopic);
             }
-
-        // 2순위
+        //처리 2순위
         Topic topic =topicRepository.lockOneUnused(categoryId);
 
         //할당할 수 있는 주제가 없음
         if (topic == null) {
             throw new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC);
         }
+
         topic.use(today);
         return Optional.of(topic);
     }
 
     @Transactional
-    public Optional<TodayTopicResponseDto> ensureTodayPickedDto(Long categoryId) {
-        return ensureTodayPicked(categoryId).map(t ->
-                TodayTopicResponseDto.of(
-                        t.getCategory().getName(),
-                        t.getName(),
-                        t.getCategory().getId(),
-                        t.getId(),
-                        t.getTopicType()
-                )
-        );
+    public TodayTopicListResponseDto ensureTodayPickedDto() {
+        List<Category> categories = categoryRepository.findAll();
+
+        //각 카테고리별로 "오늘의 주제" 확정
+        List<TodayTopicResponseDto> topics = categories.stream()
+                .map(category -> {
+                    Topic t = ensureTodayPicked(category.getId()).orElseThrow(()
+                    ->new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC));
+                    // 이미 조회한 category 객체 정보 매핑
+                    return TodayTopicResponseDto.of(
+                           category.getName(),
+                           t.getName(),
+                           category.getId(),
+                           t.getId(),
+                           t.getTopicType()
+                    );
+                        })
+                .collect(Collectors.toList());
+
+        return TodayTopicListResponseDto.from(topics);
     }
 
     public TopicListResponse getAll(Long categoryId, String sort) {

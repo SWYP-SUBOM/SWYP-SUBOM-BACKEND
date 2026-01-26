@@ -26,21 +26,12 @@ import swyp_11.ssubom.global.response.ApiResponse;
 @RequiredArgsConstructor
 public class CategoryController {
     private final TopicService topicService;
-    private final TopicGenerationService topicGenerationService;
-    @Operation(
-            summary = "카테고리 오늘의 질문 조회 API",
-            description = """
-                오늘의 질문을 반환한다.
-            """,
-            parameters = {
-                    @Parameter(name = "categoryId", in = ParameterIn.PATH, required = true, description = "카테고리 ID", example = "1")
-            }
-    )
-    @GetMapping("/categories/{categoryId}/question")
-    public ApiResponse<TodayTopicResponseDto> getCategoryQuestion(@PathVariable("categoryId") Long categoryId) {
-        TodayTopicResponseDto dto =topicService.ensureTodayPickedDto(categoryId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
-        return ApiResponse.success(dto,"S200","질문 조회 성공");
+
+    @Operation(summary = "카테고리 오늘의 질문 전체조회 API")
+    @GetMapping("/categories/questions")
+    public ApiResponse<TodayTopicListResponseDto> getCategoryQuestion() {
+       TodayTopicListResponseDto response = topicService.ensureTodayPickedDto();
+        return ApiResponse.success(response,"S200","질문 조회 성공");
     }
 
     @Operation(

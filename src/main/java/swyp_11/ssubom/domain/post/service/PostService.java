@@ -2,12 +2,9 @@ package swyp_11.ssubom.domain.post.service;
 
 
 import swyp_11.ssubom.domain.post.dto.*;
-import swyp_11.ssubom.domain.post.entity.Post;
-import swyp_11.ssubom.domain.topic.entity.Topic;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface PostService {
     PostCreateResponse createPost(Long userId, PostCreateRequest request);
@@ -22,7 +19,5 @@ public interface PostService {
 
     PostListResponseDto getPostList(Long categoryId,LocalDateTime cursorUpdatedAt,Long cursorPostId,Long topicId);
 
-
-
-
+    PostSummaryDto getPopularPostToday();
 }

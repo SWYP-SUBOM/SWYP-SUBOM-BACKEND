@@ -7,15 +7,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import swyp_11.ssubom.domain.post.dto.*;
 import swyp_11.ssubom.domain.post.service.PostReadServiceImpl;
-import swyp_11.ssubom.domain.post.service.ReactionService;
-import swyp_11.ssubom.global.response.ApiResponse;
 import swyp_11.ssubom.domain.post.service.PostService;
+import swyp_11.ssubom.domain.post.service.ReactionService;
 import swyp_11.ssubom.domain.user.dto.CustomOAuth2User;
+import swyp_11.ssubom.global.response.ApiResponse;
 
 import java.time.LocalDateTime;
 
@@ -232,5 +232,18 @@ public class PostController {
             @RequestParam(required = false) Long topicId) {
         PostListResponseDto responseDto = postService.getPostList(categoryId,curUpdatedAt,curPostId,topicId);
         return ResponseEntity.ok(ApiResponse.success(responseDto,"F0002","글 리스트 조회에 성공했습니다."));
+    }
+
+    @Operation(
+            summary = "오늘의 인기 글 조회 API",
+            description = """
+                당일 업로드 된 피드 중 인기 점수가 가장 높은 피드 1개 응답
+                점수 = 조회수 + 반응 수
+            """
+    )
+    @GetMapping("/popular")
+    public ResponseEntity<ApiResponse<PostSummaryDto>> getPostListByCategoryId() {
+        PostSummaryDto responseDto = postService.getPopularPostToday();
+        return ResponseEntity.ok(ApiResponse.success(responseDto,"P0007","오늘의 인기 글 조회에 성공했습니다."));
     }
 }

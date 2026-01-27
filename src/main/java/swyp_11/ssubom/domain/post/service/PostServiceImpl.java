@@ -217,4 +217,25 @@ public class PostServiceImpl implements PostService {
         return PostListResponseDto.from(topic,postSummaryDtos,nextUpdatedAt, nextPostId, hasMore);
     }
 
+    @Override
+    public PostSummaryDto getPopularPostToday() {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        Long popularPostId = postRepository.findTodayPopularPostId(startOfDay, endOfDay)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+
+        Post post = postRepository.findById(popularPostId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+
+        long reactionCount = post.getReactions().size();
+        long viewCount = post.getPostViews().size();
+
+        return PostSummaryDto.of(
+                post,
+                post.getAiFeedback(),
+                reactionCount,
+                viewCount
+        );
+    }
 }

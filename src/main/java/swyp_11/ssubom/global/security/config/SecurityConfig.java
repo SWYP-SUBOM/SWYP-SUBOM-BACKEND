@@ -118,6 +118,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/posts").permitAll()
                         .requestMatchers("/api/admin/manage/login").permitAll()
+                        .requestMatchers("/api/posts/popular").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/unregister").hasRole("USER")
                         .requestMatchers("/api/me").hasRole("USER")

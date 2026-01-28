@@ -16,9 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import swyp_11.ssubom.domain.admin.repository.AdminRepository;
@@ -29,6 +27,7 @@ import swyp_11.ssubom.global.security.handler.CustomOAuthSuccessHandler;
 import swyp_11.ssubom.global.security.jwt.CustomLogoutFilter;
 import swyp_11.ssubom.global.security.jwt.JWTFilter;
 import swyp_11.ssubom.global.security.jwt.JWTUtil;
+import swyp_11.ssubom.global.security.jwt.JwtAuthenticationEntryPoint;
 import swyp_11.ssubom.global.security.util.CookieUtil;
 
 import java.util.List;
@@ -47,6 +46,7 @@ public class SecurityConfig {
     private final AdminRepository adminRepository;
     @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public RoleHierarchy roleHierarchy() {
@@ -91,16 +91,9 @@ public class SecurityConfig {
         http.
                 addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository,cookieUtil), LogoutFilter.class);
 
-        // 미인증 클라이언트(swagger 등)
-        http
-                .exceptionHandling(exceptions -> exceptions
-                        // '/api/**' 경로로 오는 인증되지 않은 요청은
-                        // 로그인 페이지 리디렉션 대신 401 Unauthorized 에러를 반환
-                        .defaultAuthenticationEntryPointFor(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                                new AntPathRequestMatcher("/api/**")
-                        )
-                );
+        http.exceptionHandling(ex->
+                // 1. 기본적으로 커스텀 entryPoint 사용
+                ex.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         http.
                 oauth2Login((oauth2)->oauth2

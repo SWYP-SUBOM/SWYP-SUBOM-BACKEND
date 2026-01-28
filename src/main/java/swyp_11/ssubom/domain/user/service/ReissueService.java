@@ -5,6 +5,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReissueService {
     private final JWTUtil jwtUtil;
     private final CookieUtil cookieUtil;
@@ -60,6 +62,8 @@ public class ReissueService {
         String newAccess = jwtUtil.createJWT("accessToken", kakaoId, role,  60 * 60 *1000L);
         int expiredS = 60 * 60 * 24;
         String newRefresh = jwtUtil.createJWT("refreshToken", kakaoId, role, expiredS*1000L);
+
+        log.info("acccessToken 재발급 user : " + kakaoId);
 
         refreshRepository.deleteByRefreshValue(refresh);
         refreshTokenService.saveRefresh(kakaoId,newRefresh,expiredS);

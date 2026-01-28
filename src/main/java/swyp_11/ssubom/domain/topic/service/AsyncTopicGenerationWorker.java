@@ -33,7 +33,7 @@ public class AsyncTopicGenerationWorker {
                     topicService.generateTopicsForCategory(category.getId());
                 } catch (Exception e) {
                     hasError = true;
-                    errorMessage.append(" [카테고리-").append(category.getName()).append("에러]").append(e.getMessage()).append("\n");
+                    errorMessage.append(" [카테고리-").append(category.getName()).append("에러 ]").append(e.getMessage()).append("\n");
                     log.error("카테고리 {} 토픽 생성실패 ", category.getName(), e);
                 }
             }

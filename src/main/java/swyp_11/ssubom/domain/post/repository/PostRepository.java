@@ -39,4 +39,12 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
             @Param("startOfDay") LocalDateTime startOfDay,
             @Param("endOfDay") LocalDateTime endOfDay
     );
+
+    @Query("SELECT DISTINCT p.user.userId FROM Post p " +
+            "WHERE p.createdAt BETWEEN :startDate AND :endDate " +
+            "AND p.status = 'PUBLISHED'")
+    List<Long> findUserIdsWhoWroteBetween(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
 }

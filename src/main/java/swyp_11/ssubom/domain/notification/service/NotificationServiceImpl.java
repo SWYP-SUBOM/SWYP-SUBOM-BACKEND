@@ -35,6 +35,7 @@ public class NotificationServiceImpl implements NotificationService{
 
     private final NotificationRepository notificationRepository;
     private final ReactionRepository reactionRepository;
+    private final FcmService fcmService;
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     /**
@@ -138,7 +139,7 @@ public class NotificationServiceImpl implements NotificationService{
     }
 
     /**
-     * 새 알림 전송
+     * 새 알림 전송(sse + fcm)
      */
     private void sendNotificationAfterCommit(Notification notification) {
         Long userId = notification.getReceiver().getUserId();
@@ -155,6 +156,26 @@ public class NotificationServiceImpl implements NotificationService{
             log.info("[알림 전송] → userId={}, postId={}, unreadCount={}",
                     userId, notification.getPost().getPostId(), unreadCount);
         }
+
+        try {
+            String content = buildNotificationContent(notification);
+
+            fcmService.sendPushNotification(userId, content);
+            log.info("[FCM 푸시 전송] → userId={}, postId={}",
+                    userId, notification.getPost().getPostId());
+        } catch (Exception e) {
+            log.error("[FCM 푸시 전송 실패] userId={}", userId, e);
+        }
+    }
+
+    /**
+     * 푸시 알림 내용 생성
+     */
+    private String buildNotificationContent(Notification notification) {
+        long count = notification.getActorCount();
+        String reactionName = notification.getReactionType().getName();
+
+        return String.format("%d명이 %s 반응을 남겼어요!", count, reactionName);
     }
 
     private Map<String, Object> toDto(Notification notification) {

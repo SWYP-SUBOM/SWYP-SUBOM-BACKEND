@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -116,6 +115,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/unregister").hasRole("USER")
                         .requestMatchers("/api/me").hasRole("USER")
                         .requestMatchers("/api/posts/**").hasRole("USER")
+                        .requestMatchers("/api/fcm/**").hasRole("USER")
                         .requestMatchers("/api/notifications").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/notifications/stream").authenticated()
 

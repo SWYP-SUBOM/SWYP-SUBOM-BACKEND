@@ -5,6 +5,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import swyp_11.ssubom.domain.user.entity.User;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByKakaoId(String kakaoId);
@@ -12,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Transactional
     void deleteByKakaoId(String kakaoId);
+
+    List<User> findAllByIsDeletedFalse();
 }

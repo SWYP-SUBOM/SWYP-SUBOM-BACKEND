@@ -50,6 +50,10 @@ public class Streak extends BaseTimeEntity {
         if (publishedCountThisWeek == 5) this.weeklyChallengeCount++;
     }
 
+    public void resetStreakCount() {
+        this.streakCount = 0L;
+    }
+
     public void resetMonthly() {
         this.weeklyChallengeCount = 0L;
     }

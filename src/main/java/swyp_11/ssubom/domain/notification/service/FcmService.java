@@ -3,7 +3,6 @@ package swyp_11.ssubom.domain.notification.service;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,7 +46,7 @@ public class FcmService {
         log.info("FCM token deactivated - userId: {}", userId);
     }
 
-    public void sendPushNotification(Long userId, String content) {
+    public void sendPushNotification(Long userId, String title, String body) {
         List<FcmToken> tokens = fcmTokenRepository.findByUserIdAndIsActiveTrue(userId);
 
         if (tokens.isEmpty()) {
@@ -56,7 +55,7 @@ public class FcmService {
         }
 
         tokens.forEach(fcmToken -> {
-            boolean success = sendWithRetry(fcmToken, content);
+            boolean success = sendWithRetry(fcmToken, title, body);
 
             if (!success) {
                 log.error("Failed to send push after {} retries - userId: {}, token: {}",
@@ -68,10 +67,10 @@ public class FcmService {
     /**
      * 재시도 로직을 포함한 푸시 전송
      */
-    private boolean sendWithRetry(FcmToken fcmToken, String content) {
+    private boolean sendWithRetry(FcmToken fcmToken, String title, String body) {
         for (int attempt = 1; attempt <= MAX_RETRY_COUNT; attempt++) {
             try {
-                sendToToken(fcmToken.getToken(), content);
+                sendToToken(fcmToken.getToken(), title, body);
 
                 if (attempt > 1) {
                     log.info("Push sent successfully on attempt {}/{}", attempt, MAX_RETRY_COUNT);
@@ -115,15 +114,13 @@ public class FcmService {
         fcmTokenRepository.save(fcmToken);
     }
 
-    private void sendToToken(String token, String content)
+    private void sendToToken(String token, String title, String body)
             throws FirebaseMessagingException {
 
         Message message = Message.builder()
                 .setToken(token)
-                .setNotification(Notification.builder()
-                        .setTitle(content)
-                        .setBody(content)
-                        .build())
+                .putData("title", title)
+                .putData("body", body)
                 .putData("timestamp", String.valueOf(System.currentTimeMillis()))
                 .build();
 

@@ -45,7 +45,8 @@ public class PushNotificationScheduler {
             try {
                 fcmService.sendPushNotification(
                         user.getUserId(),
-                        "오늘의 주제가 열렸어요!\n써봄과 함께 사고력 훈련하러 가볼까요?"
+                        "오늘의 주제가 열렸어요!",
+                        "써봄과 함께 사고력 훈련하러 가볼까요?"
                 );
                 sentCount++;
             } catch (Exception e) {

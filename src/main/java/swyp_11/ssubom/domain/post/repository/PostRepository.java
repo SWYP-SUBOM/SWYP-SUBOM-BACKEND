@@ -47,4 +47,15 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate
     );
+
+    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
+            "FROM Post p " +
+            "WHERE p.user.userId = :userId " +
+            "AND p.status = 'PUBLISHED'" +
+            "AND p.createdAt BETWEEN :startDate AND :endDate")
+    boolean existsByUserIdAndPublishedTrueAndCreatedAtBetween(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
 }

@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import swyp_11.ssubom.domain.post.repository.PostRepository;
 import swyp_11.ssubom.domain.user.entity.Streak;
 import swyp_11.ssubom.domain.user.repository.StreakRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -17,6 +19,7 @@ import java.util.List;
 public class StreakScheduler {
 
     private final StreakRepository streakRepository;
+    private final PostRepository postRepository;
 
     /**
      * 매달 1일 00시 정각에 모든 유저의 challengerCount 초기화
@@ -28,5 +31,40 @@ public class StreakScheduler {
         allStreaks.forEach(Streak::resetMonthly);
         streakRepository.saveAll(allStreaks);
         log.info("[{}] 기준으로 총 {}명의 사용자의 챌린저 카운트를 초기화했습니다.", LocalDate.now(), allStreaks.size());
+    }
+
+    /**
+     * 매일 00시 정각에 전날 글 발행하지 않은 유저의 Streak 삭제
+     */
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteStreakIfNoPublishedYesterday() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDateTime startOfYesterday = yesterday.atStartOfDay();
+        LocalDateTime endOfYesterday = yesterday.atTime(23, 59, 59);
+
+        List<Streak> allStreaks = streakRepository.findAll();
+        int deletedCount = 0;
+
+        for (Streak streak : allStreaks) {
+            Long userId = streak.getUser().getUserId();
+
+            // 전날 PUBLISHED 된 글이 있는지 확인
+            boolean hasPublishedYesterday = postRepository
+                    .existsByUserIdAndPublishedTrueAndCreatedAtBetween(
+                            userId,
+                            startOfYesterday,
+                            endOfYesterday
+                    );
+
+            if (!hasPublishedYesterday) {
+                streakRepository.delete(streak);
+                deletedCount++;
+                log.debug("Streak 삭제 - userId: {}, 전날 발행 글 없음", userId);
+            }
+        }
+
+        log.info("[{}] 전날 글 미발행으로 총 {}명의 Streak을 삭제했습니다.",
+                LocalDate.now(), deletedCount);
     }
 }

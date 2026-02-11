@@ -160,7 +160,7 @@ public class NotificationServiceImpl implements NotificationService{
         try {
             String content = buildNotificationContent(notification);
 
-            fcmService.sendPushNotification(userId, content);
+            fcmService.sendPushNotification(userId, "", content);
             log.info("[FCM 푸시 전송] → userId={}, postId={}",
                     userId, notification.getPost().getPostId());
         } catch (Exception e) {

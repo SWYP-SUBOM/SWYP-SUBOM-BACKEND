@@ -24,9 +24,7 @@ public class PushNotificationScheduler {
      * 매일 오전 9시에 실행
      * cron: 초 분 시 일 월 요일
      */
-//    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
-    // test용 3분에 한 번 실행
-    @Scheduled(fixedRate = 180000)
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
     public void sendDailyWritingReminder() {
         log.info("=== Push notification started ===");
 

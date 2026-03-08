@@ -1,51 +1,84 @@
 <configuration>
+    <!-- 애플리케이션 기본 정보 -->
     <springProperty scope="context" name="appName" source="spring.application.name"/>
+    <springProperty scope="context" name="appVersion" source="spring.application.version" defaultValue="unknown"/>
+    <springProperty scope="context" name="activeProfile" source="spring.profiles.active" defaultValue="local"/>
 
+    <!-- ==== STDOUT (공통, 모든 환경) ==== -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%ex{7}</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-NO_TRACE}] %logger{36} - %msg%n%ex{7}</pattern>
         </encoder>
     </appender>
 
+    <!-- 외부 라이브러리 노이즈 억제 (공통) -->
+    <logger name="org.springframework"          level="info"/>
+    <logger name="org.springframework.security" level="warn"/>
+    <logger name="org.hibernate"                level="warn"/>
+    <logger name="org.hibernate.validator"      level="warn"/>
+    <logger name="org.apache.tomcat"            level="warn"/>
+    <logger name="org.apache.catalina"          level="warn"/>
+    <logger name="org.apache.coyote"            level="warn"/>
+    <logger name="io.micrometer"                level="warn"/>
+    <logger name="org.springdoc"                level="warn"/>
+    <logger name="com.zaxxer.hikari"            level="warn"/>
+
+    <!-- 공통 ROOT -->
     <root level="info">
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <springProfile name="dev">
-        <logger name="swyp_11.ssubom" level="debug" additivity="false">
-            <appender-ref ref="STDOUT"/>
-        </logger>
-
-        <logger name="org.springframework" level="info"/>
-        <logger name="org.springframework.boot" level="info"/>
-        <logger name="org.springframework.web" level="info"/>
-        <logger name="org.springframework.security" level="warn"/>
-        <logger name="org.hibernate" level="warn"/>
-        <logger name="org.hibernate.validator" level="warn"/>
-        <logger name="org.apache.tomcat" level="warn"/>
-        <logger name="org.apache.catalina" level="warn"/>
-        <logger name="org.apache.coyote" level="warn"/>
-        <logger name="org.jboss" level="warn"/>
-        <logger name="sun.rmi" level="warn"/>
-        <logger name="io.micrometer" level="warn"/>
-        <logger name="org.springdoc" level="warn"/>
+    <!-- local profile -->
+    <springProfile name="local">
+        <logger name="org.hibernate.orm.jdbc.bind" level="trace"/>
     </springProfile>
 
+    <!-- prod profile -->
     <springProfile name="prod">
         <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>logs/${appName:-ssubom}.json</file>
+            <file>/apps/logs/${appName}.json</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                <fileNamePattern>logs/archived/${appName:-ssubom}-%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
+                <fileNamePattern>/apps/logs/archived/${appName}-%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
                 <maxFileSize>10MB</maxFileSize>
                 <maxHistory>30</maxHistory>
                 <totalSizeCap>1GB</totalSizeCap>
             </rollingPolicy>
-            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"service":"${appName}","version":"${appVersion}","env":"${activeProfile}"}</customFields>
+                <includeMdcKeyName>traceId</includeMdcKeyName>
+                <includeMdcKeyName>userId</includeMdcKeyName>
+            </encoder>
         </appender>
-        <logger name="org.hibernate" level="warn" />
-        <root>
-            <appender-ref ref="JSON_FILE" />
+
+        <!-- 비동기 래퍼 -->
+        <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="JSON_FILE"/>
+            <queueSize>2048</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <neverBlock>false</neverBlock>
+        </appender>
+
+        <!-- Loki appender -->
+        <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+            <http>
+                <url>http://loki:3100/loki/api/v1/push</url>
+            </http>
+            <format>
+                <label>
+                    <pattern>app=${appName},env=${activeProfile},level=%level</pattern>
+                </label>
+                <message class="com.github.loki4j.logback.JsonLayout"/>
+            </format>
+        </appender>
+
+        <logger name="swyp_11.ssubom" level="debug"/>
+        <logger name="org.hibernate.SQL"           level="debug"/>
+        <logger name="org.hibernate.orm.jdbc.bind" level="debug"/>
+
+        <root level="info">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="ASYNC_JSON"/>
+            <appender-ref ref="LOKI"/>
         </root>
     </springProfile>
-
 </configuration>

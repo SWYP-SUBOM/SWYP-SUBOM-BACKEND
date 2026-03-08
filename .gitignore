@@ -55,3 +55,13 @@ application-secret.properties
 *.bak
 *.swp
 *~
+
+# Firebase credentials
+src/main/resources/firebase/
+**/firebase-service-account.json
+
+# monitoring system
+docker/.env
+
+# queryDSL gernerated
+/src/main/generated

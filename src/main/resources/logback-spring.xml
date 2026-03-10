@@ -67,7 +67,9 @@
                 <label>
                     <pattern>app=${appName},env=${activeProfile},level=%level</pattern>
                 </label>
-                <message class="com.github.loki4j.logback.JsonLayout"/>
+                <message>
+                    <pattern>level=%level logger=%logger{20} traceId=%X{traceId:-NO_TRACE} | %msg %ex</pattern>
+                </message>
             </format>
         </appender>
 
